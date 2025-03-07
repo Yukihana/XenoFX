@@ -13,9 +13,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ServiceOptions\" />
     <Folder Include="Services\Control\" />
     <Folder Include="Shared\Comparisons\" />
     <Folder Include="Shared\Data\" />

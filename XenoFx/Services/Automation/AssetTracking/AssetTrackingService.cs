@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Threading;
 using XenoFx.Services.Background.AssetIndexing;
-using XenoFx.Services.Utility.Profile;
+using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.SharedOptions;
 
 namespace XenoFx.Services.Automation.AssetTracking;
@@ -14,7 +14,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService, IDispo
     // Infrastructure
 
     private readonly IAssetIndexingService _assetIndexingService;
-    private readonly IProfileService _profileService;
+    private readonly IConfigurationService _profileService;
     private readonly ISharedOptionsService _sharedOptionsService;
     private readonly IOptions<AssetTrackingOptions> _options;
     private readonly ILogger<AssetTrackingService> _logger;
@@ -29,7 +29,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService, IDispo
 
     public AssetTrackingService(
         IAssetIndexingService assetIndexingService,
-        IProfileService profileService,
+        IConfigurationService profileService,
         ISharedOptionsService sharedOptionsService,
         IOptions<AssetTrackingOptions> options,
         ILogger<AssetTrackingService> logger)
@@ -67,6 +67,8 @@ public sealed partial class AssetTrackingService : IAssetTrackingService, IDispo
             return Interlocked.Increment(ref _eventId);
         }
     }
+
+    // Enumeration
 
     // Updates forwarding
 

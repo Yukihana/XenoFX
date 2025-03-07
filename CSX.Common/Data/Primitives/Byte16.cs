@@ -1,4 +1,6 @@
-﻿namespace CSX.Common.Data.Primitives;
+﻿using System;
+
+namespace CSX.Common.Data.Primitives;
 
 [Obsolete("Superceded by UInt128")]
 public readonly partial struct Byte16(ulong high, ulong low)

@@ -1,0 +1,57 @@
+﻿using CSX.Common.IO;
+using Microsoft.Extensions.Logging;
+using System.IO;
+using XenoFx.Environment;
+using XenoFx.Services.Utility.Profile.Models;
+
+namespace XenoFx.Services.Utility.Configuration;
+
+/// <summary>
+/// This class is meant to read the profile and handle providing operational parameters.
+/// </summary>
+public sealed partial class ConfigurationService : IConfigurationService
+{
+    // Infrastructure
+
+    private readonly ILogger<ConfigurationService> _logger;
+
+    // Data
+
+    private readonly XenoFxProfile _profile;
+    private readonly XenoFxOptions _options;
+    private readonly string _startupPath;
+    private readonly ParameterCache _cache = new();
+
+    public ConfigurationService(XenoFxConfiguration configuration, ILogger<ConfigurationService> logger)
+    {
+        _logger = logger;
+
+        _startupPath = configuration.StartupPath;
+        _profile = configuration.Profile;
+        _options = configuration.Options;
+
+        GenerateCache();
+    }
+
+    private void GenerateCache()
+    {
+        _cache.BaseDirectory
+            = Path.GetDirectoryName(_startupPath)
+            ?? Directory.GetCurrentDirectory();
+
+        _cache.AssetsDirectory = Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
+    }
+
+    // Core Data
+
+    public PathFilterConfiguration AssetPathFilterConfiguration
+        => _profile.AssetFilterConfig.Copy();
+
+    // Derived Data
+
+    public string BaseDirectory
+        => _cache.BaseDirectory;
+
+    public string AssetsDirectory
+        => Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
+}
