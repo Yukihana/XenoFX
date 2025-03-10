@@ -6,7 +6,7 @@ public static partial class XenoFxConstants
 {
     // Value Constants
 
-    public const string DefaultProfileExtension = ".xnf";
+    public const string DefaultProfileExtension = ".xfp";
 
     // Composite Constants
 

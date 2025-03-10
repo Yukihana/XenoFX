@@ -14,4 +14,8 @@ public sealed partial class XenoFxProfile
     // Parameters
 
     public PathFilterConfiguration AssetFilterConfig { get; set; } = new();
+
+    // Hosted
+
+    public ulong AssetEnumerationIntervalSeconds { get; set; } = 900;
 }

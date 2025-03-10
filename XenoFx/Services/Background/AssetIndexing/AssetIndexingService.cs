@@ -1,10 +1,16 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace XenoFx.Services.Background.AssetIndexing;
 
 public sealed partial class AssetIndexingService : IAssetIndexingService
 {
+    public async Task OnFilesEnumerated(string[] files, CancellationToken ctoken = default)
+    {
+        await Task.Yield();
+    }
+
     public async Task OnFileCreated(FileSystemEventArgs e)
     {
         await Task.Yield();

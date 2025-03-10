@@ -1,4 +1,4 @@
-using XenoServe.OfflineProfile;
+using Serilog;
 using XenoFx.Environment;
 
 namespace XenoServe;
@@ -7,13 +7,39 @@ public class Program
 {
     public async static Task Main(string[] args)
     {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
+
+        try
+        {
+            // Build the application
+            WebApplication app = await Build(args);
+
+            // Run it here, not inside the method that built it.
+            await app.RunAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Application terminated unexpectedly");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+
+    public async static Task<WebApplication> Build(string[] args)
+    {
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
         await builder.Services.AddXenoFx(builder.Configuration);
 
+        /*
         builder.Services.AddSingleton(new NitefoxTracker());
         builder.Services.AddScoped<NitefoxCore>();
+        */
 
         builder.Services.AddControllers();
 
@@ -23,6 +49,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        // Build DI
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -41,6 +68,6 @@ public class Program
 
         app.MapControllers();
 
-        await app.RunAsync();
+        return app;
     }
 }

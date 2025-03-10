@@ -1,0 +1,12 @@
+{
+  "AssetsDatabasePath": "XenoAssets.sqlite",
+  "AssetsDirectory": "Assets",
+  "CacheDirectory": "Cache",
+  "ThumbsDirectory": "Thumbs",
+  "AssetFilterConfig": {
+    "Greylist": [],
+    "Blacklist": [],
+    "Whitelist": []
+  },
+  "AssetEnumerationIntervalSeconds": 900
+}

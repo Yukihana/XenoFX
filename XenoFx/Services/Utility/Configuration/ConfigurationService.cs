@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.IO;
 using XenoFx.Environment;
+using XenoFx.Services.Utility.Configuration.Models;
 using XenoFx.Services.Utility.Profile.Models;
 
 namespace XenoFx.Services.Utility.Configuration;
@@ -20,7 +21,12 @@ public sealed partial class ConfigurationService : IConfigurationService
     private readonly XenoFxProfile _profile;
     private readonly XenoFxOptions _options;
     private readonly string _startupPath;
+
     private readonly ParameterCache _cache = new();
+
+    // Exposed (TODO decide if this needs to be encapsulated)
+
+    public RuntimeContext RuntimeContext { get; } = new();
 
     public ConfigurationService(XenoFxConfiguration configuration, ILogger<ConfigurationService> logger)
     {
@@ -54,4 +60,9 @@ public sealed partial class ConfigurationService : IConfigurationService
 
     public string AssetsDirectory
         => Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
+
+    // Hosted
+
+    public ulong AssetEnumerationIntervalSeconds
+        => _profile.AssetEnumerationIntervalSeconds;
 }

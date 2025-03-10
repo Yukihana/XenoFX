@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace XenoFx.Services.AssetApi;
+namespace XenoFx.Services.Api.AssetApi;
 
 public sealed partial class AssetApiService : IAssetApiService
 {
