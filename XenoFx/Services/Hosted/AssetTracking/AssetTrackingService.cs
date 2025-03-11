@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Utility.Configuration;
+using XenoFx.Services.Utility.PathValidator;
 
 namespace XenoFx.Services.Hosted.AssetTracking;
 
@@ -14,6 +16,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
     // Infrastructure
 
     private readonly IAssetIndexingService _assetIndexing;
+    private readonly IPathValidatorService _pathValidator;
     private readonly IConfigurationService _configuration;
     private readonly ILogger<AssetTrackingService> _logger;
 
@@ -37,10 +40,12 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
 
     public AssetTrackingService(
         IAssetIndexingService assetIndexing,
+        IPathValidatorService pathValidator,
         IConfigurationService configuration,
         ILogger<AssetTrackingService> logger)
     {
         _assetIndexing = assetIndexing;
+        _pathValidator = pathValidator;
         _configuration = configuration;
         _configuration.RuntimeContext.AssetTrackingConfigurationUpdatedCallback = OnConfigurationUpdated;
         _logger = logger;
@@ -144,37 +149,56 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
 
     // FileSystemWatcher Events
     // - Check config anyway incase update-sync is late.
+    // - Discard and re-route based on path filtering.
     // - Register and hand the task off to its own thread.
     // - Then run a contiguous partial cleanup for completed tasks.
 
     private void OnCreated(object sender, FileSystemEventArgs e)
     {
-        if (_configuration.RuntimeContext.EnableAssetTracking)
-            _taskBag.Add(Task.Run(async () => await OnCreatedAsync(e, _cts.Token)));
+        if (!_configuration.RuntimeContext.EnableAssetTracking ||
+            !_pathValidator.TryTruncateAssetPath(e.FullPath, out string? path))
+            return;
 
+        _taskBag.Add(Task.Run(async () => await OnCreatedAsync(path, e, _cts.Token)));
         RunPartialCleanup();
     }
 
     private void OnDeleted(object sender, FileSystemEventArgs e)
     {
-        if (_configuration.RuntimeContext.EnableAssetTracking)
-            _taskBag.Add(Task.Run(async () => await OnDeletedAsync(e, _cts.Token)));
+        if (!_configuration.RuntimeContext.EnableAssetTracking ||
+            !_pathValidator.TryTruncateAssetPath(e.FullPath, out string? path))
+            return;
 
-        RunPartialCleanup();
-    }
-
-    private void OnRenamed(object sender, RenamedEventArgs e)
-    {
-        if (_configuration.RuntimeContext.EnableAssetTracking)
-            _taskBag.Add(Task.Run(async () => await OnRenamedAsync(e, _cts.Token)));
-
+        _taskBag.Add(Task.Run(async () => await OnDeletedAsync(path, e, _cts.Token)));
         RunPartialCleanup();
     }
 
     private void OnModified(object sender, FileSystemEventArgs e)
     {
-        if (_configuration.RuntimeContext.EnableAssetTracking)
-            _taskBag.Add(Task.Run(async () => await OnModifiedAsync(e, _cts.Token)));
+        if (!_configuration.RuntimeContext.EnableAssetTracking ||
+            !_pathValidator.TryTruncateAssetPath(e.FullPath, out string? path))
+            return;
+
+        _taskBag.Add(Task.Run(async () => await OnModifiedAsync(path, e, _cts.Token)));
+        RunPartialCleanup();
+    }
+
+    private void OnRenamed(object sender, RenamedEventArgs e)
+    {
+        if (!_configuration.RuntimeContext.EnableAssetTracking)
+            return;
+
+        bool oldValid = _pathValidator.TryTruncateAssetPath(e.OldFullPath, out string? oldPath);
+        bool newValid = _pathValidator.TryTruncateAssetPath(e.FullPath, out string? newPath);
+
+        if (oldValid && oldPath is not null && newValid && newPath is not null)
+            _taskBag.Add(Task.Run(async () => await OnRenamedAsync(oldPath!, newPath!, e, _cts.Token)));
+        else if (oldValid)
+            _taskBag.Add(Task.Run(async () => await OnDeletedAsync(oldPath!, e, _cts.Token)));
+        else if (newValid)
+            _taskBag.Add(Task.Run(async () => await OnCreatedAsync(newPath!, e, _cts.Token)));
+        else
+            return;
 
         RunPartialCleanup();
     }
@@ -189,27 +213,27 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
 
     // FileSystemWatcher initiated Tasks
 
-    private async Task OnCreatedAsync(FileSystemEventArgs e, CancellationToken ctoken = default)
+    private async Task OnCreatedAsync(string relativePath, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
     {
         ulong eventId = GetNextId();
         try
         {
-            _logger.LogInformation("[E{id}] File created: {path}", eventId, e.FullPath);
-            await _assetIndexing.OnFileCreatedAsync(e);
+            _logger.LogInformation("[E{id}] File created: {path}", eventId, eventArgs.FullPath);
+            await _assetIndexing.OnFileCreatedAsync(relativePath, eventArgs, ctoken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[E{id} Error] On file created: {path}", eventId, e.FullPath);
+            _logger.LogError(ex, "[E{id} Error] On file created: {path}", eventId, eventArgs.FullPath);
         }
     }
 
-    private async Task OnDeletedAsync(FileSystemEventArgs e, CancellationToken ctoken = default)
+    private async Task OnDeletedAsync(string relativePath, FileSystemEventArgs e, CancellationToken ctoken = default)
     {
         ulong eventId = GetNextId();
         try
         {
             _logger.LogInformation("[E{id}] File deleted: {file}", eventId, e.FullPath);
-            await _assetIndexing.OnFileDeletedAsync(e);
+            await _assetIndexing.OnFileDeletedAsync(relativePath, e, ctoken);
         }
         catch (Exception ex)
         {
@@ -217,32 +241,32 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         }
     }
 
-    private async Task OnRenamedAsync(RenamedEventArgs e, CancellationToken ctoken = default)
-    {
-        ulong eventId = GetNextId();
-        try
-        {
-            _logger.LogInformation("[E{id}] File renamed: {file} from {old}", eventId, e.FullPath, e.OldFullPath);
-            await _assetIndexing.OnFileRenamedAsync(e);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "[E{id} Error] On file renamed: {path}", eventId, e.FullPath);
-        }
-    }
-
-    private async Task OnModifiedAsync(FileSystemEventArgs e, CancellationToken ctoken = default)
+    private async Task OnModifiedAsync(string relativePath, FileSystemEventArgs e, CancellationToken ctoken = default)
     {
         ulong eventId = 0;
         try
         {
             eventId = GetNextId();
             _logger.LogInformation("[E{id}] File modified: {file}", eventId, e.FullPath);
-            await _assetIndexing.OnFileModifiedAsync(e);
+            await _assetIndexing.OnFileModifiedAsync(relativePath, e, ctoken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[E{id} Error] On file modified: {path}", eventId, e.FullPath);
+        }
+    }
+
+    private async Task OnRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default)
+    {
+        ulong eventId = GetNextId();
+        try
+        {
+            _logger.LogInformation("[E{id}] File renamed: {file} from {old}", eventId, e.FullPath, e.OldFullPath);
+            await _assetIndexing.OnFileRenamedAsync(oldPath, newPath, e, ctoken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[E{id} Error] On file renamed: {path}", eventId, e.FullPath);
         }
     }
 
@@ -252,7 +276,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         try
         {
             _logger.LogInformation("[E{id}] File system error encountered: {msg}", eventId, e.GetException()?.Message);
-            await _assetIndexing.OnFileSystemErrorAsync(e);
+            await _assetIndexing.OnFileSystemErrorAsync(e, ctoken);
         }
         catch (Exception ex)
         {

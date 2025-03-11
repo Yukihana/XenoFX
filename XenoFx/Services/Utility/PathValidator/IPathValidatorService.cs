@@ -1,6 +1,9 @@
-﻿namespace XenoFx.Services.Utility.PathValidator;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+
+namespace XenoFx.Services.Utility.PathValidator;
 
 public interface IPathValidatorService
 {
-    bool ValidateAssetPath(string path);
+    bool TryTruncateAssetPath(string path, [NotNullWhen(true)] out string? relativePath);
 }

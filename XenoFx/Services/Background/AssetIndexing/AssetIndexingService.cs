@@ -35,28 +35,33 @@ public sealed partial class AssetIndexingService : IAssetIndexingService
         return Task.CompletedTask;
     }
 
-    public async Task OnFileCreatedAsync(FileSystemEventArgs e, CancellationToken ctoken = default)
+    public Task OnFileCreatedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
     {
-        await Task.Yield();
+        _logger.LogWarning("Indexing not implemented.");
+        return Task.CompletedTask;
     }
 
-    public async Task OnFileDeletedAsync(FileSystemEventArgs e, CancellationToken ctoken = default)
+    public Task OnFileDeletedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
     {
-        await Task.Yield();
+        _logger.LogWarning("Indexing not implemented.");
+        return Task.CompletedTask;
     }
 
-    public async Task OnFileModifiedAsync(FileSystemEventArgs e, CancellationToken ctoken = default)
+    public Task OnFileModifiedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
     {
-        await Task.Yield();
+        _logger.LogWarning("Indexing not implemented.");
+        return Task.CompletedTask;
     }
 
-    public async Task OnFileRenamedAsync(RenamedEventArgs e, CancellationToken ctoken = default)
+    public Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default)
     {
-        await Task.Yield();
+        _logger.LogWarning("Indexing not implemented.");
+        return Task.CompletedTask;
     }
 
-    public async Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default)
+    public Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default)
     {
-        await Task.Yield();
+        _logger.LogWarning("Indexing not implemented.");
+        return Task.CompletedTask;
     }
 }

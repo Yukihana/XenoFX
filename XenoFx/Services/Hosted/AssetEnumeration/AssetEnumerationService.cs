@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -73,10 +74,16 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
 
-        return [.. Directory
-            .GetFiles(path, "*.*", SearchOption.AllDirectories)
-            .Select(x => Path.GetRelativePath(path, x))
-            .Where(_pathValidator.ValidateAssetPath)];
+        string[] allItems = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+        List<string> validatedRelatives = [];
+
+        foreach (var item in allItems)
+        {
+            if (_pathValidator.TryTruncateAssetPath(item, out string? relativePath))
+                validatedRelatives.Add(relativePath);
+        }
+
+        return [.. validatedRelatives];
     }
 
     // IHostedService

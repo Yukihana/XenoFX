@@ -59,7 +59,9 @@ public sealed partial class ConfigurationService : IConfigurationService
         => _cache.BaseDirectory;
 
     public string AssetsDirectory
-        => Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
+        => Path.IsPathFullyQualified(_profile.AssetsDirectory)
+        ? _profile.AssetsDirectory
+        : Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
 
     // Hosted
 

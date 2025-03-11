@@ -18,7 +18,7 @@ public static partial class PathFilterExtensions
 
         return Directory
             .GetFiles(path, "*.*", SearchOption.AllDirectories)
-            .Distinct(FilenameExtensions.FilenameComparer)
+            .Distinct(FilenameNormalization.FilenameComparer)
             .AsParallel().AsOrdered()
             .Where(config.Validate)
             .ToArray();

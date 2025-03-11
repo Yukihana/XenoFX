@@ -3,13 +3,13 @@ using System.IO.Enumeration;
 
 namespace CSX.Common.Platform;
 
-public static class FilenameExtensions
+public static class FilenameNormalization
 {
     private static readonly bool _platformIsCaseSensitive;
     private static readonly StringComparison _filenameComparison;
     private static readonly StringComparer _filenameComparer;
 
-    static FilenameExtensions()
+    static FilenameNormalization()
     {
         _platformIsCaseSensitive = !(
             OperatingSystem.IsWindows() ||
