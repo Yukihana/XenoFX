@@ -57,7 +57,7 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
             // Do work if allowed
             if (_configuration.RuntimeContext.EnableAssetEnumeration)
             {
-                await _assetIndexing.OnFilesEnumerated(ListFiles(), ctoken);
+                await _assetIndexing.OnFilesEnumeratedAsync(ListFiles(), ctoken);
             }
 
             // Reset timer after task is completed to prevent zero interval edge case.
@@ -104,7 +104,7 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
         {
             if (_enumerationTask is not null && !_enumerationTask.IsCompleted)
             {
-                _cts.Cancel();
+                await _cts.CancelAsync();
                 await _enumerationTask.WaitAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
                 _enumerationTask = null;
             }

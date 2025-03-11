@@ -14,19 +14,19 @@ public sealed partial class AssetSearchService : IAssetSearchService
         _assetAbstraction = assetAbstraction;
     }
 
-    public async Task<string[]> GetHave(CancellationToken ctoken = default)
+    public async Task<string[]> GetHaveAsync(CancellationToken ctoken = default)
     {
         await Task.Yield();
         return [];
     }
 
-    public async Task<string[]> GetHave(string searchString, CancellationToken ctoken = default)
+    public async Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default)
     {
         await Task.Yield();
         return [];
     }
 
-    public async Task<Dictionary<string, float>> Search(string searchString, CancellationToken ctoken = default)
+    public async Task<Dictionary<string, float>> SearchAsync(string searchString, CancellationToken ctoken = default)
     {
         await Task.Yield();
         return [];

@@ -6,9 +6,9 @@ namespace XenoFx.Services.Api.AssetSearch;
 
 public interface IAssetSearchService
 {
-    Task<string[]> GetHave(CancellationToken ctoken = default);
+    Task<string[]> GetHaveAsync(CancellationToken ctoken = default);
 
-    Task<string[]> GetHave(string searchString, CancellationToken ctoken = default);
+    Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default);
 
-    Task<Dictionary<string, float>> Search(string searchString, CancellationToken ctoken = default);
+    Task<Dictionary<string, float>> SearchAsync(string searchString, CancellationToken ctoken = default);
 }

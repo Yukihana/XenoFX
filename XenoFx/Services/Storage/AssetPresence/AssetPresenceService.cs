@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace XenoFx.Services.AssetPresence;
+namespace XenoFx.Services.Storage.AssetPresence;
 
 public sealed partial class AssetPresenceService(ILogger<AssetPresenceService> logger) : IAssetPresenceService
 {
@@ -15,64 +17,54 @@ public sealed partial class AssetPresenceService(ILogger<AssetPresenceService> l
 
     // Data
 
-    private readonly ReaderWriterLockSlim _lock = new();
     private ulong _stateCounter = 0;
-
     private readonly ConcurrentDictionary<string, UInt128> Presences = [];
 
     // State : Any change should trigger a change
 
     private void OnUpdated()
-    {
-        unchecked
-        {
-            Interlocked.Increment(ref _stateCounter);
-        }
-    }
+        => Interlocked.Increment(ref _stateCounter);
 
-    public ulong StateCounter => Interlocked.Read(ref _stateCounter);
+    public ulong StateCounter
+        => Interlocked.Read(ref _stateCounter);
 
     // Registrations : Add, Remove only, since asset will be taken down for reevaluation anyway in case of changes.
 
-    public void Create(string path, UInt128 id = default)
+    public int LegacyRegisterBulk(string[] files)
     {
-        _lock.EnterWriteLock();
-        try
+        int counter = 0;
+        foreach (string file in files)
         {
-            Presences.TryAdd(path, id);
-            OnUpdated();
+            if (Create(file))
+                counter++;
         }
-        finally { _lock.ExitWriteLock(); }
+        return counter;
+    }
+
+    public bool Create(string path, UInt128 id = default)
+    {
+        bool success = Presences.TryAdd(path, id);
+        if (success)
+            OnUpdated();
+        return success;
     }
 
     public void Remove(string path)
     {
-        _lock.EnterWriteLock();
-        try
-        {
-            Presences.TryRemove(path, out _);
-            OnUpdated();
-        }
-        finally { _lock.ExitWriteLock(); }
+        Presences.TryRemove(path, out _);
+        OnUpdated();
     }
 
     public void Remove(UInt128 id)
     {
-        _lock.EnterUpgradeableReadLock();
-        try
-        {
-            var paths = Presences.Where(x => x.Value.Equals(id)).Select(x => x.Key).ToList();
+        var paths = Presences
+            .Where(x => x.Value.Equals(id))
+            .Select(x => x.Key)
+            .ToList();
 
-            _lock.EnterWriteLock();
-            try
-            {
-                foreach (var path in paths)
-                    Presences.TryRemove(path, out _);
-                OnUpdated();
-            }
-            finally { _lock.ExitWriteLock(); }
-        }
-        finally { _lock.ExitUpgradeableReadLock(); }
+        foreach (var path in paths)
+            Presences.TryRemove(path, out _);
+        OnUpdated();
     }
 
     // Queries

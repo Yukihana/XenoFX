@@ -4,7 +4,7 @@ public class NitefoxCore(NitefoxTracker tracker)
 {
     private readonly NitefoxTracker _tracker = tracker;
 
-    internal async Task<IEnumerable<(string, string)>> GetHaveAsset(string id)
+    internal async Task<IEnumerable<(string, string)>> GetHaveAssetAsync(string id)
     {
         await Task.Yield();
         var assets = _tracker.GetCopy();

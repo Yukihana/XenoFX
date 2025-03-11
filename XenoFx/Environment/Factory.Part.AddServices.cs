@@ -4,10 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;
-using XenoFx.Services.AssetPresence;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Hosted.AssetEnumeration;
 using XenoFx.Services.Hosted.AssetTracking;
+using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
 
@@ -16,14 +16,14 @@ namespace XenoFx.Environment;
 public static partial class FactoryExtensions
 {
     //
-    public async static Task<IServiceCollection> AddXenoFx(
+    public async static Task<IServiceCollection> AddXenoFxAsync(
         this IServiceCollection services,
         IConfiguration configuration,
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
-        XenoFxConfiguration xfc = await configuration.GetXenoFxConfiguration(ctoken: ctoken);
+        XenoFxConfiguration xfc = await configuration.GetXenoFxConfigurationAsync(ctoken: ctoken);
         return services.AddXenoFx(xfc, ctoken);
     }
 
@@ -51,11 +51,10 @@ public static partial class FactoryExtensions
         services.AddSingleton<IAssetIndexingService, AssetIndexingService>();
 
         // Hosted layer
-
         services.AddSingleton<IAssetTrackingService, AssetTrackingService>();
-        services.AddHostedService(provider => provider.GetRequiredService<IAssetTrackingService>());
-
         services.AddSingleton<IAssetEnumerationService, AssetEnumerationService>();
+
+        services.AddHostedService(provider => provider.GetRequiredService<IAssetTrackingService>());
         services.AddHostedService(provider => provider.GetRequiredService<IAssetEnumerationService>());
 
         // API layer

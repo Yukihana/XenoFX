@@ -8,17 +8,17 @@ public interface IAssetIndexingService
 {
     // Hosted source : AssetEnumeration
 
-    Task OnFilesEnumerated(string[] files, CancellationToken ctoken);
+    Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default);
 
     // Hosted source : AssetTracking
 
-    Task OnFileCreated(FileSystemEventArgs e);
+    Task OnFileCreatedAsync(FileSystemEventArgs e, CancellationToken ctoken = default);
 
-    Task OnFileDeleted(FileSystemEventArgs e);
+    Task OnFileDeletedAsync(FileSystemEventArgs e, CancellationToken ctoken = default);
 
-    Task OnFileModified(FileSystemEventArgs e);
+    Task OnFileModifiedAsync(FileSystemEventArgs e, CancellationToken ctoken = default);
 
-    Task OnFileRenamed(RenamedEventArgs e);
+    Task OnFileRenamedAsync(RenamedEventArgs e, CancellationToken ctoken = default);
 
-    Task OnFileSystemError(ErrorEventArgs e);
+    Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default);
 }

@@ -15,10 +15,10 @@ public static partial class FactoryExtensions
         return configurationSection.Get<XenoFxOptions>() ?? new();
     }
 
-    public async static Task<XenoFxConfiguration> GetXenoFxConfiguration(this IConfiguration configuration, CancellationToken ctoken = default)
+    public async static Task<XenoFxConfiguration> GetXenoFxConfigurationAsync(this IConfiguration configuration, CancellationToken ctoken = default)
     {
         XenoFxOptions options = configuration.GetXenoFxOptions();
-        (XenoFxProfile profile, string startupPath) = await options.GetProfile(ctoken: ctoken);
+        (XenoFxProfile profile, string startupPath) = await options.GetProfileAsync(ctoken: ctoken);
         return new(
             startupPath: startupPath,
             profile: profile,
@@ -36,7 +36,7 @@ public static partial class FactoryExtensions
         return options.StartupPath;
     }
 
-    public async static Task<(XenoFxProfile, string)> GetProfile(this XenoFxOptions options, CancellationToken ctoken = default)
+    public async static Task<(XenoFxProfile, string)> GetProfileAsync(this XenoFxOptions options, CancellationToken ctoken = default)
     {
         string providedPath = options.GetProfilePath();
 
@@ -46,8 +46,8 @@ public static partial class FactoryExtensions
             // try load if exists, else create new.
             XenoFxProfile profile
                 = File.Exists(providedPath)
-                ? await LoadProfile(providedPath, ctoken)
-                : await CreateProfile(providedPath, ctoken);
+                ? await LoadProfileAsync(providedPath, ctoken)
+                : await CreateProfileAsync(providedPath, ctoken);
 
             return (profile, providedPath);
         }
@@ -65,16 +65,16 @@ public static partial class FactoryExtensions
         foreach (string path in testPaths)
         {
             if (File.Exists(path))
-                return (await LoadProfile(path, ctoken), path);
+                return (await LoadProfileAsync(path, ctoken), path);
         }
 
         // If none of those files exist, create a profile based on the first default name
         string fallbackPath = testPaths.First();
-        XenoFxProfile fallbackProfile = await CreateProfile(fallbackPath, ctoken);
+        XenoFxProfile fallbackProfile = await CreateProfileAsync(fallbackPath, ctoken);
         return (fallbackProfile, fallbackPath);
     }
 
-    public static async Task<XenoFxProfile> LoadProfile(string profilePath, CancellationToken ctoken = default)
+    public static async Task<XenoFxProfile> LoadProfileAsync(string profilePath, CancellationToken ctoken = default)
     {
         using FileStream fs = File.OpenRead(profilePath);
         return await JsonSerializer.DeserializeAsync<XenoFxProfile>(
@@ -84,7 +84,7 @@ public static partial class FactoryExtensions
             ?? throw new InvalidDataException("Provided path isn't a valid XenoFx Profile.");
     }
 
-    public static async Task<XenoFxProfile> CreateProfile(string profilePath, CancellationToken ctoken = default)
+    public static async Task<XenoFxProfile> CreateProfileAsync(string profilePath, CancellationToken ctoken = default)
     {
         XenoFxProfile profile = new();
         using FileStream fs = File.Create(profilePath);

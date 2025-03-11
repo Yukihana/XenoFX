@@ -27,8 +27,8 @@ public partial class XenoService
         throw new NotImplementedException();
     }
 
-    public async Task Initialize(CancellationToken ctoken = default)
+    public async Task InitializeAsync(CancellationToken ctoken = default)
     {
-        await BuildEnvironment(ctoken);
+        await BuildEnvironmentAsync(ctoken);
     }
 }

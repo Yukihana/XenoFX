@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace XenoFx.Services.AssetPresence;
+namespace XenoFx.Services.Storage.AssetPresence;
 
 public interface IAssetPresenceService
 {
     // Registrations
 
-    void Create(string path, UInt128 id = default);
+    int LegacyRegisterBulk(string[] paths);
+
+    bool Create(string path, UInt128 id = default);
 
     void Remove(string path);
 

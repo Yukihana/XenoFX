@@ -2,7 +2,7 @@
 
 public sealed partial class XenoFxOptions
 {
-    public const string SectionTitle = "XenoFxConfiguration";
+    public const string SectionTitle = "XenoFxOptions";
 
     public string StartupPath { get; set; } = "XenoFxWorkspace";
 

@@ -5,7 +5,7 @@ namespace XenoFx.Environment;
 
 public static partial class Factory
 {
-    public async static Task<XenoFxConfiguration> GetDefaultConfiguration(CancellationToken ctoken = default)
+    public async static Task<XenoFxConfiguration> GetDefaultConfigurationAsync(CancellationToken ctoken = default)
     {
         await Task.Yield();
         // Skip actual reading and generate defaults

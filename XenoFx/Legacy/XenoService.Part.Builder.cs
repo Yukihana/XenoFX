@@ -16,7 +16,7 @@ public partial class XenoService
 
     // Build
 
-    private async Task BuildEnvironment(CancellationToken ctoken = default)
+    private async Task BuildEnvironmentAsync(CancellationToken ctoken = default)
     {
         await Task.Yield();
 

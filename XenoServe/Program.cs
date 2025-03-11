@@ -14,7 +14,7 @@ public class Program
         try
         {
             // Build the application
-            WebApplication app = await Build(args);
+            WebApplication app = await BuildAsync(args);
 
             // Run it here, not inside the method that built it.
             await app.RunAsync();
@@ -25,16 +25,16 @@ public class Program
         }
         finally
         {
-            Log.CloseAndFlush();
+            await Log.CloseAndFlushAsync();
         }
     }
 
-    public async static Task<WebApplication> Build(string[] args)
+    public async static Task<WebApplication> BuildAsync(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        await builder.Services.AddXenoFx(builder.Configuration);
+        await builder.Services.AddXenoFxAsync(builder.Configuration);
 
         /*
         builder.Services.AddSingleton(new NitefoxTracker());

@@ -8,13 +8,13 @@ namespace XenoFx.Environment;
 public static partial class Factory
 {
     // TODO Documentation: Creates a default container for the framework's services.
-    public async static Task<IServiceProvider> Create(CancellationToken ctoken = default)
+    public async static Task<IServiceProvider> CreateAsync(CancellationToken ctoken = default)
     {
-        XenoFxConfiguration configuration = await GetDefaultConfiguration(ctoken);
+        XenoFxConfiguration configuration = await GetDefaultConfigurationAsync(ctoken);
         return Create(configuration);
     }
 
-    public async static Task<IServiceProvider> Create(string path, bool useCommandLine = false, CancellationToken ctoken = default)
+    public async static Task<IServiceProvider> CreateAsync(string path, bool useCommandLine = false, CancellationToken ctoken = default)
     {
         XenoFxOptions options = new()
         {
@@ -22,12 +22,12 @@ public static partial class Factory
             UseCommandLine = useCommandLine
         };
 
-        return await Create(options, ctoken);
+        return await CreateAsync(options, ctoken);
     }
 
-    public async static Task<IServiceProvider> Create(XenoFxOptions options, CancellationToken ctoken = default)
+    public async static Task<IServiceProvider> CreateAsync(XenoFxOptions options, CancellationToken ctoken = default)
     {
-        (XenoFxProfile profile, string startupPath) = await options.GetProfile(ctoken);
+        (XenoFxProfile profile, string startupPath) = await options.GetProfileAsync(ctoken);
 
         return Create(startupPath, profile, options);
     }
