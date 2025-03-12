@@ -12,7 +12,6 @@ public sealed partial class PathFilter
     {
         // Precompile the patterns once for efficiency
         _whiteMatcher.AddIncludePatterns(config.Whitelist);
-
         _greyMatcher.AddIncludePatterns(config.Greylist);
         _greyMatcher.AddExcludePatterns(config.Blacklist);
     }

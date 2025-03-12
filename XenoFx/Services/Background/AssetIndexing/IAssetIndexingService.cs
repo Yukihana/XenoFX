@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,6 +7,10 @@ namespace XenoFx.Services.Background.AssetIndexing;
 
 public interface IAssetIndexingService
 {
+    // Callback
+
+    Func<string[]>? EnumerateCallback { get; set; }
+
     // Hosted source : AssetEnumeration
 
     Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default);

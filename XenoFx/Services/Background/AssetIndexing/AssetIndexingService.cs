@@ -24,44 +24,4 @@ public sealed partial class AssetIndexingService : IAssetIndexingService
         _configuration = configuration;
         _logger = logger;
     }
-
-    public Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default)
-    {
-        ctoken.ThrowIfCancellationRequested();
-
-        // Legacy Code
-        _assetPresence.LegacyRegisterBulk(files);
-
-        return Task.CompletedTask;
-    }
-
-    public Task OnFileCreatedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
-    {
-        _logger.LogWarning("Indexing not implemented.");
-        return Task.CompletedTask;
-    }
-
-    public Task OnFileDeletedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
-    {
-        _logger.LogWarning("Indexing not implemented.");
-        return Task.CompletedTask;
-    }
-
-    public Task OnFileModifiedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
-    {
-        _logger.LogWarning("Indexing not implemented.");
-        return Task.CompletedTask;
-    }
-
-    public Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default)
-    {
-        _logger.LogWarning("Indexing not implemented.");
-        return Task.CompletedTask;
-    }
-
-    public Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default)
-    {
-        _logger.LogWarning("Indexing not implemented.");
-        return Task.CompletedTask;
-    }
 }

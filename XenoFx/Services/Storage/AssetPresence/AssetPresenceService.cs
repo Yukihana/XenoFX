@@ -30,7 +30,7 @@ public sealed partial class AssetPresenceService(ILogger<AssetPresenceService> l
 
     // Registrations : Add, Remove only, since asset will be taken down for reevaluation anyway in case of changes.
 
-    public int LegacyRegisterBulk(string[] files)
+    public int TotalRefresh(string[] files)
     {
         int counter = 0;
         foreach (string file in files)

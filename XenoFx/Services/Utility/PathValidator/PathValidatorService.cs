@@ -29,7 +29,7 @@ public sealed partial class PathValidatorService : IPathValidatorService
             string fullPath = Path.GetFullPath(path);
 
             // Bail if root doesn't match. Else attempt to get relative path.
-            if (fullPath.StartsWith(fullBasePath, FilenameNormalization.FilenameComparison))
+            if (!fullPath.StartsWith(fullBasePath, FilenameNormalization.FilenameComparison))
                 return false;
             relativePath = Path.GetRelativePath(fullBasePath, fullPath);
 

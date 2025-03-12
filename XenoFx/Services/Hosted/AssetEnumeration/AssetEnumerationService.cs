@@ -39,6 +39,23 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
         _pathValidator = pathValidator;
         _configuration = configuration;
         _logger = logger;
+
+        _assetIndexing.EnumerateCallback = EnumerateFiles;
+    }
+
+    public void Dispose()
+    {
+        _lock.Wait();
+        try
+        {
+            _cts.Cancel();
+            _assetIndexing.EnumerateCallback = null;
+
+            _enumerationTask?.Wait();
+        }
+        catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
+        { }
+        finally { _lock.Release(); }
     }
 
     // Task
@@ -152,21 +169,6 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
                 _enumerationTask = null;
             }
         }
-        finally { _lock.Release(); }
-    }
-
-    // IDisposable
-
-    public void Dispose()
-    {
-        _lock.Wait();
-        try
-        {
-            _cts.Cancel();
-            _enumerationTask?.Wait();
-        }
-        catch (AggregateException ex) when (ex.InnerExceptions.All(e => e is TaskCanceledException))
-        { }
         finally { _lock.Release(); }
     }
 }

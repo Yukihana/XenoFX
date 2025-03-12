@@ -8,7 +8,7 @@ public interface IAssetPresenceService
 {
     // Registrations
 
-    int LegacyRegisterBulk(string[] paths);
+    int TotalRefresh(string[] paths);
 
     bool Create(string path, UInt128 id = default);
 
