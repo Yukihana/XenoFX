@@ -1,4 +1,5 @@
 ﻿using CSX.Common.IO;
+using CSX.Common.IO.Paths;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using XenoFx.Environment;
@@ -45,7 +46,7 @@ public sealed partial class ConfigurationService : IConfigurationService
             = Path.GetDirectoryName(_startupPath)
             ?? Directory.GetCurrentDirectory();
 
-        _cache.AssetsDirectory = Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
+        _cache.AssetsDirectory = PathExtensions.ResolveCombine(_cache.BaseDirectory, _profile.AssetsDirectory);
     }
 
     // Core Data
@@ -59,9 +60,7 @@ public sealed partial class ConfigurationService : IConfigurationService
         => _cache.BaseDirectory;
 
     public string AssetsDirectory
-        => Path.IsPathFullyQualified(_profile.AssetsDirectory)
-        ? _profile.AssetsDirectory
-        : Path.Combine(_cache.BaseDirectory, _profile.AssetsDirectory);
+        => _cache.AssetsDirectory;
 
     // Hosted
 

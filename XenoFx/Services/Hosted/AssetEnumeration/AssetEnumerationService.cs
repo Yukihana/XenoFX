@@ -45,6 +45,10 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
 
     private async Task ExecuteAsync(CancellationToken ctoken = default)
     {
+        _logger.LogInformation("Service starting for enumeration root: {path}", _configuration.AssetsDirectory);
+        await EnumerateAndIndexAsync(ctoken);
+
+        // Repeat
         TimeSpan interval = TimeSpan.FromSeconds(_configuration.AssetEnumerationIntervalSeconds);
         Stopwatch stopwatch = new();
 
@@ -55,35 +59,67 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
             if (stopwatch.ElapsedMilliseconds < interval.TotalMilliseconds)
                 continue;
 
-            // Do work if allowed
-            if (_configuration.RuntimeContext.EnableAssetEnumeration)
-            {
-                await _assetIndexing.OnFilesEnumeratedAsync(ListFiles(), ctoken);
-            }
-
-            // Reset timer after task is completed to prevent zero interval edge case.
+            // Do work and reset timer.
+            await EnumerateAndIndexAsync(ctoken);
             stopwatch.Restart();
         }
     }
 
-    // Enumeration API
+    private async Task EnumerateAndIndexAsync(CancellationToken ctoken = default)
+    {
+        try
+        {
+            ctoken.ThrowIfCancellationRequested();
 
-    public string[] ListFiles()
+            if (_configuration.RuntimeContext.AutoEnumerateAssets)
+            {
+                string[] paths = GetFiles();
+                string[] validated = TruncateAndValidate(paths);
+                _logger.LogInformation("Enumerating {count} files succeeded. Validated {count} assets for indexing...", paths.Length, validated.Length);
+                await _assetIndexing.OnFilesEnumeratedAsync(validated, ctoken);
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "{parameter} parameter is set to false. Skipping enumeration.",
+                    nameof(_configuration.RuntimeContext.AutoEnumerateAssets));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Enumerating assets failed.");
+        }
+    }
+
+    // Internal
+
+    private string[] GetFiles()
     {
         string path = _configuration.AssetsDirectory;
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
 
-        string[] allItems = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
-        List<string> validatedRelatives = [];
+        return Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+    }
 
-        foreach (var item in allItems)
+    private string[] TruncateAndValidate(string[] files)
+    {
+        List<string> validatedRelatives = [];
+        foreach (var item in files)
         {
             if (_pathValidator.TryTruncateAssetPath(item, out string? relativePath))
                 validatedRelatives.Add(relativePath);
         }
 
         return [.. validatedRelatives];
+    }
+
+    // API
+
+    public string[] EnumerateFiles()
+    {
+        string[] allItems = GetFiles();
+        return [.. TruncateAndValidate(allItems)];
     }
 
     // IHostedService

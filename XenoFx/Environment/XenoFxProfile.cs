@@ -13,9 +13,13 @@ public sealed partial class XenoFxProfile
 
     // Parameters
 
-    public PathFilterConfiguration AssetFilterConfig { get; set; } = new();
+    public PathFilterConfiguration AssetFilterConfig { get; set; } = new()
+    {
+        Greylist = ["**/*.*"],
+        Blacklist = ["**/*.x"]
+    };
 
     // Hosted
 
-    public ulong AssetEnumerationIntervalSeconds { get; set; } = 900;
+    public ulong AssetEnumerationIntervalSeconds { get; set; } = 3600;
 }

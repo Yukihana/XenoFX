@@ -5,5 +5,5 @@ namespace XenoFx.Services.Hosted.AssetEnumeration;
 
 public interface IAssetEnumerationService : IHostedService, IDisposable
 {
-    string[] ListFiles();
+    string[] EnumerateFiles();
 }

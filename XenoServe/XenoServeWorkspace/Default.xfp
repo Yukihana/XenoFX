@@ -4,9 +4,13 @@
   "CacheDirectory": "Cache",
   "ThumbsDirectory": "Thumbs",
   "AssetFilterConfig": {
-    "Greylist": [],
-    "Blacklist": [],
+    "Greylist": [
+      "**/*.*"
+    ],
+    "Blacklist": [
+      "**/*.x"
+    ],
     "Whitelist": []
   },
-  "AssetEnumerationIntervalSeconds": 900
+  "AssetEnumerationIntervalSeconds": 3600
 }
