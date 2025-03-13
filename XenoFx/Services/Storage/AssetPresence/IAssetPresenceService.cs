@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace XenoFx.Services.Storage.AssetPresence;
 
@@ -27,4 +25,8 @@ public interface IAssetPresenceService
     UInt128 GetAssetId(string path);
 
     string? GetPath(UInt128 id);
+
+    // Bulk
+
+    string[] GetPaths(Func<string, bool> validationCallback);
 }

@@ -1,15 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using XenoFx.Database.Models;
+using XenoFx.Database.Assets.Models;
 
-namespace XenoFx.Database;
-
-// Rename this class to XenoAssetsContext
+namespace XenoFx.Database.Assets;
 
 /// <summary>
 /// Database storage model for integrity and recovery metadata of a file repository.
 /// </summary>
 /// <param name="options">Database Connection and Runtime Options</param>
-public partial class XenoDbContext(DbContextOptions<XenoDbContext> options) : DbContext(options)
+public partial class AssetsDbContext(DbContextOptions<AssetsDbContext> options) : DbContext(options)
 {
     // Tables
 

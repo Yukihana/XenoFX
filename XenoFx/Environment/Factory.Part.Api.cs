@@ -1,38 +1,38 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.EntityFrameworkCore;
+using XenoFx.Database.Cache;
 
 namespace XenoFx.Environment;
 
 public static partial class Factory
 {
-    // Legacy
-    /*
-    public async static Task<XenoFxConfiguration> GetConfiguration(IConfiguration configuration, CancellationToken ctoken = default)
+    // TODO Documentation: Preferred build method for XenoFx
+    public async static Task<IServiceCollection> AddXenoFxAsync(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        CancellationToken ctoken = default)
     {
-        // Config
-        IConfigurationSection configurationSection = configuration.GetSection(XenoFxOptions.SectionTitle);
-        XenoFxOptions config = configurationSection.Get<XenoFxOptions>() ?? new();
+        ctoken.ThrowIfCancellationRequested();
 
-        // ProfilePath
-        string profilePath = config.StartupPath;
-        if (config.UseCommandLine &&
-            System.Environment.GetCommandLineArgs() is string[] args &&
-            args.Length > 1)
-        {
-            profilePath = args[1];
-        }
+        XenoFxConfiguration xfc = await configuration.GetXenoFxConfigurationAsync(ctoken: ctoken);
 
-        // Profile
+        services.AddXenoFxDatabases(xfc, ctoken);
+        services.AddXenoFxServices(xfc, ctoken);
 
-        XenoFxProfile profile = await LoadProfile(profilePath, ctoken);
-        XenoFxConfiguration config = new(profilePath, profile, config);
-        return config;
+        return services;
     }
-    */
 
-    // TODO Documentation:  Handles pre-initialization for the framework before consumption.
-    public static IServiceProvider PreInitializeXenoFx(this IServiceProvider provider)
+    // TODO Documentation: Handles pre-initialization for the framework before consumption.
+    public static IServiceProvider PreInitializeXenoFx(this IServiceProvider serviceProvider)
     {
-        // Start database connections
+        // Validate database connections
+        using var scope = serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<CacheDbContext>();
+        dbContext.Database.EnsureCreated(); // TODO Add migration integration instead
 
         // Warm up the file tracker
 
@@ -40,7 +40,7 @@ public static partial class Factory
 
         // Register available assets for consumption
 
-        return provider;
+        return serviceProvider;
     }
 
     // TODO Documentation: Activates parallel subroutines

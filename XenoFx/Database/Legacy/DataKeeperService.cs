@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using XenoFx.Database.Assets;
 
-namespace XenoFx.Database;
+namespace XenoFx.Database.Legacy;
 
 /// <summary>
 /// Grouping service for database connections.
 /// </summary>
 public sealed partial class DataKeeperService : IDisposable
 {
-    private readonly Dictionary<string, XenoDbContext> _contexts = [];
+    private readonly Dictionary<string, AssetsDbContext> _contexts = [];
 
-    public XenoDbContext ConnectSqlite(string databasePath)
+    public AssetsDbContext ConnectSqlite(string databasePath)
     {
-        if (!_contexts.TryGetValue(databasePath, out XenoDbContext? value))
+        if (!_contexts.TryGetValue(databasePath, out AssetsDbContext? value))
             _contexts[databasePath] = value = XenoDbContextFactory.OpenSqlite(databasePath);
         return value;
     }

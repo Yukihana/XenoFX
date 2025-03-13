@@ -1,19 +1,22 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.Threading;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
+using XenoFx.Database.Cache;
 
 namespace XenoFx.Services.Storage.AssetPresence;
 
-public sealed partial class AssetPresenceService(ILogger<AssetPresenceService> logger) : IAssetPresenceService
+// TODO turn this into an in-memory database context wrapper
+// Retain the OnUpdated functionality
+public sealed partial class AssetPresenceService : IAssetPresenceService
 {
     // Infrastructure
 
-    private readonly ILogger<AssetPresenceService> _logger = logger;
+    private readonly IDbContextFactory<CacheDbContext> _cacheDbFactory;
+    private readonly ILogger<AssetPresenceService> _logger;
 
     // Data
 
@@ -28,7 +31,18 @@ public sealed partial class AssetPresenceService(ILogger<AssetPresenceService> l
     public ulong StateCounter
         => Interlocked.Read(ref _stateCounter);
 
+    // Lifetime
+
+    public AssetPresenceService(
+        IDbContextFactory<CacheDbContext> cacheDbFactory,
+        ILogger<AssetPresenceService> logger)
+    {
+        _cacheDbFactory = cacheDbFactory;
+        _logger = logger;
+    }
+
     // Registrations : Add, Remove only, since asset will be taken down for reevaluation anyway in case of changes.
+    // TODO switch over to database instead
 
     public int TotalRefresh(string[] files)
     {
@@ -99,4 +113,6 @@ public sealed partial class AssetPresenceService(ILogger<AssetPresenceService> l
         else
             return UInt128.Zero;
     }
+
+    // Bulk
 }

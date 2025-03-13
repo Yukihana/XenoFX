@@ -14,12 +14,6 @@ public sealed partial class AssetSearchService : IAssetSearchService
         _assetAbstraction = assetAbstraction;
     }
 
-    public async Task<string[]> GetHaveAsync(CancellationToken ctoken = default)
-    {
-        await Task.Yield();
-        return [];
-    }
-
     public async Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default)
     {
         await Task.Yield();

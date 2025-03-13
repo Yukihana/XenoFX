@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
 
-namespace XenoFx.Database.Extensions;
+namespace XenoFx.Database.Legacy.Extensions;
 
 public static partial class SQLiteConnectionExtensions
 {

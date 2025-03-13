@@ -1,29 +1,30 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using XenoFx.Database.Extensions;
+using XenoFx.Database.Assets;
+using XenoFx.Database.Legacy.Extensions;
 
-namespace XenoFx.Database;
+namespace XenoFx.Database.Legacy;
 
 internal static class XenoDbContextFactory
 {
-    public static XenoDbContext OpenSqlite(this SqliteConnectionStringBuilder builder)
+    public static AssetsDbContext OpenSqlite(this SqliteConnectionStringBuilder builder)
     {
         string connectionString = builder.ConnectionString;
 
-        DbContextOptionsBuilder<XenoDbContext> optionsBuilder = new();
+        DbContextOptionsBuilder<AssetsDbContext> optionsBuilder = new();
 
-        DbContextOptions<XenoDbContext> options = optionsBuilder
+        DbContextOptions<AssetsDbContext> options = optionsBuilder
             .UseSqlite(connectionString)
             .Options;
 
-        XenoDbContext context = new(options);
+        AssetsDbContext context = new(options);
 
         context.Database.EnsureCreated(); // TODO: Replace with Migrate in ver:Alpha
 
         return context;
     }
 
-    public static XenoDbContext OpenSqlite(string databasePath)
+    public static AssetsDbContext OpenSqlite(string databasePath)
     {
         var builder = databasePath.GetSqliteConnectionBuilder();
         return builder.OpenSqlite();

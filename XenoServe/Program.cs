@@ -33,6 +33,9 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Attach Logger
+        builder.Host.UseSerilog();
+
         // Add services to the container.
         await builder.Services.AddXenoFxAsync(builder.Configuration);
 
@@ -51,6 +54,9 @@ public class Program
 
         // Build DI
         var app = builder.Build();
+
+        // Boot up storage services
+        app.Services.PreInitializeXenoFx();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

@@ -12,13 +12,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.13.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Database\Legacy\Models\" />
     <Folder Include="Services\Control\" />
   </ItemGroup>
 

@@ -42,7 +42,7 @@ public static partial class Factory
     public static IServiceProvider Create(XenoFxConfiguration configuration)
     {
         ServiceCollection services = new();
-        services.AddXenoFx(configuration);
+        services.AddXenoFxServices(configuration);
 
         ServiceProvider sp = services.BuildServiceProvider();
         return sp;

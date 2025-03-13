@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
 using System.Threading.Tasks;
+using XenoFx.Database.Cache;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Background.AssetIndexing;
@@ -15,20 +16,25 @@ namespace XenoFx.Environment;
 
 public static partial class FactoryExtensions
 {
-    //
-    public async static Task<IServiceCollection> AddXenoFxAsync(
+    // TODO Documentation: Registers the database contexts with the provided IServiceCollection.
+    public static IServiceCollection AddXenoFxDatabases(
         this IServiceCollection services,
-        IConfiguration configuration,
+        XenoFxConfiguration xfc,
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
-        XenoFxConfiguration xfc = await configuration.GetXenoFxConfigurationAsync(ctoken: ctoken);
-        return services.AddXenoFx(xfc, ctoken);
+        // Cache
+        services.AddCacheDbContextUsingSqlite(xfc);
+
+        // Assets
+        // services.AddAssetsDbContextUsingSqlite(xfc); // Not implemented yet
+
+        return services;
     }
 
     // TODO Documentation: Registers the framework's services with the provided IServiceCollection.
-    public static IServiceCollection AddXenoFx(
+    public static IServiceCollection AddXenoFxServices(
         this IServiceCollection services,
         XenoFxConfiguration xfc,
         CancellationToken ctoken = default)

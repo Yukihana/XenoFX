@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace XenoFx.Database.Models;
+namespace XenoFx.Database.Assets.Models;
 
 public partial class TagRecord
 {
