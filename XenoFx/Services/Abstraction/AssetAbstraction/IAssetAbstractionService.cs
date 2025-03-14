@@ -22,4 +22,8 @@ public interface IAssetAbstractionService
 
     ulong StateIndex { get; }
     DateTime LastModified { get; }
+
+    // Content
+
+    Task<string> GetContentPathAsync(string path, CancellationToken ctoken = default);
 }
