@@ -1,32 +1,37 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using XenoFx.Database.Cache.Models;
 
 namespace XenoFx.Services.Storage.AssetPresence;
 
 public interface IAssetPresenceService
 {
-    // Registrations
+    // Read
 
-    int TotalRefresh(string[] paths);
+    Task<T> ReadAsync<T>(
+        Func<DbSet<AssetPresenceInfo>, T> readFunc,
+        CancellationToken ctoken = default);
 
-    bool Create(string path, UInt128 id = default);
+    Task<T> ReadAsync<T>(
+        Func<DbSet<AssetPresenceInfo>, CancellationToken, Task<T>> readFunc,
+        CancellationToken ctoken = default);
 
-    void Remove(string path);
+    // Write
 
-    void Remove(UInt128 id);
+    Task<int> WriteAsync(
+        Func<DbSet<AssetPresenceInfo>, bool> writeFunc,
+        CancellationToken ctoken = default);
 
-    // Queries
+    Task<int> WriteAsync(
+        Func<DbSet<AssetPresenceInfo>, CancellationToken, Task<bool>> writeFunc,
+        CancellationToken ctoken = default);
 
-    bool IsAsset(string path);
+    // Transact
 
-    bool IsAvailable(UInt128 id);
-
-    bool IsFile(string path);
-
-    UInt128 GetAssetId(string path);
-
-    string? GetPath(UInt128 id);
-
-    // Bulk
-
-    string[] GetPaths(Func<string, bool> validationCallback);
+    Task TransactAsync(
+        IEnumerable<Func<DbSet<AssetPresenceInfo>, CancellationToken, Task<bool>>> transactFuncs,
+        CancellationToken ctoken = default);
 }

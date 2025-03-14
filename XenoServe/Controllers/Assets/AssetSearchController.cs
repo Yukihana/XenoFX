@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using XenoFx.Services.Api.AssetSearch;
-using XenoServe.OfflineProfile;
 
-namespace XenoServe.Controllers;
+namespace XenoServe.Controllers.Assets;
 
 [Route("api/assets")]
 [ApiController]
 public sealed partial class AssetSearchController : ControllerBase
 {
     private readonly IAssetSearchService _assetSearch;
+
     private readonly ILogger<AssetSearchController> _logger;
 
     public AssetSearchController(
@@ -22,13 +21,14 @@ public sealed partial class AssetSearchController : ControllerBase
 
     [HttpGet]
     [Route("search")]
-    public async Task<IActionResult> GetAsync([FromQuery] string id, CancellationToken ctoken = default)
+    public async Task<IActionResult> GetHaveAsync([FromQuery] string query, CancellationToken ctoken = default)
     {
         // turn this into api-v1 defaulting to whole string search
         // v2 will do both full-match and word-by-word relevance match
         // - and only revert to v1 if match-whole-string equivalent parameter is used
 
-        var result = await _assetSearch.GetHaveAsync(id, ctoken);
+        var result = await _assetSearch.GetHaveAsync(query, ctoken);
+        _logger.LogInformation("Found {count} results for query '{query}': {list}", result.Length, query, result);
         return Ok(result);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Xml;
 using System;
 using XenoFx.Database.Cache.Models;
 
@@ -30,5 +29,10 @@ public class CacheDbContext : DbContext
         modelBuilder.Entity<AssetPresenceInfo>()
             .Property(e => e.AssetId)
             .HasConversion(uint128Converter);
+
+        // Register unique columns
+        modelBuilder.Entity<AssetPresenceInfo>()
+            .HasIndex(e => e.RelativePath)
+            .IsUnique();
     }
 }

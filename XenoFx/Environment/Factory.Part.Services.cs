@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using XenoFx.Database.Cache;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;
+using XenoFx.Services.Api.StateMonitor;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Hosted.AssetEnumeration;
 using XenoFx.Services.Hosted.AssetTracking;
@@ -65,6 +66,7 @@ public static partial class FactoryExtensions
 
         // API layer
         services.AddSingleton<IAssetSearchService, AssetSearchService>();
+        services.AddSingleton<IStateMonitorService, StateMonitorService>();
 
         // Control layer
 

@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using XenoFx.Database.Cache;
+using XenoFx.Database.Cache.Models;
 
 namespace XenoFx.Services.Storage.AssetPresence;
 
@@ -18,19 +18,6 @@ public sealed partial class AssetPresenceService : IAssetPresenceService
     private readonly IDbContextFactory<CacheDbContext> _cacheDbFactory;
     private readonly ILogger<AssetPresenceService> _logger;
 
-    // Data
-
-    private ulong _stateCounter = 0;
-    private readonly ConcurrentDictionary<string, UInt128> Presences = [];
-
-    // State : Any change should trigger a change
-
-    private void OnUpdated()
-        => Interlocked.Increment(ref _stateCounter);
-
-    public ulong StateCounter
-        => Interlocked.Read(ref _stateCounter);
-
     // Lifetime
 
     public AssetPresenceService(
@@ -41,78 +28,120 @@ public sealed partial class AssetPresenceService : IAssetPresenceService
         _logger = logger;
     }
 
-    // Registrations : Add, Remove only, since asset will be taken down for reevaluation anyway in case of changes.
-    // TODO switch over to database instead
+    // Read
 
-    public int TotalRefresh(string[] files)
+    public async Task<T> ReadAsync<T>(
+        Func<DbSet<AssetPresenceInfo>, T> readFunc,
+        CancellationToken ctoken = default)
     {
-        int counter = 0;
-        foreach (string file in files)
+        try
         {
-            if (Create(file))
-                counter++;
+            ctoken.ThrowIfCancellationRequested();
+
+            using var dbcontext = await _cacheDbFactory.CreateDbContextAsync(ctoken);
+
+            return await Task.Run(() => readFunc(dbcontext.AssetPresences), ctoken);
         }
-        return counter;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Read error occurred.");
+            throw;
+        }
     }
 
-    public bool Create(string path, UInt128 id = default)
+    public async Task<T> ReadAsync<T>(
+        Func<DbSet<AssetPresenceInfo>, CancellationToken, Task<T>> readFunc,
+        CancellationToken ctoken = default)
     {
-        bool success = Presences.TryAdd(path, id);
-        if (success)
-            OnUpdated();
-        return success;
+        try
+        {
+            ctoken.ThrowIfCancellationRequested();
+
+            using var dbcontext = await _cacheDbFactory.CreateDbContextAsync(ctoken);
+
+            return await readFunc(dbcontext.AssetPresences, ctoken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Read error occurred.");
+            throw;
+        }
     }
 
-    public void Remove(string path)
+    // Write
+
+    public async Task<int> WriteAsync(
+        Func<DbSet<AssetPresenceInfo>, bool> writeFunc,
+        CancellationToken ctoken = default)
     {
-        Presences.TryRemove(path, out _);
-        OnUpdated();
+        try
+        {
+            ctoken.ThrowIfCancellationRequested();
+
+            using var dbcontext = await _cacheDbFactory.CreateDbContextAsync(ctoken);
+            if (!await Task.Run(() => writeFunc(dbcontext.AssetPresences)))
+                return 0;
+
+            int writeCount = await dbcontext.SaveChangesAsync(ctoken);
+            _logger.LogInformation("Update {count} entries in the database.", writeCount);
+            return writeCount;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Write error occurred.");
+            throw;
+        }
     }
 
-    public void Remove(UInt128 id)
+    public async Task<int> WriteAsync(
+        Func<DbSet<AssetPresenceInfo>, CancellationToken, Task<bool>> writeFunc,
+        CancellationToken ctoken = default)
     {
-        var paths = Presences
-            .Where(x => x.Value.Equals(id))
-            .Select(x => x.Key)
-            .ToList();
+        try
+        {
+            ctoken.ThrowIfCancellationRequested();
 
-        foreach (var path in paths)
-            Presences.TryRemove(path, out _);
-        OnUpdated();
+            using var dbcontext = await _cacheDbFactory.CreateDbContextAsync(ctoken);
+            var presences = dbcontext.AssetPresences;
+            if (!await writeFunc(presences, ctoken))
+                return 0;
+
+            int writeCount = await dbcontext.SaveChangesAsync(ctoken);
+            _logger.LogInformation("Update {count} entries in the database.", writeCount);
+            return writeCount;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Write error occurred.");
+            throw;
+        }
     }
 
-    // Queries
+    // Transaction
 
-    public bool IsFile(string path)
+    public async Task TransactAsync(
+        IEnumerable<Func<DbSet<AssetPresenceInfo>, CancellationToken, Task<bool>>> transactFuncs,
+        CancellationToken ctoken = default)
     {
-        return Presences.TryGetValue(path, out UInt128 id);
-    }
+        try
+        {
+            ctoken.ThrowIfCancellationRequested();
 
-    public bool IsAsset(string path)
-    {
-        return Presences.TryGetValue(path, out UInt128 id)
-             && id != UInt128.Zero;
-    }
+            using var dbcontext = await _cacheDbFactory.CreateDbContextAsync(ctoken);
+            var presences = dbcontext.AssetPresences;
 
-    public bool IsAvailable(UInt128 id)
-    {
-        return Presences.Any(x => x.Value == id);
+            using var transaction = await dbcontext.Database.BeginTransactionAsync(ctoken);
+            foreach (var transactFunc in transactFuncs)
+            {
+                if (await transactFunc(presences, ctoken))
+                    await dbcontext.SaveChangesAsync(ctoken);
+            }
+            await transaction.CommitAsync(ctoken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Write error occurred.");
+            throw;
+        }
     }
-
-    public string? GetPath(UInt128 id)
-    {
-        if (Presences.FirstOrDefault(x => x.Value == id) is KeyValuePair<string, UInt128> first)
-            return first.Key;
-        return null;
-    }
-
-    public UInt128 GetAssetId(string path)
-    {
-        if (Presences.TryGetValue(path, out UInt128 id))
-            return id;
-        else
-            return UInt128.Zero;
-    }
-
-    // Bulk
 }

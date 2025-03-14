@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
@@ -15,26 +14,22 @@ public sealed partial class AssetIndexingService
 
     // Incoming events
 
-    public Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default)
+    public async Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
         // Legacy Code
-        _assetPresence.TotalRefresh(files);
-
-        return Task.CompletedTask;
+        await _assetAbstraction.TotalRefreshAsync(files, ctoken);
     }
 
-    public Task OnFileCreatedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
+    public async Task OnFileCreatedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
     {
-        _assetPresence.Create(path);
-        return Task.CompletedTask;
+        await _assetAbstraction.CreateAsync(path, ctoken);
     }
 
-    public Task OnFileDeletedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
+    public async Task OnFileDeletedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
     {
-        _assetPresence.Remove(path);
-        return Task.CompletedTask;
+        await _assetAbstraction.RemoveAsync(path, ctoken);
     }
 
     public Task OnFileModifiedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default)
@@ -42,19 +37,16 @@ public sealed partial class AssetIndexingService
         return Task.CompletedTask;
     }
 
-    public Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default)
+    public async Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default)
     {
-        _assetPresence.Remove(oldPath);
-        _assetPresence.Create(newPath);
-        return Task.CompletedTask;
+        await _assetAbstraction.RemoveAsync(oldPath);
+        await _assetAbstraction.CreateAsync(newPath);
     }
 
-    public Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default)
+    public async Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default)
     {
         // If callback is registered, request an update on the files, then re-register them.
         if (EnumerateCallback is not null)
-            return OnFilesEnumeratedAsync(EnumerateCallback(), ctoken);
-
-        return Task.CompletedTask;
+            await OnFilesEnumeratedAsync(EnumerateCallback(), ctoken);
     }
 }
