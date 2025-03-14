@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
-using System.Threading.Tasks;
 using XenoFx.Database.Cache;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;

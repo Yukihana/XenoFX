@@ -83,7 +83,7 @@ public sealed partial class AssetPresenceService : IAssetPresenceService
                 return 0;
 
             int writeCount = await dbcontext.SaveChangesAsync(ctoken);
-            _logger.LogInformation("Update {count} entries in the database.", writeCount);
+            _logger.LogInformation("Updated {count} entries in the database.", writeCount);
             return writeCount;
         }
         catch (Exception ex)
@@ -107,7 +107,7 @@ public sealed partial class AssetPresenceService : IAssetPresenceService
                 return 0;
 
             int writeCount = await dbcontext.SaveChangesAsync(ctoken);
-            _logger.LogInformation("Update {count} entries in the database.", writeCount);
+            _logger.LogInformation("Updated {count} entries in the database.", writeCount);
             return writeCount;
         }
         catch (Exception ex)

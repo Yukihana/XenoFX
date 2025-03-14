@@ -1,5 +1,4 @@
 ﻿using CSX.Common.IO;
-using System;
 using XenoFx.Services.Utility.Configuration.Models;
 
 namespace XenoFx.Services.Utility.Configuration;

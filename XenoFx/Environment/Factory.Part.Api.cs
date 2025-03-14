@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using XenoFx.Database.Cache;
 
 namespace XenoFx.Environment;
