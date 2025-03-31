@@ -1,4 +1,4 @@
-﻿namespace XenoFx.Services.Api.AssetUpload.Models;
+﻿namespace XenoFx.Services.Api.AssetUpload.DTOs;
 
 public sealed class AssetUploadResult
 {

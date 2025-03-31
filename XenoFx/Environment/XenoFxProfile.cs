@@ -12,16 +12,18 @@ public sealed partial class XenoFxProfile
     // Directories
 
     public string AssetsDirectory { get; set; } = "Assets";
+    public string AssetUploadDirectory { get; set; } = "Uploads";
     public string CacheDirectory { get; set; } = "Cache";
     public string ThumbsDirectory { get; set; } = "Thumbs";
-    public string UploadsDirectory { get; set; } = "Uploads";
 
     // Parameters
 
     public PathFilterConfiguration AssetFilterConfig { get; set; } = new()
     {
         Greylist = ["**/*.*"],
-        Blacklist = ["**/*.x"]
+        Blacklist = [
+            "**/*.x",                                           // Text Metadata
+            $"**/*{XenoFxConstants.DefaultUploadExtension}"]    // Uploads
     };
 
     // Hosted

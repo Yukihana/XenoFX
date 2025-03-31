@@ -8,6 +8,9 @@ public static partial class XenoFxConstants
 
     public const string DefaultProfileExtension = ".xfp";
 
+    public const string DefaultUploadExtension = ".xfu";
+    public const int WriteBufferSize = 4 * 1024 * 1024;
+
     // Composite Constants
 
     public static string[] DefaultProfileNames => ["Default", "Index"];

@@ -12,7 +12,7 @@ public sealed partial class ParameterCache
     public string AssetsDirectory { get; set; } = "Assets";
     public string CacheDirectory { get; set; } = "Cache";
     public string ThumbsDirectory { get; set; } = "Thumbs";
-    public string UploadsDirectory { get; set; } = "Uploads";
+    public string AssetUploadDirectory { get; set; } = "Uploads";
 
     // Parameters
 

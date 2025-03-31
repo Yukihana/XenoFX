@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Api.AssetUpload.Models;
+using XenoFx.Services.Api.AssetUpload.DTOs;
 
 namespace XenoFx.Services.Api.AssetUpload;
 

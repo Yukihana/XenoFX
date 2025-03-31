@@ -17,5 +17,7 @@ public interface IConfigurationService
 
     string BaseDirectory { get; }
     string AssetsDirectory { get; }
+    string AssetUploadDirectory { get; }
+
     ulong AssetEnumerationIntervalSeconds { get; }
 }

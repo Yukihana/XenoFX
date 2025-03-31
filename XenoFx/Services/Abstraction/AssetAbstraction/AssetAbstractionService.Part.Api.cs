@@ -16,8 +16,8 @@ public sealed partial class AssetAbstractionService
             var all = await table.ToListAsync(ct);
 
             return all
-                .Select(x => Path.GetFileNameWithoutExtension(x.RelativePath))
-                .Where(x => x.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Where(x => Path.GetFileNameWithoutExtension(x.RelativePath).Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.RelativePath)
                 .ToArray();
         }, ctoken);
     }

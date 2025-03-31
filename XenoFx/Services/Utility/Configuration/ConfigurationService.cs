@@ -39,7 +39,7 @@ public sealed partial class ConfigurationService : IConfigurationService
     {
         _cache.BaseDirectory = _configuration.GetBasePath();
         _cache.AssetsDirectory = PathExtensions.ResolveCombine(_cache.BaseDirectory, _configuration.Profile.AssetsDirectory);
-        _cache.UploadsDirectory = PathExtensions.ResolveCombine(_cache.BaseDirectory, _configuration.Profile.UploadsDirectory);
+        _cache.AssetUploadDirectory = PathExtensions.ResolveCombine(_cache.AssetsDirectory, _configuration.Profile.AssetUploadDirectory);
     }
 
     // Core Data
@@ -55,8 +55,8 @@ public sealed partial class ConfigurationService : IConfigurationService
     public string AssetsDirectory
         => _cache.AssetsDirectory;
 
-    public string UploadsDirectory
-        => _cache.UploadsDirectory;
+    public string AssetUploadDirectory
+        => _cache.AssetUploadDirectory;
 
     // Hosted
 

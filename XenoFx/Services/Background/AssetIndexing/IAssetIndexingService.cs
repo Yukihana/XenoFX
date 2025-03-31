@@ -2,12 +2,13 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using XenoFx.Services.Background.AssetIndexing.DTOs;
 
 namespace XenoFx.Services.Background.AssetIndexing;
 
 public interface IAssetIndexingService
 {
-    // Callback
+    // Event hooks
 
     Func<string[]>? EnumerateCallback { get; set; }
 
@@ -26,4 +27,8 @@ public interface IAssetIndexingService
     Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default);
 
     Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default);
+
+    // API : AssetUpload
+
+    Task OnFileUploadedAsync(UploadedAssetIndexingInfo e, CancellationToken ctoken = default);
 }

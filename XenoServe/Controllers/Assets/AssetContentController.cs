@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using CSX.Common.IO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetUpload;
-using XenoFx.Services.Api.AssetUpload.Models;
+using XenoFx.Services.Api.AssetUpload.DTOs;
 
 namespace XenoServe.Controllers.Assets;
 
@@ -31,7 +32,10 @@ public class AssetContentController : ControllerBase
         try
         {
             string fullPath = await _assetAbstraction.GetContentPathAsync(path, ctoken);
-            return new PhysicalFileResult(fullPath, "application/octet-stream");
+            string fileName = Path.GetFileName(fullPath);
+            string contentType = MimeTyping.GetMimeType(Path.GetExtension(fullPath));
+            _logger.LogInformation("Attempting to deliver resource located at: {fullPath}", fullPath);
+            return new PhysicalFileResult(fullPath, contentType);
         }
         catch (InvalidDataException ex) when (ex.Message is AssetAbstractionService.ResourceNotFoundMessage)
         {
@@ -45,24 +49,27 @@ public class AssetContentController : ControllerBase
         }
     }
 
-    [HttpPost("upload")]
+    [HttpPost]
     [Route("upload")]
-    public async Task<IActionResult> UploadAsync(CancellationToken ctoken = default)
+    public async Task<IActionResult> UploadAsync(
+        IFormFile data,
+        [FromForm] string title = "",
+        [FromForm] string pageUrl = "",
+        [FromForm] string dataUrl = "",
+        CancellationToken ctoken = default)
     {
         try
         {
-            var form = await Request.ReadFormAsync(ctoken);
-            IFormFile? data = form.Files["data"];         // the file
-            string title = form["title"].ToString();      // the name of the file inferred from the title or lowest path segment of the page depending on the site.
-            string pageUrl = form["pageurl"].ToString();  // the original page this file was cached from
-            string dataUrl = form["dataUrl"].ToString();  // the source url of the data file.
-
             if (data is null)
                 return BadRequest("Invalid request: Upload data missing.");
+
+            _logger.LogInformation("Found data file with name: {name}", data.FileName);
 
             AssetUploadRequest request = new(data.OpenReadStream())
             {
                 Title = title,
+                Filename = data.FileName,
+                ContentMimeType = data.ContentType,
                 PageUrl = pageUrl,
                 DataUrl = dataUrl,
             };
@@ -74,7 +81,7 @@ public class AssetContentController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Upload failed.");
-            return StatusCode(500, new { message = "Internal error." }); // TODO add logging reference id system.
+            return StatusCode(500, new { message = "Upload failed." }); // TODO add logging reference id system.
         }
     }
 }
