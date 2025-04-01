@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Folder Include="Database\Legacy\Models\" />
+    <Folder Include="Services\Api\AssetDownload\" />
     <Folder Include="Services\Control\" />
   </ItemGroup>
 

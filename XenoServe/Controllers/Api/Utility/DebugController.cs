@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using XenoFx.Database.Cache;
 
-namespace XenoServe.Controllers.Utility;
+namespace XenoServe.Controllers.Api.Utility;
 
 [Route("api/[controller]")]
 [ApiController]

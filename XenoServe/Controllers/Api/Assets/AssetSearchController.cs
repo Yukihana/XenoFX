@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using XenoFx.Services.Api.AssetSearch;
 
-namespace XenoServe.Controllers.Assets;
+namespace XenoServe.Controllers.Api.Assets;
 
 [Route("api/assets")]
 [ApiController]

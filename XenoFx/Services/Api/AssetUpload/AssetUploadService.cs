@@ -201,6 +201,12 @@ public sealed partial class AssetUploadService : IAssetUploadService
         // If available, determine the extension from the filename
         // Use content-type as a fallback
         // Else use MimeDetective
+        // Preferably move this into asset analysis.
+        // Store mime/file type in database
+        // Discard file from there, not here.
+        // Instead of using an upload extension, use extension as is.
+        // Set up an exclusion-list for files being uploaded, which Tracker ignores.
+        // Once completed uploading, pass the filepath to the tracker for indexing.
 
         await Task.Yield();
         return MimeTypesMap.GetExtension(request.ContentMimeType);

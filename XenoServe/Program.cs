@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Serilog;
 using XenoFx.Environment;
 
@@ -39,12 +41,17 @@ public class Program
         // Add services to the container.
         await builder.Services.AddXenoFxAsync(builder.Configuration);
 
-        /*
-        builder.Services.AddSingleton(new NitefoxTracker());
-        builder.Services.AddScoped<NitefoxCore>();
-        */
+        // builder.Services.AddControllers(); // Api Only
+        builder.Services.AddControllersWithViews(); // Needed for pages
 
-        builder.Services.AddControllers();
+        // Replace default view locations with feature-based locations
+        builder.Services.Configure<RazorViewEngineOptions>(options =>
+        {
+            options.ViewLocationFormats.Clear();                                // Clear default locations
+            options.ViewLocationFormats.Add("/Features/{1}/Views/{0}.cshtml");  // Controller-based views
+            options.ViewLocationFormats.Add("/Features/{1}/{0}.cshtml");
+            options.ViewLocationFormats.Add("/Shared/Views/{0}.cshtml");        // Shared views
+        });
 
         builder.Services.AddOpenApi();  // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using XenoFx.Services.Abstraction.AssetAbstraction.DTOs;
 
 namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
@@ -18,12 +19,14 @@ public interface IAssetAbstractionService
 
     Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default);
 
-    // State
-
-    ulong StateIndex { get; }
-    DateTime LastModified { get; }
+    Task<AssetViewInfo> GetAssetDownloadInfoAsync(string relativePath, CancellationToken ctoken = default);
 
     // Content
 
     Task<string> GetContentPathAsync(string path, CancellationToken ctoken = default);
+
+    // State
+
+    ulong StateIndex { get; }
+    DateTime LastModified { get; }
 }

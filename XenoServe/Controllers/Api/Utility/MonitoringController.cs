@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using XenoFx.Services.Api.StateMonitor;
 
-namespace XenoServe.Controllers.Utility;
+namespace XenoServe.Controllers.Api.Utility;
 
 [Route("api/[controller]")]
 [ApiController]
