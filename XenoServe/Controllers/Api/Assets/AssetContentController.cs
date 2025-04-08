@@ -57,14 +57,18 @@ public class AssetContentController : ControllerBase
     [Route(FileRoute)]
     public async Task<IActionResult> FileAsync([FromQuery] string path, CancellationToken ctoken = default)
     {
+        // Once asset database is up, store the mime type in the db, to prevent redundant analysis overhead.
         try
         {
             string fullPath = await _assetAbstraction.GetContentPathAsync(path, ctoken);
             string fileName = Path.GetFileName(fullPath);
             string contentType = MimeTyping.GetMimeType(Path.GetExtension(fullPath));
-            // Once asset database is up, store the mime type in the db, to prevent redundant analysis overhead.
+
             _logger.LogInformation("Attempting to deliver resource located at: {fullPath}", fullPath);
-            return new PhysicalFileResult(fullPath, contentType);
+            return new PhysicalFileResult(fullPath, contentType)    // Do not use File() wrapper as it ends up assigning the wrong type.
+            {
+                EnableRangeProcessing = true,
+            };
         }
         catch (InvalidDataException ex) when (ex.Message is AssetAbstractionService.ResourceNotFoundMessage)
         {
