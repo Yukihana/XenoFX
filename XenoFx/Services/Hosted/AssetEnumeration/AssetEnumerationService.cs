@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Background.AssetIndexing;
+using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
 
@@ -16,7 +16,7 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
 {
     // Infrastructure
 
-    private readonly IAssetIndexingService _assetIndexing;
+    private readonly IAssetQueueService _assetQueue;
     private readonly IPathValidatorService _pathValidator;
     private readonly IConfigurationService _configuration;
     private readonly ILogger<AssetEnumerationService> _logger;
@@ -30,17 +30,17 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
     // Resources
 
     public AssetEnumerationService(
-        IAssetIndexingService assetIndexing,
+        IAssetQueueService assetQueue,
         IPathValidatorService pathValidator,
         IConfigurationService configuration,
         ILogger<AssetEnumerationService> logger)
     {
-        _assetIndexing = assetIndexing;
+        _assetQueue = assetQueue;
         _pathValidator = pathValidator;
         _configuration = configuration;
         _logger = logger;
 
-        _assetIndexing.EnumerateCallback = EnumerateFiles;
+        _assetQueue.EnumerateCallback = EnumerateFiles;
     }
 
     public void Dispose()
@@ -49,7 +49,7 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
         try
         {
             _cts.Cancel();
-            _assetIndexing.EnumerateCallback = null;
+            _assetQueue.EnumerateCallback = null;
 
             _enumerationTask?.Wait();
         }
@@ -93,7 +93,7 @@ public sealed partial class AssetEnumerationService : IAssetEnumerationService
                 string[] paths = GetFiles();
                 string[] validated = TruncateAndValidate(paths);
                 _logger.LogInformation("Enumerating {count} files succeeded. Validated {count} assets for indexing...", paths.Length, validated.Length);
-                await _assetIndexing.OnFilesEnumeratedAsync(validated, ctoken);
+                await _assetQueue.OnFilesEnumeratedAsync(validated, ctoken);
             }
             else
             {

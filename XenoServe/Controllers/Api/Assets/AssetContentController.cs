@@ -1,5 +1,11 @@
 ﻿using CSX.Common.IO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetUpload;
 using XenoFx.Services.Api.AssetUpload.DTOs;

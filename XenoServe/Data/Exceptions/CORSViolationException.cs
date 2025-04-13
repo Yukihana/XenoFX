@@ -1,4 +1,6 @@
-﻿namespace XenoServe.Shared.Data;
+﻿using System;
+
+namespace XenoServe.Shared.Data;
 
 public class CORSViolationException : UnauthorizedAccessException
 { }

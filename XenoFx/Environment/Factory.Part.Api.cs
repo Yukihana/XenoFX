@@ -26,12 +26,12 @@ public static partial class Factory
     }
 
     // TODO Documentation: Handles pre-initialization for the framework before consumption.
-    public static IServiceProvider PreInitializeXenoFx(this IServiceProvider serviceProvider)
+    public async static Task<IServiceProvider> PreInitializeXenoFxAsync(
+        this IServiceProvider serviceProvider,
+        CancellationToken ctoken = default)
     {
         // Validate database connections
-        using var scope = serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<CacheDbContext>();
-        dbContext.Database.EnsureCreated(); // TODO Add migration integration instead
+        await serviceProvider.InitializeCacheDbContextAsync(ctoken);
 
         // Warm up the file tracker
 

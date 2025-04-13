@@ -1,5 +1,11 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using XenoFx.Environment;
 
 namespace XenoServe;
@@ -14,10 +20,14 @@ public class Program
 
         try
         {
-            // Build the application
-            WebApplication app = await BuildAsync(args);
+            // Build
+            var builder = await GetBuilderAsync(args);
+            WebApplication app = builder.Build();
 
-            // Run it here, not inside the method that built it.
+            // Preinitialize
+            await PreInitializeAsync(app, CancellationToken.None);
+
+            // Run
             await app.RunAsync();
         }
         catch (Exception ex)
@@ -30,7 +40,7 @@ public class Program
         }
     }
 
-    public async static Task<WebApplication> BuildAsync(string[] args)
+    public async static Task<WebApplicationBuilder> GetBuilderAsync(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -41,7 +51,7 @@ public class Program
         await builder.Services.AddXenoFxAsync(builder.Configuration);
 
         // builder.Services.AddControllers(); // Api Only
-        builder.Services.AddControllersWithViews(); // Needed for pages
+        builder.Services.AddControllersWithViews(); // Also handles views
 
         // Replace default view locations with feature-based locations
         builder.Services.Configure<RazorViewEngineOptions>(options =>
@@ -52,17 +62,20 @@ public class Program
             options.ViewLocationFormats.Add("/Shared/Views/{0}.cshtml");        // Shared views
         });
 
+        // Swagger / Open API
         builder.Services.AddOpenApi();  // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-
-        // Swagger
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // Build DI
-        var app = builder.Build();
+        return builder;
+    }
 
-        // Boot up storage services
-        app.Services.PreInitializeXenoFx();
+    private async static Task<WebApplication> PreInitializeAsync(WebApplication app, CancellationToken ctoken = default)
+    {
+        ctoken.ThrowIfCancellationRequested();
+
+        // Initialize service groups
+        await app.Services.PreInitializeXenoFxAsync(ctoken);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Environment;
 using XenoFx.Services.Api.AssetUpload.DTOs;
-using XenoFx.Services.Background.AssetIndexing;
-using XenoFx.Services.Background.AssetIndexing.DTOs;
+using XenoFx.Services.Background.AssetQueue;
+using XenoFx.Services.Background.AssetQueue.Models;
 using XenoFx.Services.Utility.Configuration;
 
 namespace XenoFx.Services.Api.AssetUpload;
@@ -19,18 +19,18 @@ public sealed partial class AssetUploadService : IAssetUploadService
 
     // Infrastructure
 
-    private readonly IAssetIndexingService _assetIndexing;
+    private readonly IAssetQueueService _assetQueue;
     private readonly IConfigurationService _configurationService;
     private readonly ILogger<AssetUploadService> _logger;
 
     // Lifetime
 
     public AssetUploadService(
-        IAssetIndexingService assetIndexing,
+        IAssetQueueService assetQueue,
         IConfigurationService configurationService,
         ILogger<AssetUploadService> logger)
     {
-        _assetIndexing = assetIndexing;
+        _assetQueue = assetQueue;
         _configurationService = configurationService;
         _logger = logger;
     }
@@ -154,6 +154,7 @@ public sealed partial class AssetUploadService : IAssetUploadService
         return tempPath;
     }
 
+    [Obsolete("This logic is to be moved to indexing.")]
     private async Task<string> MoveToFinalPathAsync(string tempPath, AssetUploadRequest request, CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
@@ -218,8 +219,8 @@ public sealed partial class AssetUploadService : IAssetUploadService
             AssetsDirectoryPath,
             finalPath);
 
-        UploadedAssetIndexingInfo dto = request.ToIndexingInfo(relativePath);
+        AssetUploadedEventContext dto = request.ToIndexingInfo(relativePath);
 
-        await _assetIndexing.OnFileUploadedAsync(dto, ctoken);
+        await _assetQueue.OnFileUploadedAsync(dto, ctoken);
     }
 }

@@ -9,8 +9,6 @@ public interface IAssetAbstractionService
 {
     // Write
 
-    Task TotalRefreshAsync(string[] files, CancellationToken ctoken = default);
-
     Task CreateAsync(string path, CancellationToken ctoken = default);
 
     Task RemoveAsync(string path, CancellationToken ctoken = default);

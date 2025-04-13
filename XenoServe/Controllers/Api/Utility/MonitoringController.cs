@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using XenoFx.Services.Api.StateMonitor;
 
 namespace XenoServe.Controllers.Api.Utility;

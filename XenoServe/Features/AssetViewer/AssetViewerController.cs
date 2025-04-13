@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Abstraction.AssetAbstraction.DTOs;
 using XenoServe.Controllers.Api.Assets;
 using XenoServe.Data;
 using XenoServe.Shared.Data;
 using XenoServe.Shared.Extensions;
+using XenoServe.Data.Exceptions;
 
 namespace XenoServe.Features.AssetViewer;
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Background.AssetIndexing;
+using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
 
@@ -14,7 +15,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
 {
     // Infrastructure
 
-    private readonly IAssetIndexingService _assetIndexing;
+    private readonly IAssetQueueService _assetQueue;
     private readonly IPathValidatorService _pathValidator;
     private readonly IConfigurationService _configuration;
     private readonly ILogger<AssetTrackingService> _logger;
@@ -38,12 +39,12 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
     // Lifetime
 
     public AssetTrackingService(
-        IAssetIndexingService assetIndexing,
+        IAssetQueueService assetQueue,
         IPathValidatorService pathValidator,
         IConfigurationService configuration,
         ILogger<AssetTrackingService> logger)
     {
-        _assetIndexing = assetIndexing;
+        _assetQueue = assetQueue;
         _pathValidator = pathValidator;
         _configuration = configuration;
         _configuration.RuntimeContext.AssetTrackingConfigurationUpdatedCallback = OnConfigurationUpdated;
@@ -218,7 +219,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         try
         {
             _logger.LogInformation("[E{id}] File created: {path}", eventId, eventArgs.FullPath);
-            await _assetIndexing.OnFileCreatedAsync(relativePath, eventArgs, ctoken);
+            await _assetQueue.OnFileCreatedAsync(relativePath, eventArgs, ctoken);
         }
         catch (Exception ex)
         {
@@ -232,7 +233,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         try
         {
             _logger.LogInformation("[E{id}] File deleted: {file}", eventId, e.FullPath);
-            await _assetIndexing.OnFileDeletedAsync(relativePath, e, ctoken);
+            await _assetQueue.OnFileDeletedAsync(relativePath, e, ctoken);
         }
         catch (Exception ex)
         {
@@ -247,7 +248,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         {
             eventId = GetNextId();
             _logger.LogInformation("[E{id}] File modified: {file}", eventId, e.FullPath);
-            await _assetIndexing.OnFileModifiedAsync(relativePath, e, ctoken);
+            await _assetQueue.OnFileModifiedAsync(relativePath, e, ctoken);
         }
         catch (Exception ex)
         {
@@ -261,7 +262,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         try
         {
             _logger.LogInformation("[E{id}] File renamed: {file} from {old}", eventId, e.FullPath, e.OldFullPath);
-            await _assetIndexing.OnFileRenamedAsync(oldPath, newPath, e, ctoken);
+            await _assetQueue.OnFileRenamedAsync(oldPath, newPath, e, ctoken);
         }
         catch (Exception ex)
         {
@@ -275,7 +276,7 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         try
         {
             _logger.LogInformation("[E{id}] File system error encountered: {msg}", eventId, e.GetException()?.Message);
-            await _assetIndexing.OnFileSystemErrorAsync(e, ctoken);
+            await _assetQueue.OnFileSystemErrorAsync(e, ctoken);
         }
         catch (Exception ex)
         {

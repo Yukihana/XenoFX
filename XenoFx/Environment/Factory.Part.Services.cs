@@ -6,6 +6,7 @@ using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetUpload;
 using XenoFx.Services.Api.StateMonitor;
 using XenoFx.Services.Background.AssetIndexing;
+using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Hosted.AssetEnumeration;
 using XenoFx.Services.Hosted.AssetTracking;
 using XenoFx.Services.Storage.AssetPresence;
@@ -48,13 +49,16 @@ public static partial class FactoryExtensions
         // Storage layer
         services.AddSingleton<IAssetPresenceService, AssetPresenceService>();
 
-        // Analysis layer
+        // Data layer (processing)
 
-        // Abstraction layer
+        // Abstraction layer (make this pre-api once detached from indexing. This should be api-services adjacent.)
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
 
-        // Processing layer
+        // Data layer (routing)
         services.AddSingleton<IAssetIndexingService, AssetIndexingService>();
+
+        // Background layer
+        services.AddSingleton<IAssetQueueService, AssetQueueService>();
 
         // Hosted layer
         services.AddSingleton<IAssetTrackingService, AssetTrackingService>();

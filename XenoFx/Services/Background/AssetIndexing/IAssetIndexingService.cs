@@ -1,34 +1,48 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Background.AssetIndexing.DTOs;
 
 namespace XenoFx.Services.Background.AssetIndexing;
 
 public interface IAssetIndexingService
 {
-    // Event hooks
+    // Enumerator
 
-    Func<string[]>? EnumerateCallback { get; set; }
+    Task<bool> IndexResyncEventAsync(
+        string relativePath,
+        CancellationToken ctoken = default);
 
-    // Hosted source : AssetEnumeration
+    // File system watcher
 
-    Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default);
+    Task<bool> IndexCreateEventAsync(
+        string relativePath,
+        FileSystemEventArgs args,
+        CancellationToken ctoken = default);
 
-    // Hosted source : AssetTracking
+    Task<bool> IndexDeleteEventAsync(
+        string relativePath,
+        FileSystemEventArgs args,
+        CancellationToken ctoken = default);
 
-    Task OnFileCreatedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    Task<bool> IndexModifyEventAsync(
+        string relativePath,
+        FileSystemEventArgs args,
+        CancellationToken ctoken = default);
 
-    Task OnFileDeletedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    Task<bool> IndexRenameEventAsync(
+        string oldRelativePath,
+        string newRelativePath,
+        RenamedEventArgs args,
+        CancellationToken ctoken = default);
 
-    Task OnFileModifiedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    // Uploads
 
-    Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default);
-
-    Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default);
-
-    // API : AssetUpload
-
-    Task OnFileUploadedAsync(UploadedAssetIndexingInfo e, CancellationToken ctoken = default);
+    Task<bool> IndexUploadEventAsync(
+        string relativePath,
+        string reportedFilename,
+        string title,
+        string mimeType,
+        string pageUrl,
+        string dataUrl,
+        CancellationToken ctoken = default);
 }

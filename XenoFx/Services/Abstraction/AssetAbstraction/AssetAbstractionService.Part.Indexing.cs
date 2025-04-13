@@ -1,8 +1,5 @@
 ﻿using CSX.Common.Platform;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,50 +9,22 @@ namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
 public sealed partial class AssetAbstractionService
 {
-    public async Task TotalRefreshAsync(string[] files, CancellationToken ctoken = default)
-    {
-        await _assetPresence.WriteAsync(async (table, ct) =>
-        {
-            try
-            {
-                var all = await table.ToListAsync(ct);
-
-                List<AssetPresenceInfo> existing = [];
-                List<AssetPresenceInfo> ToRemove = [];
-
-                foreach (var row in all)
-                {
-                    if (files.Contains(row.RelativePath, FilenameNormalization.FilenameComparer))
-                        existing.Add(row);
-                    else
-                        ToRemove.Add(row);
-                }
-                table.RemoveRange(ToRemove);
-
-                var existingPaths = existing.Select(x => x.RelativePath).ToList();
-                var toAdd = files.Except(existingPaths)
-                    .Select(x => new AssetPresenceInfo() { RelativePath = x })
-                    .ToList();
-
-                if (toAdd.Count > 0)
-                    await table.AddRangeAsync(toAdd, ct);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to register asset presences.");
-                return false;
-            }
-        }, ctoken);
-        OnUpdated();
-    }
-
     public async Task CreateAsync(string path, CancellationToken ctoken = default)
     {
         int result = await _assetPresence.WriteAsync(async (table, ct) =>
         {
+            var linked = await table.ToListAsync(cancellationToken: ct);
+            var existing = linked.Where(x => x.RelativePath.Equals(path, FilenameNormalization.FilenameComparison)).FirstOrDefault();
+            if (existing != null)
+            {
+                // If the asset already exists, we don't need to add it again.
+                return false;
+            }
+
+            // If the asset doesn't exist, add it to the table.
             await table.AddAsync(new AssetPresenceInfo() { RelativePath = path }, ct);
+
+            // Tell the wrapper to save changes.
             return true;
         }, ctoken);
         OnUpdated();
@@ -67,9 +36,9 @@ public sealed partial class AssetAbstractionService
         {
             await table
                 .Where(x => x.RelativePath.Equals(path, FilenameNormalization.FilenameComparison))
-                .ExecuteDeleteAsync();
+                .ExecuteDeleteAsync(cancellationToken: ct);
             return true;
-        });
+        }, ctoken);
         OnUpdated();
     }
 }

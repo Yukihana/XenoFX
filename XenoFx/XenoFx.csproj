@@ -3,19 +3,22 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
 
+    <Product>XenoFX</Product>
+    <AssemblyTitle>XenoFX</AssemblyTitle>
+    <Description>Core logic for XenoFramework.</Description>
+    <Version>0.$([System.DateTime]::UtcNow.ToString("yyyy.MMdd.HHmm"))</Version>
 
-
-
-
+    <LangVersion>Latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.13.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.13.61" />
   </ItemGroup>
 
   <ItemGroup>
