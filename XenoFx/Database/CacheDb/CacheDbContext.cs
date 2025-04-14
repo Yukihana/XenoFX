@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
-using XenoFx.Database.Cache.Models;
+using XenoFx.Database.CacheDb.Models;
 
-namespace XenoFx.Database.Cache;
+namespace XenoFx.Database.CacheDb;
 
 public class CacheDbContext : DbContext
 {
@@ -32,7 +32,7 @@ public class CacheDbContext : DbContext
 
         // Register unique columns
         modelBuilder.Entity<AssetPresenceInfo>()
-            .HasIndex(e => e.RelativePath)
+            .HasIndex(e => e.NormalizedPath)
             .IsUnique();
     }
 }

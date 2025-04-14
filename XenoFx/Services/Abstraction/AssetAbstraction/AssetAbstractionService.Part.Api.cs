@@ -11,14 +11,20 @@ public sealed partial class AssetAbstractionService
 {
     public async Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default)
     {
+        string normalizedSearchString = searchString.ToLowerInvariant();
         return await _assetPresence.ReadAsync(async (table, ct) =>
         {
-            var all = await table.ToListAsync(ct);
+            // Optimize the query by filtering on the normalized path first
+            var paths = await table
+                .Where(x => x.NormalizedPath.Contains(normalizedSearchString))
+                .Select(x => x.OriginalPath)
+                .ToListAsync(ct);
 
-            return all
-                .Where(x => Path.GetFileNameWithoutExtension(x.RelativePath).Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                .Select(x => x.RelativePath)
-                .ToArray();
+            // Filter the results based on the actual filename (to prevent unnecessary match with a directory name)
+            return paths.Where(x => Path
+                .GetFileNameWithoutExtension(x)
+                .Contains(searchString, StringComparison.OrdinalIgnoreCase)
+            ).ToArray();
         }, ctoken);
     }
 }

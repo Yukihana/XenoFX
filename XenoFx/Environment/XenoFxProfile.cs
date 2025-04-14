@@ -6,7 +6,7 @@ public sealed partial class XenoFxProfile
 {
     // Databases
 
-    public string AssetsDatabasePath { get; set; } = "XenoAssets.sqlite";
+    public string AssetsDatabasePath { get; set; } = "Assets.sqlite";
     public string TempDatabasePath { get; set; } = "Temp.sqlite";
 
     // Directories

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using XenoFx.Database.Assets;
+using XenoFx.Database.AssetsDb;
 using XenoFx.Database.Legacy.Extensions;
 
 namespace XenoFx.Database.Legacy;

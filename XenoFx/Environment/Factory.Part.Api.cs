@@ -3,7 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Database.Cache;
+using XenoFx.Database.AssetsDb;
+using XenoFx.Database.CacheDb;
 
 namespace XenoFx.Environment;
 
@@ -31,6 +32,7 @@ public static partial class Factory
         CancellationToken ctoken = default)
     {
         // Validate database connections
+        await serviceProvider.InitializeAssetsDbContextAsync(ctoken);
         await serviceProvider.InitializeCacheDbContextAsync(ctoken);
 
         // Warm up the file tracker

@@ -3,7 +3,7 @@ EFC.Design package installation in startup project
 
 Use Package Manager Console:
 base command: Add-Migration <Migration-Name>
-optional: -OutputDir <LocalDirectoryPath>
+optional: -OutputDir <RelativeDirectoryPath>
 may need to provide: `-project <project-with-dbcontext>`
 may need to provide: `-startupproject <project-with-startup>` (if from a different project)
 
@@ -11,6 +11,11 @@ Convention:
 Initial: shorthand
 InitialCreate: first ever checkpoint, if applicable.
 InitialBaseline: not historically, but the one used as first.
+
+Note:
+- one directory per dbcontext
+- without specifying it'll occupy migrations root folder
+- when dealing with multiple dbcontexts, use a subfolder outputdir under migrations.
 
 Bypass for rebase/refresh database schema:
 1. Delete existing EF_migrations table (and history) from the associated database.

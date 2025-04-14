@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
-using XenoFx.Database.Cache;
+using XenoFx.Database.AssetsDb;
+using XenoFx.Database.CacheDb;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetUpload;
@@ -25,11 +26,9 @@ public static partial class FactoryExtensions
     {
         ctoken.ThrowIfCancellationRequested();
 
-        // Cache
+        // Databases
+        services.AddAssetsDbContextUsingSqlite(xfc);
         services.AddCacheDbContextUsingSqlite(xfc);
-
-        // Assets
-        // services.AddAssetsDbContextUsingSqlite(xfc); // Not implemented yet
 
         return services;
     }

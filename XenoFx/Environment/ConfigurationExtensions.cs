@@ -12,4 +12,8 @@ public static partial class ConfigurationExtensions
     public static string GetTempDbPath(this XenoFxConfiguration configuration) => PathExtensions.ResolveCombine(
         configuration.GetBasePath(),
         configuration.Profile.TempDatabasePath);
+
+    public static string GetAssetsDbPath(this XenoFxConfiguration configuration) => PathExtensions.ResolveCombine(
+        configuration.GetBasePath(),
+        configuration.Profile.AssetsDatabasePath);
 }

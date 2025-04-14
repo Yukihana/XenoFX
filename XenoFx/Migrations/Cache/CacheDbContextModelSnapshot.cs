@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using XenoFx.Database.Cache;
+using XenoFx.Database.CacheDb;
 
 #nullable disable
 
-namespace XenoFx.Migrations
+namespace XenoFx.Migrations.Cache
 {
     [DbContext(typeof(CacheDbContext))]
     partial class CacheDbContextModelSnapshot : ModelSnapshot
@@ -16,7 +16,7 @@ namespace XenoFx.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("XenoFx.Database.Cache.Models.AssetPresenceInfo", b =>
+            modelBuilder.Entity("XenoFx.Database.CacheDb.Models.AssetPresenceInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -26,7 +26,11 @@ namespace XenoFx.Migrations
                         .IsRequired()
                         .HasColumnType("BLOB");
 
-                    b.Property<string>("RelativePath")
+                    b.Property<string>("NormalizedPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginalPath")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -35,7 +39,7 @@ namespace XenoFx.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RelativePath")
+                    b.HasIndex("NormalizedPath")
                         .IsUnique();
 
                     b.ToTable("AssetPresences");

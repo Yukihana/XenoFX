@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Database.Cache.Models;
+using XenoFx.Database.CacheDb.Models;
 
 namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
@@ -11,18 +11,23 @@ public sealed partial class AssetAbstractionService
 {
     public async Task CreateAsync(string path, CancellationToken ctoken = default)
     {
+        string normalizedPath = path.ToLowerInvariant();
         int result = await _assetPresence.WriteAsync(async (table, ct) =>
         {
-            var linked = await table.ToListAsync(cancellationToken: ct);
-            var existing = linked.Where(x => x.RelativePath.Equals(path, FilenameNormalization.FilenameComparison)).FirstOrDefault();
+            var existing = await table
+                .Where(x => x.NormalizedPath == normalizedPath)
+                .FirstOrDefaultAsync(cancellationToken: ct);
+
+            // If the asset already exists, we don't need to add it again.
             if (existing != null)
-            {
-                // If the asset already exists, we don't need to add it again.
                 return false;
-            }
 
             // If the asset doesn't exist, add it to the table.
-            await table.AddAsync(new AssetPresenceInfo() { RelativePath = path }, ct);
+            await table.AddAsync(new AssetPresenceInfo()
+            {
+                OriginalPath = path,
+                NormalizedPath = normalizedPath,
+            }, ct);
 
             // Tell the wrapper to save changes.
             return true;
@@ -32,10 +37,11 @@ public sealed partial class AssetAbstractionService
 
     public async Task RemoveAsync(string path, CancellationToken ctoken = default)
     {
-        await _assetPresence.WriteAsync(async (table, ct) =>
+        string normalizedPath = path.ToLowerInvariant();
+        int result = await _assetPresence.WriteAsync(async (table, ct) =>
         {
             await table
-                .Where(x => x.RelativePath.Equals(path, FilenameNormalization.FilenameComparison))
+                .Where(x => x.NormalizedPath == normalizedPath)
                 .ExecuteDeleteAsync(cancellationToken: ct);
             return true;
         }, ctoken);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using XenoFx.Database.Assets;
+using XenoFx.Database.AssetsDb;
 
 namespace XenoFx.Database.Legacy;
 

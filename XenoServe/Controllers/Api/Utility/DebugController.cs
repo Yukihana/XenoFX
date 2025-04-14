@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Threading;
-using XenoFx.Database.Cache;
+using XenoFx.Database.CacheDb;
 
 namespace XenoServe.Controllers.Api.Utility;
 

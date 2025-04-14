@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Environment;
 
-namespace XenoFx.Database.Cache;
+namespace XenoFx.Database.CacheDb;
 
 public static partial class CacheDbExtensions
 {

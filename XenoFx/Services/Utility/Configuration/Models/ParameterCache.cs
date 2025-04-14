@@ -8,7 +8,7 @@ public sealed partial class ParameterCache
 
     // SubPaths
 
-    public string AssetsDatabasePath { get; set; } = "XenoAssets.sqlite";
+    public string AssetsDatabasePath { get; set; } = "Assets.sqlite";
     public string AssetsDirectory { get; set; } = "Assets";
     public string CacheDirectory { get; set; } = "Cache";
     public string ThumbsDirectory { get; set; } = "Thumbs";

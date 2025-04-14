@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Database.Cache.Models;
+using XenoFx.Database.CacheDb.Models;
 
 namespace XenoFx.Services.Storage.AssetPresence;
 
