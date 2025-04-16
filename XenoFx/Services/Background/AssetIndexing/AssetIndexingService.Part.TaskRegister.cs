@@ -8,16 +8,6 @@ namespace XenoFx.Services.Background.AssetIndexing;
 
 public sealed partial class AssetIndexingService
 {
-    public async Task<bool> IndexCreateEventAsync(
-        string relativePath,
-        FileSystemEventArgs args,
-        CancellationToken ctoken = default)
-    {
-        await _assetAbstraction.CreateAsync(relativePath, ctoken);
-
-        return false; // Re-evaluation not required.
-    }
-
     public async Task<bool> IndexDeleteEventAsync(
         string relativePath,
         FileSystemEventArgs args,
