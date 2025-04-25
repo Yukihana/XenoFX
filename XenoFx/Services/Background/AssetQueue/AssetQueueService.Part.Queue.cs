@@ -100,9 +100,8 @@ public partial class AssetQueueService
             if (tasks.Count > maxTasks)
                 await Task.WhenAny(tasks);
 
-            // Check if we can dequeue a new item.
-            // prority dequeue first (for items waiting). else:
-            if (_queue.TryDequeue(out var item))
+            // Check if we can dequeue a new item
+            if (TryDequeue(out var item))
             {
                 var task = ProcessItemAsync(item, ctoken);
                 tasks.Add(task);
@@ -117,13 +116,11 @@ public partial class AssetQueueService
                     break;
 
                 // Trigger a resync
-                await TryResyncAsync(ctoken);
+                TryRescan();
             }
-            else
-            {
-                // Wait for a short time before checking again.
-                await Task.Delay(100, ctoken);
-            }
+
+            // Wait for a short time before checking again.
+            await Task.Delay(100, ctoken);
         }
 
         _logger.LogInformation("Processing stopped.");
@@ -156,6 +153,21 @@ public partial class AssetQueueService
         int total = removeList.Count;
         int faulted = removeList.Count(t => t.IsFaulted);
         _logger.LogDebug("Cleanedup total {total} tasks, including {faulted} faulted tasks.", total, faulted);
+    }
+
+    // Rescan
+
+    private void TryRescan()
+    {
+        if (RescanCallback is Action callbackAction)
+        {
+            callbackAction.Invoke();
+            _logger.LogInformation("Rescan callback invoked successfully.");
+        }
+        else
+        {
+            _logger.LogWarning("Rescan callback is not registered. Unable to proceed with resync.");
+        }
     }
 
     // Priority Queue

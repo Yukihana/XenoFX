@@ -8,7 +8,6 @@ using XenoFx.Services.Api.AssetUpload;
 using XenoFx.Services.Api.StateMonitor;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Background.AssetQueue;
-using XenoFx.Services.Hosted.AssetEnumeration;
 using XenoFx.Services.Hosted.AssetTracking;
 using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
@@ -61,10 +60,8 @@ public static partial class FactoryExtensions
 
         // Hosted layer
         services.AddSingleton<IAssetTrackingService, AssetTrackingService>();
-        services.AddSingleton<IAssetEnumerationService, AssetEnumerationService>();
 
         services.AddHostedService(provider => provider.GetRequiredService<IAssetTrackingService>());
-        services.AddHostedService(provider => provider.GetRequiredService<IAssetEnumerationService>());
 
         // API layer
         services.AddSingleton<IAssetSearchService, AssetSearchService>();

@@ -24,20 +24,20 @@ public partial class AssetQueueService
             if (!context.ReevaluationRequired)
             {
                 // Task completed successfully, log and exit early
-                _logger.LogInformation("Task completed successfully: {context}", context);
+                _logger.LogInformation("Indexing completed successfully for: {context}", context);
                 return;
             }
         }
         catch (OperationCanceledException ex)
         {
             // Bail early on cancelled
-            _logger.LogError(ex, "Asset indexing was canceled for: {context}", context);
+            _logger.LogError(ex, "Indexing was canceled for: {context}", context);
             return;
         }
         catch (Exception ex)
         {
             // Handle unexpected exceptions
-            _logger.LogError(ex, "Asset indexing faulted for: {context}", context);
+            _logger.LogError(ex, "Indexing faulted for: {context}", context);
             context.ReevaluationRequired = true;
         }
 
@@ -50,7 +50,7 @@ public partial class AssetQueueService
 
         // Queue for reevaluation and log it.
         PriorityEnqueue(context);
-        _logger.LogInformation("Queuing task for re-evaluation after {sec} seconds: {context}", secondsDelay, context);
+        _logger.LogInformation("Queuing indexing task for re-evaluation after {sec} seconds: {context}", secondsDelay, context);
     }
 
     private async Task<bool> RouteProcessingAsync(

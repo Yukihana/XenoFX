@@ -15,7 +15,7 @@ public sealed partial class AssetQueueService : IAssetQueueService
 
     // Data
 
-    public Func<string[]>? EnumerateCallback { get; set; } = null;
+    public Action? RescanCallback { get; set; } = null;
     private bool _requireResync = false;
     private readonly CancellationTokenSource _shutdownTokenSource = new();
 

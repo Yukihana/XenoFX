@@ -1,13 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Utility.Configuration;
-using XenoFx.Services.Utility.PathValidator;
 
 namespace XenoFx.Services.Hosted.AssetTracking;
 
@@ -16,7 +13,6 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
     // Infrastructure
 
     private readonly IAssetQueueService _assetQueue;
-    private readonly IPathValidatorService _pathValidator;
     private readonly IConfigurationService _configuration;
     private readonly ILogger<AssetTrackingService> _logger;
 
@@ -40,15 +36,15 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
 
     public AssetTrackingService(
         IAssetQueueService assetQueue,
-        IPathValidatorService pathValidator,
         IConfigurationService configuration,
         ILogger<AssetTrackingService> logger)
     {
         _assetQueue = assetQueue;
-        _pathValidator = pathValidator;
         _configuration = configuration;
-        _configuration.RuntimeContext.AssetTrackingConfigurationUpdatedCallback = OnConfigurationUpdated;
         _logger = logger;
+
+        _assetQueue.RescanCallback = StartResync;
+        _configuration.RuntimeContext.AssetTrackingConfigurationUpdatedCallback = OnConfigurationUpdated;
     }
 
     public void Dispose()
@@ -72,6 +68,8 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
         await _lock.WaitAsync(ctoken);
         try
         {
+            // Start watcher
+
             if (_watcher is not null)
                 return;
 
@@ -89,6 +87,10 @@ public sealed partial class AssetTrackingService : IAssetTrackingService
             _watcher.Renamed += OnRenamed;
             _watcher.Deleted += OnDeleted;
             _watcher.Error += OnError;
+
+            // Start resync
+
+            StartResync();
         }
         finally { _lock.Release(); }
     }

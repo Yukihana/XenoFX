@@ -10,11 +10,11 @@ public interface IAssetQueueService
 {
     // Event hooks
 
-    Func<string[]>? EnumerateCallback { get; set; } // Replace with config -> file system error count, and check if assetQueue is empty.
+    Action? RescanCallback { get; set; }
 
     // Hosted source : AssetEnumeration
 
-    Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default);
+    Task OnFileResyncingAsync(FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
 
     // Hosted source : AssetTracking
 

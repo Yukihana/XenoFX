@@ -1,6 +1,8 @@
 ﻿using CSX.Common.Data.Events;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Background.AssetQueue.Models;
@@ -9,32 +11,15 @@ namespace XenoFx.Services.Background.AssetQueue;
 
 public partial class AssetQueueService
 {
-    // Rescan (incoming + bounced): TODO, redo this to unify the logic. (Merge Enumerate and Watcher services)
+    // Incoming : Resync
 
-    private async Task TryResyncAsync(CancellationToken ctoken = default)
+    public async Task OnFileResyncingAsync(
+        FileSystemEventArgs eventArgs,
+        CancellationToken ctoken = default)
     {
-        if (EnumerateCallback is null)
-        {
-            _logger.LogWarning("Resync callback is not registered. Unable to proceed with resync.");
-            return;
-        }
-
-        var files = EnumerateCallback.Invoke();
-        await OnFilesEnumeratedAsync(files, ctoken);
-    }
-
-    public async Task OnFilesEnumeratedAsync(string[] files, CancellationToken ctoken = default)
-    {
-        foreach (var file in files)
-        {
-            var eventArgs = new FileSystemEventArgs(
-                WatcherChangeTypes.All,
-                Path.GetDirectoryName(file)!,
-                Path.GetFileName(file)!);
-
-            var context = new AssetResyncEventContext(eventArgs);
-            await EnqueueAsync(context, ctoken);
-        }
+        var context = new AssetResyncEventContext(
+            eventArgs: eventArgs);
+        await EnqueueAsync(context, ctoken);
     }
 
     // Incoming : File system events
