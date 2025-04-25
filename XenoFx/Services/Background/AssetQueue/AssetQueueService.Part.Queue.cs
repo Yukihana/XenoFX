@@ -1,11 +1,12 @@
-﻿using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using System.Threading;
-using XenoFx.Services.Background.AssetQueue.Models;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using XenoFx.Services.Background.AssetQueue.Models;
 
 namespace XenoFx.Services.Background.AssetQueue;
 
@@ -14,10 +15,14 @@ public partial class AssetQueueService
     // Data
 
     private readonly ConcurrentQueue<AssetQueueEventContextBase> _queue = [];
-    private Task? _queueProcessing = null;
-    private readonly SemaphoreSlim _lock = new(1);
 
-    // Enqueue / Start
+    private readonly List<AssetQueueEventContextBase> _priorityRequeue = [];
+    private readonly ReaderWriterLockSlim _requeueLock = new();
+
+    private Task? _queueProcessing = null;
+    private readonly SemaphoreSlim _mainLock = new(1);
+
+    // Enqueue
 
     private async Task EnqueueAsync(
         AssetQueueEventContextBase context,
@@ -34,10 +39,12 @@ public partial class AssetQueueService
         await TryStartAsync(ctoken);
     }
 
+    // Start
+
     private async Task TryStartAsync(
         CancellationToken ctoken = default)
     {
-        await _lock.WaitAsync(ctoken);
+        await _mainLock.WaitAsync(ctoken);
         try
         {
             // Cleanup
@@ -71,7 +78,7 @@ public partial class AssetQueueService
         }
         finally
         {
-            _lock.Release();
+            _mainLock.Release();
         }
     }
 
@@ -81,20 +88,20 @@ public partial class AssetQueueService
         CancellationToken ctoken = default)
     {
         _logger.LogInformation("Pocessing starting...");
-        List<Task<AssetQueueEventContextBase>> tasks = [];
-        List<Task<AssetQueueEventContextBase>> removeList = [];
+        List<Task> tasks = [];
         int maxTasks = System.Environment.ProcessorCount;
 
         while (!ctoken.IsCancellationRequested)
         {
-            // Remove completed tasks.
-            await CleanupCompletedTasksAsync(tasks, ctoken);
+            // Lazy cleanup
+            CleanupCompletedTasks(tasks);
 
             // If we have too many tasks, wait for one to complete.
             if (tasks.Count > maxTasks)
                 await Task.WhenAny(tasks);
 
             // Check if we can dequeue a new item.
+            // prority dequeue first (for items waiting). else:
             if (_queue.TryDequeue(out var item))
             {
                 var task = ProcessItemAsync(item, ctoken);
@@ -122,126 +129,68 @@ public partial class AssetQueueService
         _logger.LogInformation("Processing stopped.");
     }
 
-    private async Task CleanupCompletedTasksAsync(List<Task<AssetQueueEventContextBase>> tasks, CancellationToken ctoken)
+    // Dequeue
+
+    private bool TryDequeue([NotNullWhen(true)] out AssetQueueEventContextBase? context)
     {
-        // ProcessItemAsync will handle the exceptions. A scaffold is unnecessary.
-        List<Task<AssetQueueEventContextBase>> removeList = [];
-        foreach (var task in tasks.Where(t => t.IsCompleted))
+        // Check priority requeues first
+        if (TryPriorityDequeue(out var priorityItem))
         {
-            try
-            {
-                var result = await task;
-                if (result.ReevaluationRequired)
-                {
-                    unchecked { result.ReevaluationCount++; }
-                    _logger.LogWarning("Queuing task for re-evaluation # {count}: {context}", result.ReevaluationCount, result);
-                    await EnqueueAsync(result, ctoken);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Processing scaffold failed to contain the error and resulted in the loss of input data for the task: {task}", task);
-            }
-            finally
-            {
-                removeList.Add(task);
-            }
+            context = priorityItem;
+            return true;
         }
-        tasks.RemoveAll(removeList.Contains);
+
+        // Try to dequeue an item
+        return _queue.TryDequeue(out context);
     }
 
-    // Process Item
+    // Cleanup
 
-    private async Task<AssetQueueEventContextBase> ProcessItemAsync(
-        AssetQueueEventContextBase context,
-        CancellationToken ctoken = default)
+    private void CleanupCompletedTasks(List<Task> tasks)
     {
+        // Clear the queue
+        List<Task> removeList = [.. tasks.Where(t => t.IsCompleted)];
+        tasks.RemoveAll(removeList.Contains);
+
+        // Summarize cleanup results
+        int total = removeList.Count;
+        int faulted = removeList.Count(t => t.IsFaulted);
+        _logger.LogDebug("Cleanedup total {total} tasks, including {faulted} faulted tasks.", total, faulted);
+    }
+
+    // Priority Queue
+
+    private void PriorityEnqueue(AssetQueueEventContextBase context)
+    {
+        _requeueLock.EnterWriteLock();
         try
         {
-            context.ReevaluationRequired = await RouteProcessingAsync(context, ctoken);
-            return context;
+            _priorityRequeue.Add(context);
         }
-        catch (OperationCanceledException ex)
-        {
-            _logger.LogError(ex, "Asset indexing was canceled for: {context}", context);
-            context.ReevaluationRequired = false;
-            return context;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Asset indexing faulted for: {context}", context);
-            context.ReevaluationRequired = true;
-            return context;
-        }
+        finally { _requeueLock.ExitWriteLock(); }
     }
 
-    private async Task<bool> RouteProcessingAsync(
-        AssetQueueEventContextBase context,
-        CancellationToken ctoken = default)
+    private bool TryPriorityDequeue([NotNullWhen(true)] out AssetQueueEventContextBase? context)
     {
-        // Resync
+        context = null;
 
-        if (context is AssetResyncEventContext resyncContext)
+        _requeueLock.EnterUpgradeableReadLock();
+        try
         {
-            return await _assetIndexing.IndexResyncEventAsync(
-                relativePath: resyncContext.RelativePath,
-                ctoken: ctoken);
-        }
-
-        // Watcher
-
-        if (context is AssetCreatedEventContext createdContext)
-        {
-            return await _assetIndexing.IndexCreateEventAsync(
-                relativePath: createdContext.RelativePath,
-                args: createdContext.EventArgs,
-                ctoken: ctoken);
-        }
-
-        if (context is AssetDeletedEventContext deletedContext)
-        {
-            return await _assetIndexing.IndexDeleteEventAsync(
-                relativePath: deletedContext.RelativePath,
-                args: deletedContext.EventArgs,
-                ctoken: ctoken);
-        }
-
-        if (context is AssetModifiedEventContext modifiedContext)
-        {
-            return await _assetIndexing.IndexModifyEventAsync(
-                relativePath: modifiedContext.RelativePath,
-                args: modifiedContext.EventArgs,
-                ctoken: ctoken);
-        }
-
-        if (context is AssetRenamedEventContext renamedContext)
-        {
-            return await _assetIndexing.IndexRenameEventAsync(
-                renamedContext.OldRelativePath,
-                renamedContext.NewRelativePath,
-                renamedContext.EventArgs,
-                ctoken);
-        }
-
-        // Upload
-
-        if (context is AssetUploadedEventContext uploadContext)
-        {
-            if (context.ReevaluationCount > 0)
+            context = _priorityRequeue.FirstOrDefault(x => x.ReevaluateAfter < DateTime.UtcNow);
+            if (context != null)
             {
-                _logger.LogWarning("Upload event was already processed: {context}", context);
-                return false;
-            }
-            return await _assetIndexing.IndexUploadEventAsync(
-                uploadContext.RelativePath,
-                uploadContext.ReportedFilename,
-                uploadContext.Title,
-                uploadContext.MimeType,
-                uploadContext.PageUrl,
-                uploadContext.DataUrl,
-                ctoken);
-        }
+                _requeueLock.EnterWriteLock();
+                try
+                {
+                    _priorityRequeue.Remove(context);
+                }
+                finally { _requeueLock.ExitWriteLock(); }
 
-        throw new NotImplementedException($"Processing for {context.GetType()} is not implemented.");
+                return true;
+            }
+        }
+        finally { _requeueLock.ExitUpgradeableReadLock(); }
+        return false;
     }
 }

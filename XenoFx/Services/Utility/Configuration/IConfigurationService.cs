@@ -16,8 +16,20 @@ public interface IConfigurationService
     // Derived
 
     string BaseDirectory { get; }
+
+    // SubPaths : Base
+
     string AssetsDirectory { get; }
+
+    // SubPaths : Cache
+
+    string UploadDirectory { get; }
+
+    // SubPaths : Assets
+
     string AssetUploadDirectory { get; }
+
+    // Parameters
 
     ulong AssetEnumerationIntervalSeconds { get; }
 }

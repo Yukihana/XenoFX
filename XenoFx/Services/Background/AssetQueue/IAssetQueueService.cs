@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using System.Threading;
+﻿using CSX.Common.Data.Events;
 using System;
-using XenoFx.Services.Background.AssetQueue.Models;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace XenoFx.Services.Background.AssetQueue;
 
@@ -18,17 +18,17 @@ public interface IAssetQueueService
 
     // Hosted source : AssetTracking
 
-    Task OnFileCreatedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    Task OnFileCreatedAsync(FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
 
-    Task OnFileDeletedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    Task OnFileDeletedAsync(FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
 
-    Task OnFileModifiedAsync(string path, FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    Task OnFileModifiedAsync(FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
 
-    Task OnFileRenamedAsync(string oldPath, string newPath, RenamedEventArgs e, CancellationToken ctoken = default);
+    Task OnFileRenamedAsync(RenamedEventArgs eventArgs, CancellationToken ctoken = default);
 
-    Task OnFileSystemErrorAsync(ErrorEventArgs e, CancellationToken ctoken = default);
+    Task OnFileSystemErrorAsync(ErrorEventArgs eventArgs, CancellationToken ctoken = default);
 
     // API : AssetUpload
 
-    Task OnFileUploadedAsync(AssetUploadedEventContext e, CancellationToken ctoken = default);
+    Task OnFileUploadedAsync(FileUploadedEventArgs eventArgs, CancellationToken ctoken = default);
 }

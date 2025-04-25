@@ -6,13 +6,13 @@ public class AssetResyncEventContext : AssetQueueEventContextBase
 {
     // Request
 
-    public string RelativePath { get; }
+    public FileSystemEventArgs EventArgs { get; }
 
     // Lifecycle
 
     public AssetResyncEventContext(
-        string relativePath)
+        FileSystemEventArgs eventArgs)
     {
-        RelativePath = relativePath;
+        EventArgs = eventArgs;
     }
 }

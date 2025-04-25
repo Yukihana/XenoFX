@@ -4,7 +4,6 @@ using CSX.Common.IO.Paths;
 using Microsoft.Extensions.Logging;
 using XenoFx.Environment;
 using XenoFx.Services.Utility.Configuration.Models;
-using XenoFx.Services.Utility.Profile.Models;
 
 namespace XenoFx.Services.Utility.Configuration;
 
@@ -38,8 +37,14 @@ public sealed partial class ConfigurationService : IConfigurationService
     private void GenerateCache()
     {
         _cache.BaseDirectory = _configuration.GetBasePath();
+
+        // Assets
         _cache.AssetsDirectory = PathExtensions.ResolveCombine(_cache.BaseDirectory, _configuration.Profile.AssetsDirectory);
         _cache.AssetUploadDirectory = PathExtensions.ResolveCombine(_cache.AssetsDirectory, _configuration.Profile.AssetUploadDirectory);
+
+        // Cache (cache subpath names aren't specified by profile; use inline names)
+        _cache.CacheDirectory = PathExtensions.ResolveCombine(_cache.BaseDirectory, _configuration.Profile.CacheDirectory);
+        _cache.UploadDirectory = PathExtensions.ResolveCombine(_cache.CacheDirectory, "uploads");
     }
 
     // Core Data
@@ -51,6 +56,9 @@ public sealed partial class ConfigurationService : IConfigurationService
 
     public string BaseDirectory
         => _cache.BaseDirectory;
+
+    public string UploadDirectory
+        => _cache.UploadDirectory;
 
     public string AssetsDirectory
         => _cache.AssetsDirectory;

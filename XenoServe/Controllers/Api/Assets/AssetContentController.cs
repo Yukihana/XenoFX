@@ -95,6 +95,8 @@ public class AssetContentController : ControllerBase
         [FromForm] string title = "",
         [FromForm] string pageUrl = "",
         [FromForm] string dataUrl = "",
+        [FromForm] string preferredFilename = "",
+        [FromForm] string extraData = "",
         CancellationToken ctoken = default)
     {
         try
@@ -106,11 +108,15 @@ public class AssetContentController : ControllerBase
 
             AssetUploadRequest request = new(data.OpenReadStream())
             {
-                Title = title,
                 Filename = data.FileName,
                 ContentMimeType = data.ContentType,
+
+                Title = title,
                 PageUrl = pageUrl,
                 DataUrl = dataUrl,
+
+                PreferredFilename = preferredFilename,
+                ExtraDataRaw = extraData,
             };
 
             var uploadResult = await _assetUpload.RegisterUploadAsync(request, ctoken);

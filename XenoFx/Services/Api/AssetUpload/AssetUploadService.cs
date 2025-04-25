@@ -1,4 +1,6 @@
-﻿using HeyRed.Mime;
+﻿using CSX.Common.Data.Events;
+using CSX.Common.Data.Exceptions;
+using HeyRed.Mime;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -8,19 +10,16 @@ using System.Threading.Tasks;
 using XenoFx.Environment;
 using XenoFx.Services.Api.AssetUpload.DTOs;
 using XenoFx.Services.Background.AssetQueue;
-using XenoFx.Services.Background.AssetQueue.Models;
 using XenoFx.Services.Utility.Configuration;
 
 namespace XenoFx.Services.Api.AssetUpload;
 
 public sealed partial class AssetUploadService : IAssetUploadService
 {
-    private const string UnsupportedUploadMessage = "Unsupported file type uploaded.";
-
     // Infrastructure
 
     private readonly IAssetQueueService _assetQueue;
-    private readonly IConfigurationService _configurationService;
+    private readonly IConfigurationService _configuration;
     private readonly ILogger<AssetUploadService> _logger;
 
     // Lifetime
@@ -31,17 +30,14 @@ public sealed partial class AssetUploadService : IAssetUploadService
         ILogger<AssetUploadService> logger)
     {
         _assetQueue = assetQueue;
-        _configurationService = configurationService;
+        _configuration = configurationService;
         _logger = logger;
     }
 
     // Derived
 
-    public string AssetUploadDirectoryPath
-        => _configurationService.AssetUploadDirectory;
-
-    public string AssetsDirectoryPath
-        => _configurationService.AssetsDirectory;
+    public string UploadDirectoryPath
+        => _configuration.UploadDirectory;
 
     // API for Controller
 
@@ -52,20 +48,44 @@ public sealed partial class AssetUploadService : IAssetUploadService
         try
         {
             string tempPath = await WriteToTemporaryFileAsync(request.DataStream, ctoken);
-            string finalPath = await MoveToFinalPathAsync(tempPath, request, ctoken);
 
-            await RegisterWithIndexingServiceAsync(request, finalPath, ctoken);
+            // Setup arguments
+            FileUploadedEventArgs eventArgs = new(temporaryFileFullPath: tempPath)
+            {
+                ReportedFilename = request.Filename,
+                ReportedMimeType = request.ContentMimeType,
 
+                Title = request.Title,
+                PageUrl = request.PageUrl,
+                DataUrl = request.DataUrl,
+
+                PreferredFilename = request.PreferredFilename,
+                ExtraDataRaw = request.ExtraDataRaw,
+            };
+
+            // Rule out malicious file types
+            await ThrowIfExecutableAsync(eventArgs, ctoken);
+
+            // Quick validate media type
+            await ThrowFastIfUnsupportedMediaFileAsync(eventArgs, ctoken);
+
+            // Queue the event args for indexing
+            await _assetQueue.OnFileUploadedAsync(eventArgs, ctoken);
+
+            // Finish up (TODO: Issue uploader's token to keep track of the download, so frontend can follow up).
             result.Message = "File uploaded successfully.";
+        }
+        catch (UnsupportedFileTypeException ex)
+        {
+            const string errorMessage = "Unsupported file uploaded.";
+            _logger.LogError(ex, errorMessage);
+            result.Message = errorMessage;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to register upload.");
-
-            if (ex.Message is UnsupportedUploadMessage)
-                result.Message = UnsupportedUploadMessage;
-            else
-                result.Message = "Failed to upload file.";
+            const string errorMessage = "Upload failed.";
+            _logger.LogError(ex, errorMessage);
+            result.Message = errorMessage;
         }
 
         return result;
@@ -73,11 +93,44 @@ public sealed partial class AssetUploadService : IAssetUploadService
 
     // Internal
 
+    private async Task<string> WriteToTemporaryFileAsync(Stream sourceStream, CancellationToken ctoken = default)
+    {
+        string tempPath = string.Empty;
+        try
+        {
+            using FileStream tempFile = GetTemporaryFileStream(ctoken);
+            tempPath = tempFile.Name;
+            await sourceStream.CopyToAsync(tempFile, ctoken);
+            await tempFile.FlushAsync(ctoken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to write to storage.");
+
+            // Cleanup on failure.
+            if (!string.IsNullOrEmpty(tempPath) && File.Exists(tempPath))
+            {
+                try
+                {
+                    File.Delete(tempPath);
+                }
+                catch (Exception cleanupEx)
+                {
+                    _logger.LogWarning(cleanupEx, "Failed to delete temporary file.");
+                }
+            }
+
+            throw;
+        }
+
+        return tempPath;
+    }
+
     private FileStream GetTemporaryFileStream(CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
-        string uploadDirectory = AssetUploadDirectoryPath;
+        string uploadDirectory = UploadDirectoryPath;
         string uploadExtension = XenoFxConstants.DefaultUploadExtension;
 
         // Ensure target location.
@@ -121,106 +174,61 @@ public sealed partial class AssetUploadService : IAssetUploadService
         }
     }
 
-    private async Task<string> WriteToTemporaryFileAsync(Stream sourceStream, CancellationToken ctoken = default)
-    {
-        string tempPath = string.Empty;
-        try
-        {
-            using FileStream tempFile = GetTemporaryFileStream(ctoken);
-            tempPath = tempFile.Name;
-            await sourceStream.CopyToAsync(tempFile, ctoken);
-            await tempFile.FlushAsync(ctoken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to write to storage.");
-
-            // Cleanup on failure.
-            if (!string.IsNullOrEmpty(tempPath) && File.Exists(tempPath))
-            {
-                try
-                {
-                    File.Delete(tempPath);
-                }
-                catch (Exception cleanupEx)
-                {
-                    _logger.LogWarning(cleanupEx, "Failed to delete temporary file.");
-                }
-            }
-
-            throw;
-        }
-
-        return tempPath;
-    }
-
-    [Obsolete("This logic is to be moved to indexing.")]
-    private async Task<string> MoveToFinalPathAsync(string tempPath, AssetUploadRequest request, CancellationToken ctoken = default)
+    private async static Task ThrowIfExecutableAsync(FileUploadedEventArgs eventArgs, CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
-        // Determine and validate based on the exact nature of the file.
-        string extension = await DetermineExtensionAsync(tempPath, request, ctoken);
-
-        // Figure out the naming of the file.
-        string title = Path.GetInvalidFileNameChars().Aggregate(request.Title, (current, c) => current.Replace(c, '_'));
-
-        bool emptyTitle = string.IsNullOrWhiteSpace(title);
-        string filename = emptyTitle ? $"{Guid.NewGuid()}" : title;
-
-        // Try for each possible name until one is available.
-        while (true)
+        // Ensure it's not an executable by mime type
+        string[] executableMimeTypes = [
+            "application/x-msdownload",
+            "application/x-executable",
+            "application/x-msdos-program",
+            "application/x-dosexec",
+            "application/x-sharedlib" ];
+        if (executableMimeTypes.Contains(eventArgs.ReportedMimeType, StringComparer.OrdinalIgnoreCase))
         {
-            ctoken.ThrowIfCancellationRequested();
-
-            try
-            {
-                string selectedPath = Path.Combine(
-                    AssetUploadDirectoryPath,
-                    $"{filename}.{extension}");
-
-                if (!File.Exists(selectedPath))
-                {
-                    File.Move(tempPath, selectedPath);
-                    return selectedPath;
-                }
-
-                // prep new for next iteration
-                string guid = Guid.NewGuid().ToString();
-                filename = emptyTitle ? guid : $"{title}_{guid}";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to finalize upload.");
-                throw;
-            }
+            throw new UnsupportedFileTypeException(
+                message: "Executable file mime-type detected.",
+                type: eventArgs.ReportedMimeType);
         }
-    }
 
-    private async Task<string> DetermineExtensionAsync(string tempPath, AssetUploadRequest request, CancellationToken ctoken = default)
-    {
-        // If available, determine the extension from the filename
-        // Use content-type as a fallback
-        // Else use MimeDetective
-        // Preferably move this into asset analysis.
-        // Store mime/file type in database
-        // Discard file from there, not here.
-        // Instead of using an upload extension, use extension as is.
-        // Set up an exclusion-list for files being uploaded, which Tracker ignores.
-        // Once completed uploading, pass the filepath to the tracker for indexing.
+        // Ensure it's not an executable by file extension
+        string[] executableExtensions = [".exe", ".bat", ".cmd", ".com", ".msi", ".pif", ".scr", ".cpl"];
+        string fileExtension = Path.GetExtension(eventArgs.ReportedFilename);
+        if (executableExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new UnsupportedFileTypeException(
+                message: "Executable file extension detected.",
+                type: fileExtension);
+        }
 
         await Task.Yield();
-        return MimeTypesMap.GetExtension(request.ContentMimeType);
     }
 
-    private async Task RegisterWithIndexingServiceAsync(AssetUploadRequest request, string finalPath, CancellationToken ctoken)
+    private Task ThrowFastIfUnsupportedMediaFileAsync(
+        FileUploadedEventArgs eventArgs,
+        CancellationToken ctoken = default)
     {
-        string relativePath = Path.GetRelativePath(
-            AssetsDirectoryPath,
-            finalPath);
+        ctoken.ThrowIfCancellationRequested();
 
-        AssetUploadedEventContext dto = request.ToIndexingInfo(relativePath);
+        string inferredExtension = MimeTypesMap.GetExtension(eventArgs.ReportedMimeType);
+        string reportedExtension = Path.GetExtension(eventArgs.ReportedFilename);
 
-        await _assetQueue.OnFileUploadedAsync(dto, ctoken);
+        if (string.IsNullOrWhiteSpace(inferredExtension) ||
+            string.IsNullOrWhiteSpace(reportedExtension) ||
+            !string.Equals(inferredExtension, reportedExtension, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning("Reported mime-type does not correspond to the reported file extension: {eventArgs}", eventArgs);
+        }
+
+        if (!XenoFxConstants.AllowedAssetExtensions.Contains(inferredExtension, StringComparer.OrdinalIgnoreCase) &&
+            !XenoFxConstants.AllowedAssetExtensions.Contains(reportedExtension, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new UnsupportedFileTypeException(
+                message: "Unsupported file type detected.",
+                type: eventArgs.ReportedMimeType);
+        }
+
+        return Task.CompletedTask;
     }
 }

@@ -15,6 +15,9 @@ public static partial class XenoFxConstants
 
     public static string[] DefaultProfileNames => ["Default", "Index"];
 
+    public static string[] AllowedAssetExtensions => [
+        ".mp4", ".webm", ".mkv", ".flv", ".avi", ];           // Modern Video Formats
+
     public static JsonSerializerOptions HumanReadableJsonOptions => new()
     {
         WriteIndented = true

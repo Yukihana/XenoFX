@@ -8,7 +8,7 @@ namespace XenoFx.Services.Background.AssetIndexing;
 
 public partial class AssetIndexingService
 {
-    public async Task<bool> IndexCreateEventAsync(
+    public async Task<bool> IndexDeleteEventAsync(
         FileSystemEventArgs eventArgs,
         CancellationToken ctoken = default)
     {
@@ -17,24 +17,22 @@ public partial class AssetIndexingService
             if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
                 return false;
 
-            await OnCreatedAsync(relativePath, ctoken);
-
-            return false; // Re-evaluation not required.
+            return await OnDeletedAsync(relativePath, ctoken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Indexing the creation event failed for: {path}", eventArgs.FullPath);
+            _logger.LogError(ex, "Indexing the deletion event failed for: {path}", eventArgs.FullPath);
             // Requeue unhandled exceptions for more log visibility, so it can be fixed. Maybe have an unhandled cases service to keep track.
             return true;
         }
     }
 
-    private async Task<bool> OnCreatedAsync(
+    private async Task<bool> OnDeletedAsync(
         string relativePath,
         CancellationToken ctoken = default)
     {
-        await _assetAbstraction.CreateAsync(relativePath, ctoken);
+        await _assetAbstraction.RemoveAsync(relativePath, ctoken);
 
-        return false; // Re-evaluation not required.
+        return false;
     }
 }
