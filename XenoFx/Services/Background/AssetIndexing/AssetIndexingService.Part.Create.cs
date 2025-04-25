@@ -17,9 +17,17 @@ public partial class AssetIndexingService
             if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
                 return false;
 
+            using (FileStream fs = File.Open(eventArgs.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            { } // Throws if the file is still being written to.
+
             await OnCreatedAsync(relativePath, ctoken);
 
             return false; // Re-evaluation not required.
+        }
+        catch (IOException ex)
+        {
+            _logger.LogWarning(ex, "File possibly locked or in use. Requeuing: {path}", eventArgs.FullPath);
+            return true;
         }
         catch (Exception ex)
         {

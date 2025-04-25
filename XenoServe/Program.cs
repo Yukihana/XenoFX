@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Threading;
@@ -14,9 +15,10 @@ public class Program
 {
     public async static Task Main(string[] args)
     {
+        // Create a serilog bootstrap logger
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .CreateLogger();
+            .CreateBootstrapLogger();
 
         try
         {
@@ -44,8 +46,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Attach Logger
-        builder.Host.UseSerilog();
+        // Attach Logger (Apply actual serilog configuration from appsettings.json)
+        builder.Host.UseSerilog((context, services, config) =>
+        {
+            config
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext();
+        });
 
         // Add services to the container.
         await builder.Services.AddXenoFxAsync(builder.Configuration);
