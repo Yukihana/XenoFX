@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using XenoFx.Database.AssetsDb.Models;
 using XenoFx.Database.CacheDb;
 using XenoFx.Database.CacheDb.Models;
+using XenoFx.Database.ValueConverters;
 
 namespace XenoFx.Database.AssetsDb;
 
@@ -35,9 +37,13 @@ public class AssetsDbContext : DbContext
     { }
 
     // Encoding/Decoding setup
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Conversion: UInt128 ←→ byte[16]
+
         // Register unique columns
+
         modelBuilder.Entity<AssetTag>()
             .HasIndex(e => e.TagId)
             .IsUnique();

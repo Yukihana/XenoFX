@@ -7,10 +7,10 @@ using XenoFx.Database.CacheDb;
 
 #nullable disable
 
-namespace XenoFx.Migrations.CacheDb
+namespace XenoFx.Database.CacheDb.Migrations
 {
     [DbContext(typeof(CacheDbContext))]
-    [Migration("20250414032039_InitialCreate")]
+    [Migration("20250430044121_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

@@ -22,10 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\CacheDb\" />
-    <Folder Include="Services\Api\AssetDownload\" />
     <Folder Include="Services\Control\" />
-    <Folder Include="Shared\Data\" />
   </ItemGroup>
 
   <ItemGroup>

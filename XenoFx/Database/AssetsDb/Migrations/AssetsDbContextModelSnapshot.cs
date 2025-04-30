@@ -2,20 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using XenoFx.Database.AssetsDb;
 
 #nullable disable
 
-namespace XenoFx.Migrations.AssetsDb
+namespace XenoFx.Database.AssetsDb.Migrations
 {
     [DbContext(typeof(AssetsDbContext))]
-    [Migration("20250414005438_InitialCreate")]
-    partial class InitialCreate
+    partial class AssetsDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");

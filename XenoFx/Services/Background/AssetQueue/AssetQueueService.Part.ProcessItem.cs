@@ -24,7 +24,7 @@ public partial class AssetQueueService
             if (!context.ReevaluationRequired)
             {
                 // Task completed successfully, log and exit early
-                _logger.LogInformation("Indexing completed successfully for: {context}", context);
+                _logger.LogInformation("Indexing completed successfully for: {@context}", context);
                 return;
             }
         }

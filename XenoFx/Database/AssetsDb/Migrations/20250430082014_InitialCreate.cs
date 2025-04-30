@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace XenoFx.Migrations.AssetsDb
+namespace XenoFx.Database.AssetsDb.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
