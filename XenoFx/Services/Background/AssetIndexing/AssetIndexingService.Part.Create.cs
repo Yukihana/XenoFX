@@ -17,17 +17,37 @@ public partial class AssetIndexingService
             if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
                 return false;
 
+            if (!File.Exists(eventArgs.FullPath))
+            {
+                _logger.LogWarning("Ignoring non-existent file: {path}", eventArgs.FullPath);
+                return false; // File doesn't exist, no need to re-evaluate.
+            }
+
+            // Check if the file is still being written to by attempting to open it exclusively.
             using (FileStream fs = File.Open(eventArgs.FullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-            { } // Throws if the file is still being written to.
+            {
+                if (fs.Length == 0)
+                {
+                    _logger.LogWarning("File is empty. Possibly awaiting content: {path}", eventArgs.FullPath);
+                    return true; // File is empty, awaiting content. Requeue.
+                }
+            } // Throws if the file is still being written to.
 
             await OnCreatedAsync(relativePath, ctoken);
+
+            _logger.LogInformation("Indexed creation: {path}", relativePath);
 
             return false; // Re-evaluation not required.
         }
         catch (IOException ex)
         {
-            _logger.LogWarning(ex, "File possibly locked or in use. Requeuing: {path}", eventArgs.FullPath);
-            return true;
+            bool exists = File.Exists(eventArgs.FullPath);
+            if (exists)
+                _logger.LogWarning(ex, "File possibly locked or in use. Requeuing: {path}", eventArgs.FullPath);
+            else
+                _logger.LogWarning(ex, "File not found, possibly moved. Ignoring: {path}", eventArgs.FullPath);
+
+            return exists; // Re-evaluate if the file is still present.
         }
         catch (Exception ex)
         {

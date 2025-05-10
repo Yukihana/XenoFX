@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Threading;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Abstraction.AssetAbstraction.DTOs;
 using XenoServe.Controllers.Api.Assets;
 using XenoServe.Data;
+using XenoServe.Data.Exceptions;
 using XenoServe.Shared.Data;
 using XenoServe.Shared.Extensions;
-using XenoServe.Data.Exceptions;
 
 namespace XenoServe.Features.AssetViewer;
 
@@ -46,6 +46,8 @@ public class AssetViewerController : Controller
     {
         try
         {
+            _logger.LogInformation("Viewer requested for path: {path}", path);
+
             // Validate: Terminate on invalid referers.
             if (renderType == ViewRenderType.Partial)
                 Request.EnsureSameOriginForPartial();

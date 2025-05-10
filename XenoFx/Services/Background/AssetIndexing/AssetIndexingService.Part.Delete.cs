@@ -17,7 +17,12 @@ public partial class AssetIndexingService
             if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
                 return false;
 
-            return await OnDeletedAsync(relativePath, ctoken);
+            var result = await OnDeletedAsync(relativePath, ctoken);
+
+            if (!result)
+                _logger.LogInformation("Indexed deletion: {path}", relativePath);
+
+            return result;
         }
         catch (Exception ex)
         {

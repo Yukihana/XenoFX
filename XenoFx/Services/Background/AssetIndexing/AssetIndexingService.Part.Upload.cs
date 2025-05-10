@@ -37,6 +37,8 @@ public partial class AssetIndexingService
             // TODO use recieved id for further database access, eg
             // await StoreMetadataAsync(id, eventArgs, ctoken);
 
+            _logger.LogInformation("Indexed upload: {path}", relativePath);
+
             return false; // Assimilation was successful. No need to requeue.
         }
         catch (Exception ex)

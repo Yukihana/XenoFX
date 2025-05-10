@@ -17,14 +17,19 @@ public partial class AssetIndexingService
             bool oldValid = _pathValidator.TryTruncateAssetPath(eventArgs.OldFullPath, out string? oldRelativePath);
             bool newValid = _pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? newRelativePath);
 
+            var result = false;
+
             if (oldValid && newValid)
-                return await OnRenamedAsync(oldRelativePath!, newRelativePath!, ctoken);
+                result = await OnRenamedAsync(oldRelativePath!, newRelativePath!, ctoken);
             else if (oldValid)
-                return await OnDeletedAsync(oldRelativePath!, ctoken);
+                result = await OnDeletedAsync(oldRelativePath!, ctoken);
             else if (newValid)
-                return await OnCreatedAsync(newRelativePath!, ctoken);
-            else
-                return false;
+                result = await OnCreatedAsync(newRelativePath!, ctoken);
+
+            if (!result)
+                _logger.LogInformation("Indexed rename: {path}", newRelativePath);
+
+            return result;
         }
         catch (Exception ex)
         {

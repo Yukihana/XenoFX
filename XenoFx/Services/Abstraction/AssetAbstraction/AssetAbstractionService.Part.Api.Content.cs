@@ -1,13 +1,9 @@
-﻿using CSX.Common.Platform;
-using HeyRed.Mime;
+﻿using HeyRed.Mime;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Database.CacheDb.Models;
 using XenoFx.Services.Abstraction.AssetAbstraction.DTOs;
 
 namespace XenoFx.Services.Abstraction.AssetAbstraction;

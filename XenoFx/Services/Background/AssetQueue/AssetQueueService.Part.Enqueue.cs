@@ -1,8 +1,6 @@
 ﻿using CSX.Common.Data.Events;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Background.AssetQueue.Models;

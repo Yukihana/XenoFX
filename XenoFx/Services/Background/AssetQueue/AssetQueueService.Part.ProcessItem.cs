@@ -21,12 +21,10 @@ public partial class AssetQueueService
         {
             // Run the task
             context.ReevaluationRequired = await RouteProcessingAsync(context, ctoken);
+
+            // Task completed successfully, exit early
             if (!context.ReevaluationRequired)
-            {
-                // Task completed successfully, log and exit early
-                _logger.LogInformation("Indexing completed successfully for: {@context}", context);
                 return;
-            }
         }
         catch (OperationCanceledException ex)
         {

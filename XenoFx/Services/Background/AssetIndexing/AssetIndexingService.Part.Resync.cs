@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@ public partial class AssetIndexingService
             return false;
 
         await _assetAbstraction.CreateAsync(relativePath, ctoken);
+
+        _logger.LogInformation("Indexed resync: {path}", relativePath);
 
         return false; // Re-evaluation not required.
     }

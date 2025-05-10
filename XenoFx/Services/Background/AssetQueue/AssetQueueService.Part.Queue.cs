@@ -87,7 +87,7 @@ public partial class AssetQueueService
     private async Task ProcessQueueAsync(
         CancellationToken ctoken = default)
     {
-        _logger.LogInformation("Pocessing starting...");
+        _logger.LogInformation("Processing starting...");
         List<Task> tasks = [];
         int maxTasks = System.Environment.ProcessorCount;
 

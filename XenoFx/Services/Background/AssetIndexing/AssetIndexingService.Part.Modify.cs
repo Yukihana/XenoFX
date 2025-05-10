@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +14,12 @@ public partial class AssetIndexingService
         if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
             return false;
 
-        return await OnModifiedAsync(relativePath, ctoken);
+        var result = await OnModifiedAsync(relativePath, ctoken);
+
+        if (!result)
+            _logger.LogInformation("Indexed modification: {path}", relativePath);
+
+        return result;
     }
 
     private Task<bool> OnModifiedAsync(string relativePath, CancellationToken ctoken)
