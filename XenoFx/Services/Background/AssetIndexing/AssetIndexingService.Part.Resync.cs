@@ -14,7 +14,7 @@ public partial class AssetIndexingService
         if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
             return false;
 
-        await _assetAbstraction.CreateAsync(relativePath, ctoken);
+        await LegacyCreateAsync(relativePath, ctoken);
 
         _logger.LogInformation("Indexed resync: {path}", relativePath);
 

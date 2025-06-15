@@ -8,4 +8,5 @@ public class AssetViewerViewModel
     public string SourceUrl { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string MimeType { get; set; } = string.Empty;
+    public string Extension { get; set; } = string.Empty;
 }

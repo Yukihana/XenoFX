@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Database.CacheDb.Models;
 
-namespace XenoFx.Services.Abstraction.AssetAbstraction;
+namespace XenoFx.Services.Background.AssetIndexing;
 
-public sealed partial class AssetAbstractionService
+public partial class AssetIndexingService
 {
-    public async Task CreateAsync(string path, CancellationToken ctoken = default)
+    public async Task LegacyCreateAsync(string path, CancellationToken ctoken = default)
     {
         string normalizedPath = path.ToLowerInvariant();
         int result = await _assetPresence.WriteAsync(async (table, ct) =>
@@ -34,7 +35,7 @@ public sealed partial class AssetAbstractionService
         OnUpdated();
     }
 
-    public async Task RemoveAsync(string path, CancellationToken ctoken = default)
+    public async Task LegacyRemoveAsync(string path, CancellationToken ctoken = default)
     {
         string normalizedPath = path.ToLowerInvariant();
         int result = await _assetPresence.WriteAsync(async (table, ct) =>
@@ -46,4 +47,21 @@ public sealed partial class AssetAbstractionService
         }, ctoken);
         OnUpdated();
     }
+
+    // State (Rework and reintegrate this with AssetIndex OR make an actual state service that StateMonitor API service will call)
+
+    private ulong _stateIndex = 0;
+    private DateTime _lastModified = DateTime.UtcNow;
+
+    private void OnUpdated()
+    {
+        Interlocked.Increment(ref _stateIndex);
+        _lastModified = DateTime.UtcNow;
+    }
+
+    public ulong StateIndex
+        => Interlocked.Read(ref _stateIndex);
+
+    public DateTime LastModified
+        => _lastModified;
 }

@@ -36,7 +36,7 @@ public partial class AssetIndexingService
         string relativePath,
         CancellationToken ctoken = default)
     {
-        await _assetAbstraction.RemoveAsync(relativePath, ctoken);
+        await LegacyRemoveAsync(relativePath, ctoken);
 
         return false;
     }

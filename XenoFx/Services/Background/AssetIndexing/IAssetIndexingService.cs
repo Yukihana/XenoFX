@@ -1,4 +1,5 @@
 ﻿using CSX.Common.Data.Events;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,4 +37,9 @@ public interface IAssetIndexingService
     Task<bool> IndexUploadEventAsync(
         FileUploadedEventArgs eventArgs,
         CancellationToken ctoken = default);
+
+    // State (Move this to a state service; rework)
+
+    ulong StateIndex { get; }
+    DateTime LastModified { get; }
 }

@@ -7,24 +7,17 @@ namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
 public interface IAssetAbstractionService
 {
-    // Write
-
-    Task CreateAsync(string path, CancellationToken ctoken = default);
-
-    Task RemoveAsync(string path, CancellationToken ctoken = default);
-
-    // Read
+    // Search
 
     Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default);
 
-    Task<AssetViewInfo> GetAssetDownloadInfoAsync(string relativePath, CancellationToken ctoken = default);
+    Task<string> GetFirstMatchingAssetPathAsync(string id, CancellationToken ctoken);
 
-    // Content
+    // Download
 
-    Task<string> GetContentPathAsync(string path, CancellationToken ctoken = default);
+    Task<AssetViewerInfo> GetAssetViewerInfoAsync(string id, CancellationToken ctoken = default);
 
-    // State
+    Task<string> GetContentFullPathAsync(string id, CancellationToken ctoken = default);
 
-    ulong StateIndex { get; }
-    DateTime LastModified { get; }
+    Task ValidateAssetAsync(string fullPath, CancellationToken ctoken);
 }

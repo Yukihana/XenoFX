@@ -40,27 +40,27 @@ public class AssetViewerController : Controller
 
     [HttpGet]
     public async Task<IActionResult> RenderAsync(
-        [FromQuery] string path,
+        [FromQuery] string id,
         [FromQuery] ViewRenderType renderType = ViewRenderType.Full,
         CancellationToken ctoken = default)
     {
         try
         {
-            _logger.LogInformation("Viewer requested for path: {path}", path);
+            _logger.LogInformation("Viewer requested for id: {id}", id);
 
             // Validate: Terminate on invalid referers.
             if (renderType == ViewRenderType.Partial)
                 Request.EnsureSameOriginForPartial();
 
-            // Prepare the model.
-            AssetViewInfo info = await _assetAbstraction.GetAssetDownloadInfoAsync(path, ctoken);
-            string sourceUrl = string.Format(AssetContentController.FileApiTemplate, info.AssetId);
-
+            // Prepare the model
+            AssetViewerInfo info = await _assetAbstraction.GetAssetViewerInfoAsync(id, ctoken);
+            string sourceUrl = string.Format(AssetContentController.FileApiTemplate, id, info.Extension);
             AssetViewerViewModel model = new()
             {
                 Title = info.Title,
                 SourceUrl = Url.Content($"~/{sourceUrl}"),
                 MimeType = info.MimeType,
+                Extension = info.Extension,
                 RenderType = renderType,
             };
 
@@ -73,7 +73,7 @@ public class AssetViewerController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to render asset viewer for path: {path}", path);
+            _logger.LogWarning(ex, "Failed to render asset viewer for id: {id}", id);
             return BadRequest("Failed to render asset viewer.");
         }
     }
@@ -82,18 +82,18 @@ public class AssetViewerController : Controller
 
     [HttpGet]
     [Route("partial")]
-    public async Task<IActionResult> PartialAsync([FromQuery] string path, CancellationToken ctoken = default)
-        => await RenderAsync(path: path, renderType: ViewRenderType.Partial, ctoken: ctoken);
+    public async Task<IActionResult> PartialAsync([FromQuery] string id, CancellationToken ctoken = default)
+        => await RenderAsync(id: id, renderType: ViewRenderType.Partial, ctoken: ctoken);
 
     [HttpGet]
     [Route("embed")]
-    public async Task<IActionResult> EmbedAsync([FromQuery] string path, CancellationToken ctoken = default)
-        => await RenderAsync(path: path, renderType: ViewRenderType.Embed, ctoken: ctoken);
+    public async Task<IActionResult> EmbedAsync([FromQuery] string id, CancellationToken ctoken = default)
+        => await RenderAsync(id: id, renderType: ViewRenderType.Embed, ctoken: ctoken);
 
     [HttpGet]
     [Route("iframe")]
-    public async Task<IActionResult> IFrameAsync([FromQuery] string path, CancellationToken ctoken = default)
-        => await RenderAsync(path: path, renderType: ViewRenderType.IFrame, ctoken: ctoken);
+    public async Task<IActionResult> IFrameAsync([FromQuery] string id, CancellationToken ctoken = default)
+        => await RenderAsync(id: id, renderType: ViewRenderType.IFrame, ctoken: ctoken);
 
     // Shared Internal
 }

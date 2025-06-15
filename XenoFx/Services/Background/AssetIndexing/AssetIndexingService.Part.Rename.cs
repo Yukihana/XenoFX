@@ -44,8 +44,8 @@ public partial class AssetIndexingService
         ctoken.ThrowIfCancellationRequested();
 
         // Legacy start
-        await _assetAbstraction.RemoveAsync(oldRelativePath, ctoken);
-        await _assetAbstraction.CreateAsync(newRelativePath, ctoken);
+        await LegacyRemoveAsync(oldRelativePath, ctoken);
+        await LegacyCreateAsync(newRelativePath, ctoken);
         // Legacy end
         return false;
     }

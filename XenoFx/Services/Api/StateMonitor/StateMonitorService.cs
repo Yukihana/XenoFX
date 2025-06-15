@@ -1,20 +1,20 @@
 ﻿using System;
-using XenoFx.Services.Abstraction.AssetAbstraction;
+using XenoFx.Services.Background.AssetIndexing;
 
 namespace XenoFx.Services.Api.StateMonitor;
 
 public sealed partial class StateMonitorService : IStateMonitorService
 {
-    private readonly IAssetAbstractionService _assetAbstraction;
+    private readonly IAssetIndexingService _assetIndexing;
 
-    public StateMonitorService(IAssetAbstractionService assetAbstraction)
+    public StateMonitorService(IAssetIndexingService assetIndexing)
     {
-        _assetAbstraction = assetAbstraction;
+        _assetIndexing = assetIndexing;
     }
 
     public ulong GetAssetRepositoryStateIndex()
-        => _assetAbstraction.StateIndex;
+        => _assetIndexing.StateIndex;
 
     public DateTime GetAssetRepositoryLastModified()
-        => _assetAbstraction.LastModified;
+        => _assetIndexing.LastModified;
 }

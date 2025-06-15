@@ -1,4 +1,5 @@
-﻿using CSX.Common.IO;
+﻿using CSX.Common.Data.Exceptions;
+using CSX.Common.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,15 +26,11 @@ public class AssetContentController : ControllerBase
     // Data
 
     public const string ControllerRoute = "api/assets";
-    public const string DownloadRoute = "download";
     public const string FileRoute = "file";
     public const string UploadRoute = "upload";
 
-    public static string DownloadPath => $"{ControllerRoute}/{DownloadRoute}";
-    public static string DownloadApiTemplate => $"{DownloadPath}?id={{0}}";
-
-    public static string FilePath => $"{ControllerRoute}/{FileRoute}";
-    public static string FileApiTemplate => $"{FilePath}?path={{0}}";
+    public static string FileApiPath => $"{ControllerRoute}/{FileRoute}";
+    public static string FileApiTemplate => $"{FileApiPath}?id={{0}}&type={{1}}";
 
     public static string UploadPath => $"{ControllerRoute}/{UploadRoute}";
 
@@ -52,39 +49,49 @@ public class AssetContentController : ControllerBase
     // Endpoints
 
     [HttpGet]
-    [Route(DownloadRoute)]
-    public async Task<IActionResult> DownloadAsync([FromQuery] string id, CancellationToken ctoken = default)
-    {
-        await Task.Yield();
-        throw new NotImplementedException();
-    }
-
-    [HttpGet]
     [Route(FileRoute)]
-    public async Task<IActionResult> FileAsync([FromQuery] string path, CancellationToken ctoken = default)
+    public async Task<IActionResult> FileAsync(
+        [FromQuery] string id,
+        [FromQuery] string? type,
+        CancellationToken ctoken = default)
     {
-        // Once asset database is up, store the mime type in the db, to prevent redundant analysis overhead.
         try
         {
-            string fullPath = await _assetAbstraction.GetContentPathAsync(path, ctoken);
-            string fileName = Path.GetFileName(fullPath);
-            string contentType = MimeTyping.GetMimeType(Path.GetExtension(fullPath));
+            // Get a match from the id
+            string fullPath = await _assetAbstraction.GetContentFullPathAsync(id, ctoken);
 
+            // Validate and analyse content type
+            await _assetAbstraction.ValidateAssetAsync(fullPath, ctoken); // throws if not found
+            string extension = Path.GetExtension(fullPath).TrimStart('.').ToLowerInvariant(); // Normalize extension to lowercase without leading dot
+            string contentType = MimeTyping.GetMimeType(extension);
+
+            // if expected content type is provided, verify the extension matches
+            if (!string.IsNullOrEmpty(type) &&
+                !extension.Equals(type.ToLowerInvariant()))
+            {
+                _logger.LogWarning("The requested content for id: {id} didn't the file: {fullPath}", id, fullPath);
+                return BadRequest("Content type mismatch. Please refresh.");
+            }
+
+            // Attempt to deliver the file
             _logger.LogInformation("Attempting to deliver resource located at: {fullPath}", fullPath);
             return new PhysicalFileResult(fullPath, contentType)    // Do not use File() wrapper as it ends up assigning the wrong type.
             {
                 EnableRangeProcessing = true,
             };
         }
-        catch (InvalidDataException ex) when (ex.Message is AssetAbstractionService.ResourceNotFoundMessage)
+        catch (ResourceNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Attempt to access unlisted resource at: {path}", path);
-            return NotFound();
+            _logger.LogWarning(ex, "Resource not found for id: {id}", id);
+            return NotFound(new { message = "Resource not found." }); // TODO: add logging reference id system.
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Bad request: {path}", path);
-            return BadRequest();
+            _logger.LogWarning(ex, "Unexpected error in {controller}/{route} for id: {id}",
+                ControllerRoute, FileRoute, id);
+            return Problem(
+                detail: "An internal server error has occured.",
+                statusCode: 500);
         }
     }
 

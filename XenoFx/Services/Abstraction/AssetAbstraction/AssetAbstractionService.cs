@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Threading;
+using System.Threading.Tasks;
+using XenoFx.Services.Abstraction.AssetAbstraction.DTOs;
 using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
