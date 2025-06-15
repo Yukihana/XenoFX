@@ -109,7 +109,7 @@ public partial class AssetQueueService
             }
 
             // Wait for active task count and queue to receed to zero.
-            if (tasks.Count == 0 && _queue.IsEmpty)
+            if (tasks.Count == 0 && _queue.IsEmpty && _priorityRequeue.Count == 0)
             {
                 // If resync isn't required, shutdown this subroutine. (the next enqueue will restart it)
                 if (!_requireResync)

@@ -49,19 +49,19 @@ public static partial class FactoryExtensions
 
         // Data layer (processing)
 
-        // Abstraction layer (make this pre-api once detached from indexing. This should be api-services adjacent.)
-        services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
-
-        // Data layer (routing)
+        // Data layer (processing router)
         services.AddSingleton<IAssetIndexingService, AssetIndexingService>();
 
-        // Background layer
+        // Background layer (long tasks; queue management)
         services.AddSingleton<IAssetQueueService, AssetQueueService>();
 
         // Hosted layer
         services.AddSingleton<IAssetTrackingService, AssetTrackingService>();
 
         services.AddHostedService(provider => provider.GetRequiredService<IAssetTrackingService>());
+
+        // Abstraction layer (reader and queue notifier; no write tasks)
+        services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
 
         // API layer
         services.AddSingleton<IAssetSearchService, AssetSearchService>();

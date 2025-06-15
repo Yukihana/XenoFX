@@ -1,5 +1,6 @@
 ﻿using HeyRed.Mime;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading;
@@ -16,14 +17,35 @@ public sealed partial class AssetAbstractionService
 
     public async Task<string> GetContentPathAsync(string relativePath, CancellationToken ctoken = default)
     {
+        // Validate as relative path; should not be rooted or absolute (otherwise can be exploited to access arbitrary files on the server)
+        if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath) || Path.IsPathFullyQualified(relativePath))
+            throw new ArgumentException("The provided path must be a relative path.", nameof(relativePath));
+
+        // Check if the path falls within parameters
         if (!await IsValidAssetPathAsync(relativePath, ctoken))
             throw new InvalidOperationException(ResourceNotFoundMessage);
 
+        // Build the full path of the resource
         string resourcePath = Path.Combine(
             _configurationService.AssetsDirectory,
             relativePath);
+        resourcePath = Path.GetFullPath(resourcePath);
 
-        return Path.GetFullPath(resourcePath);
+        // Notify and throw if file doesn't exist
+        if (!File.Exists(resourcePath))
+        {
+            FileSystemEventArgs fileDeletedEventArgs = new(
+                WatcherChangeTypes.Deleted,
+                Path.GetDirectoryName(resourcePath) ?? string.Empty,
+                Path.GetFileName(resourcePath));
+
+            _logger.LogWarning("Resource not found at path: {resourcePath}. Notifying the queue service.", resourcePath);
+            await _assetQueue.OnFileDeletedAsync(fileDeletedEventArgs, ctoken);
+            throw new InvalidOperationException(ResourceNotFoundMessage);
+        }
+
+        // Return the full path of the resource
+        return resourcePath;
     }
 
     public async Task<AssetViewInfo> GetAssetDownloadInfoAsync(string relativePath, CancellationToken ctoken = default)
