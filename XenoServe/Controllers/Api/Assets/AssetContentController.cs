@@ -73,8 +73,14 @@ public class AssetContentController : ControllerBase
                 return BadRequest("Content type mismatch. Please refresh.");
             }
 
+            // Log it
+            var range = Request.Headers.Range;
+            if (range.Count > 0)
+                _logger.LogInformation("Delivering: {fullPath}; Ranges: {ranges}", fullPath, range);
+            else
+                _logger.LogInformation("Delivering: {fullPath}", fullPath);
+
             // Attempt to deliver the file
-            _logger.LogInformation("Attempting to deliver resource located at: {fullPath}", fullPath);
             return new PhysicalFileResult(fullPath, contentType)    // Do not use File() wrapper as it ends up assigning the wrong type.
             {
                 EnableRangeProcessing = true,
