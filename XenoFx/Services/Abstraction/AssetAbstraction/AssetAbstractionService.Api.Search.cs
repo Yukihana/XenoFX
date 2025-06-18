@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
-public sealed partial class AssetAbstractionService
+public partial class AssetAbstractionService
 {
     public async Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default)
     {

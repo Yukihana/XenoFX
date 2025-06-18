@@ -30,9 +30,9 @@ public class AssetContentController : ControllerBase
     public const string UploadRoute = "upload";
 
     public static string FileApiPath => $"{ControllerRoute}/{FileRoute}";
-    public static string FileApiTemplate => $"{FileApiPath}?id={{0}}&type={{1}}";
-
     public static string UploadPath => $"{ControllerRoute}/{UploadRoute}";
+
+    public static string FileApiTemplate => $"{FileApiPath}?id={{0}}&type={{1}}";
 
     // Lifecycle
 
@@ -57,19 +57,27 @@ public class AssetContentController : ControllerBase
     {
         try
         {
-            // Get a match from the id
-            string fullPath = await _assetAbstraction.GetContentFullPathAsync(id, ctoken);
+            // make this more OO instead of calling one off methods
+            // ie get the AssetInfo, then use abstraction as a function facilitator
 
-            // Validate and analyse content type
-            await _assetAbstraction.ValidateAssetAsync(fullPath, ctoken); // throws if not found
+            // Placeholder for [ID lookup -> AssetInfo]
+            // currently using [searchKey(as id) -> relativePath]
+            string path = await _assetAbstraction.GetFirstMatchingAssetPathAsync(id, ctoken);
+
+            // Placeholder for cross-checking asset info with presences for the file's current location;
+            // returns usable full path;
+            // currently using [relativePath -> fullPath] and notifies if the file is missing
+            string fullPath = await _assetAbstraction.GetAssetFilePathAsync(path, ctoken);
+
+            // Analyse content type
             string extension = Path.GetExtension(fullPath).TrimStart('.').ToLowerInvariant(); // Normalize extension to lowercase without leading dot
             string contentType = MimeTyping.GetMimeType(extension);
 
-            // if expected content type is provided, verify the extension matches
+            // if expected content type is provided, verify the extension matches (this is a temporary measure)
             if (!string.IsNullOrEmpty(type) &&
                 !extension.Equals(type.ToLowerInvariant()))
             {
-                _logger.LogWarning("The requested content for id: {id} didn't the file: {fullPath}", id, fullPath);
+                _logger.LogWarning("The content's specified type:{type} for id:{id} didn't match the file:{fullPath}", type, id, fullPath);
                 return BadRequest("Content type mismatch. Please refresh.");
             }
 

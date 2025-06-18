@@ -1,5 +1,4 @@
 ﻿using HeyRed.Mime;
-using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,21 +8,7 @@ namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
 public sealed partial class AssetAbstractionService
 {
-    public const string ResourceNotFoundMessage = "Resource not found.";
-
     // API
-
-    public async Task<string> GetContentFullPathAsync(string id, CancellationToken ctoken = default)
-    {
-        string relativePath = await GetFirstMatchingAssetPathAsync(id, ctoken);
-
-        // Build and return the full path of the resource
-        string resourcePath = Path.Combine(
-            _configurationService.AssetsDirectory,
-            relativePath);
-
-        return Path.GetFullPath(resourcePath);
-    }
 
     public async Task<AssetViewerInfo> GetAssetViewerInfoAsync(string id, CancellationToken ctoken = default)
     {
