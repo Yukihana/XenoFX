@@ -63,8 +63,8 @@ public static partial class FactoryExtensions
         // Abstraction layer (reader and queue notifier; no write tasks)
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
 
-        // API layer
-        services.AddSingleton<IAssetSearchService, AssetSearchService>();
+        // API layer (TODO Ensure all services here are changed to scoped)
+        services.AddScoped<IAssetSearchService, AssetSearchService>();
         services.AddSingleton<IAssetUploadService, AssetUploadService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();
 

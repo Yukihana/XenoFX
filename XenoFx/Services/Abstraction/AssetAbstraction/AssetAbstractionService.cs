@@ -5,6 +5,10 @@ using XenoFx.Services.Utility.Configuration;
 
 namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
+/// <summary>
+/// Forms the underlying layer that handles mismatches and updates.
+/// That way upper layers can simply focus on the business logic.
+/// </summary>
 public sealed partial class AssetAbstractionService : IAssetAbstractionService
 {
     private readonly IAssetPresenceService _assetPresence;

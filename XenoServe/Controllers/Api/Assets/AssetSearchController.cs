@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Api.AssetSearch;
+using XenoFx.Services.Api.AssetSearch.Contracts;
 
 namespace XenoServe.Controllers.Api.Assets;
 
@@ -22,14 +25,45 @@ public sealed partial class AssetSearchController : ControllerBase
         _logger = logger;
     }
 
+    // Search
+
     [HttpGet]
     [Route("search")]
+    public async Task<IActionResult> SearchAsync(
+        [FromQuery] AssetSearchQuery query,
+        CancellationToken ctoken = default)
+    {
+        try
+        {
+            var response = await _assetSearch.SearchAsync(query, ctoken);
+            var start = response.Page * response.PageSize;
+            var end = start + response.Count;
+
+            _logger.LogInformation(
+                "Returning {page}:{count} of {total} for the query '{query}' generated in {elapsed}. Results: {list}",
+                response.Page,                                    // Page
+                response.Count,                                   // Count
+                response.Total,                                   // Total
+                query.SearchString,                             // Query
+                $"[{response.Duration}]",                   // Duration
+                response.Matches);
+
+            // Results
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while searching for assets with query '{query}'", query);
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
+    }
+
+    // Cache (aka Get Have; To be removed)
+
+    [HttpGet]
+    [Route("matches")]
     public async Task<IActionResult> GetHaveAsync([FromQuery] string query, CancellationToken ctoken = default)
     {
-        // turn this into api-v1 defaulting to whole string search
-        // v2 will do both full-match and word-by-word relevance match
-        // - and only revert to v1 if match-whole-string equivalent parameter is used
-
         var result = await _assetSearch.GetHaveAsync(query, ctoken);
         _logger.LogInformation("Found {count} results for query '{query}': {list}", result.Length, query, result);
         return Ok(result);

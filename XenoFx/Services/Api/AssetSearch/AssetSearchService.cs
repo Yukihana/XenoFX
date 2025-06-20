@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
@@ -8,18 +8,20 @@ namespace XenoFx.Services.Api.AssetSearch;
 public sealed partial class AssetSearchService : IAssetSearchService
 {
     private readonly IAssetAbstractionService _assetAbstraction;
+    private readonly ILogger<AssetSearchService> _logger;
 
-    public AssetSearchService(IAssetAbstractionService assetAbstraction)
+    public AssetSearchService(
+        IAssetAbstractionService assetAbstraction,
+        ILogger<AssetSearchService> logger)
     {
         _assetAbstraction = assetAbstraction;
+        _logger = logger;
     }
 
-    public async Task<string[]> GetHaveAsync(string searchString, CancellationToken ctoken = default)
+    // Legacy GetHave
+
+    public async Task<string[]> GetHaveAsync(
+        string searchString,
+        CancellationToken ctoken = default)
         => await _assetAbstraction.GetHaveAsync(searchString, ctoken);
-
-    public async Task<Dictionary<string, float>> SearchAsync(string searchString, CancellationToken ctoken = default)
-    {
-        await Task.Yield();
-        return [];
-    }
 }
