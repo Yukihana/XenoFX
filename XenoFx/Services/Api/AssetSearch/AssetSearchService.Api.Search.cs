@@ -20,14 +20,16 @@ public partial class AssetSearchService
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Retrieve all entries
-        var presences = await _assetAbstraction.GetPresencesAsync(ctoken);
+        List<AssetPresenceInfo> presences = await _assetAbstraction.GetPresencesAsync(ctoken);
 
         // Filter and order the presences based on the query
-        var filtered = presences
-            .Let(FilterAndOrder, query);
+        var sorted
+            = string.IsNullOrWhiteSpace(query.Keywords)
+            ? presences.Randomize()
+            : presences.Let(FilterAndOrder, query);
 
         // Apply pagination
-        var selection = filtered
+        var selection = sorted
             .Skip(query.Page * query.PageSize)
             .Take(query.PageSize)
             .ToList();
@@ -41,7 +43,7 @@ public partial class AssetSearchService
         // Map results to DTO
         var response = query.ToResult();
         response.Results = results;
-        response.Total = filtered.Count();
+        response.Total = sorted.Count();
         response.Duration = elapsed;
         response.Timestamp = DateTime.UtcNow;
 

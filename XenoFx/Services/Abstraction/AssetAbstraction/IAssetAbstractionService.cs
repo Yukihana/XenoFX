@@ -11,7 +11,7 @@ public interface IAssetAbstractionService
 {
     // Library
 
-    Task<IEnumerable<AssetPresenceInfo>> GetPresencesAsync(
+    Task<List<AssetPresenceInfo>> GetPresencesAsync(
         CancellationToken ctoken = default);
 
     // Search

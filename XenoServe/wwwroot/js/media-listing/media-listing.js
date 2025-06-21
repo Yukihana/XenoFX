@@ -30,6 +30,7 @@ export class XenoServeMediaListing {
     #keywords = "";
     #page = 0;
     #pageSize = 30;
+    #totalItems = 0;
 
     constructor() {
         this.onResultClicked = this.onResultClicked.bind(this);
@@ -61,6 +62,14 @@ export class XenoServeMediaListing {
         updateQueryParam("pageSize", value);
     }
 
+    get totalItems() {
+        return this.#totalItems;
+    }
+    set totalItems(value) {
+        this.#totalItems = value;
+        console.log(this.#totalItems);
+    }
+
     // Properties : Media
 
     get view() {
@@ -84,26 +93,22 @@ export class XenoServeMediaListing {
     onFormSubmit = event => {
         console.log(this.#page);
         event.preventDefault(); // Prevent page reload
-        window.xenoserveMediaListing.doSearchScaffold();
+        window.xenoserveMediaListing.doSearchScaffold(0);
     }
 
     // Search
 
-    doSearchScaffold = async () => {
+    doSearchScaffold = async (page) => {
         // this class handles parameter and state operations
         try {
             // Update this method to restore pagination data from class scope members before running the actual api call.
             // TODO pull these from their respective input boxes
             const keywords = this.searchInput.value.trim();
-            let page = this.page;
             let pageSize = this.pageSize;
 
-            // Validate inputs
-            if (keywords != this.keywords) {
-                page = 0;
-            }
-            if (!pageSize) {
-                pageSize = 30;  // Default size
+            // Ensure pagesize is a valid number
+            if (!pageSize || pageSize < 1) {
+                pageSize = 30;
             }
 
             const success = await this.doSearch(keywords, page, pageSize);
@@ -128,7 +133,7 @@ export class XenoServeMediaListing {
                 return false;
 
             this.populateResults(response.results);
-            this.updatePagination(response.Page, response.PageSize, response.Total);
+            this.updatePagination(response.page, response.pageSize, response.total);
             return true;
         } catch (error) {
             console.error("Error during search:", error);
@@ -167,26 +172,36 @@ export class XenoServeMediaListing {
         this.searchResultsList.append(...resultCards);
     }
 
-    updatePagination = (currentPage, pageSize, totalItems) => {
-    }
-
     // Results
 
     createResultCard = result => {
-        const text = document.createElement('span');
-        text.innerHTML = result.title;
         const card = document.createElement('div');
-        card.className = "result-card";
-        card.setAttribute('data-media-id', result.source);// change this to id when using the id system instead
+        card.className = "media-card";
+
+        const thumb = document.createElement('div');
+        thumb.className = "media-card-thumb";
+        card.appendChild(thumb);
+
+        const detail = document.createElement('div');
+        detail.className = "media-card-details";
+        card.appendChild(detail);
+
+        const text = document.createElement('div');
+        text.className = "media-title";
+        text.innerHTML = result.title;
+
+        detail.appendChild(text);
+
+        card.title = result.title;
+        card.setAttribute('data-media-id', result.source);  // change this to id when using the id system instead
         card.setAttribute('data-media-type', result.mediaType);
-        card.append(text);
 
         return card;
     }
 
     onResultClicked = event => {
         try {
-            const target = event.target.closest('.result-card');
+            const target = event.target.closest('.media-card');
             if (target) {
                 const id = target.getAttribute('data-media-id');
                 const type = target.getAttribute('data-media-type');
@@ -209,6 +224,54 @@ export class XenoServeMediaListing {
         viewer.load();
     }
 
+    // pagination
+
+    updatePagination = (currentPage, pageSize, totalItems) => {
+        this.#totalItems = totalItems;
+
+        // disable enable pagination buttons
+        const lastPage = Math.max(0, Math.ceil(totalItems / pageSize) - 1);
+        const isFirst = currentPage <= 0;
+        const isLast = currentPage >= lastPage;
+
+        this.paginationFirst.disabled = isFirst;
+        this.paginationPrevious.disabled = isFirst;
+        this.paginationNext.disabled = isLast;
+        this.paginationLast.disabled = isLast;
+    }
+
+    onFirst = event => {
+        let page = this.page;
+        if (page > 0) {
+            this.doSearchScaffold(0);
+        }
+    }
+    onPrevious = event => {
+        let page = this.page;
+        if (page > 0) {
+            this.doSearchScaffold(page - 1);
+        }
+    }
+    onNext = event => {
+        let page = this.page;
+        let pageSize = this.pageSize;
+        if (pageSize < 1)
+            pageSize = 30;
+        let lastPage = Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1);
+        if (page < lastPage) {
+            this.doSearchScaffold(page + 1);
+        }
+    }
+    onLast = event => {
+        let page = this.page;
+        let pageSize = this.pageSize;
+        if (pageSize < 1)
+            pageSize = 30;
+        let lastPage = Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1);
+        if (page < lastPage)
+            this.doSearchScaffold(lastPage);
+    }
+
     // Internal
 
     isValid = data => {
@@ -225,7 +288,17 @@ export class XenoServeMediaListing {
         this.searchInput = document.querySelector('#search-input');
         this.searchSubmit = document.querySelector('#search-submit');
 
+        // pagination
         this.paginationContainer = document.querySelector('#pagination-container');
+
+        this.paginationFirst = document.querySelector('#pagination-first');
+        this.paginationFirst.addEventListener('click', event => this.onFirst(event));
+        this.paginationPrevious = document.querySelector('#pagination-previous');
+        this.paginationPrevious.addEventListener('click', event => this.onPrevious(event));
+        this.paginationNext = document.querySelector('#pagination-next');
+        this.paginationNext.addEventListener('click', event => this.onNext(event));
+        this.paginationLast = document.querySelector('#pagination-last');
+        this.paginationLast.addEventListener('click', event => this.onLast(event));
 
         this.mediaContainer = document.querySelector('#media-container');
         this.mediaViewer = document.querySelector('#media-viewer');
@@ -245,13 +318,16 @@ export class XenoServeMediaListing {
             this.searchInput.value = this.keywords;
         }
 
-        const page = restoredState.get("page");
-        if (this.isValid( page))
+        const page = parseInt(restoredState.get("page"));
+        if (!isNaN(page))
             this.#page = page;
 
-        const pageSize = restoredState.get("pageSize");
-        if (this.isValid(pageSize))
+        let pageSize = parseInt(restoredState.get("pageSize"));
+        if (!isNaN(pageSize)) {
             this.#pageSize = pageSize;
+        }
+
+        this.doSearchScaffold(page);
 
         const view = restoredState.get("view");
         if (this.isValid(view))
@@ -265,7 +341,6 @@ export class XenoServeMediaListing {
 
         if (this.view && this.type)
             this.setMedia(this.view, this.type);
-        this.doSearch(this.keywords, this.page, this.pageSize);
     }
 
     // Bootstrap

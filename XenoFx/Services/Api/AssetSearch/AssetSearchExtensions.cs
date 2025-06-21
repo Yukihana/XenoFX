@@ -1,5 +1,6 @@
 ﻿using HeyRed.Mime;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using XenoFx.Database.CacheDb.Models;
 using XenoFx.Services.Api.AssetSearch.Contracts;
@@ -34,5 +35,18 @@ public static class AssetSearchExtensions
         char[] delimiters = { '_', '-', ' ' };
         string[] parts = filename.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
         return string.Join(" ", parts).Trim();
+    }
+
+    // For unspecified
+    public static IEnumerable<T> Randomize<T>(this IEnumerable<T> source)
+    {
+        List<T> copy = [.. source];
+
+        while (copy.Count > 0)
+        {
+            int index = Random.Shared.Next(copy.Count);
+            yield return copy[index];
+            copy.RemoveAt(index);
+        }
     }
 }

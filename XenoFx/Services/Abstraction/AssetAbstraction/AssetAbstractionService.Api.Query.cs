@@ -11,7 +11,7 @@ namespace XenoFx.Services.Abstraction.AssetAbstraction;
 
 public partial class AssetAbstractionService
 {
-    public async Task<IEnumerable<AssetPresenceInfo>> GetPresencesAsync(
+    public async Task<List<AssetPresenceInfo>> GetPresencesAsync(
         CancellationToken ctoken = default)
     {
         // Copy and close connection (Immediate)
