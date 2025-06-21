@@ -14,15 +14,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\Control\**" />
+    <EmbeddedResource Remove="Services\Control\**" />
+    <None Remove="Services\Control\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.13.61" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Control\" />
   </ItemGroup>
 
   <ItemGroup>

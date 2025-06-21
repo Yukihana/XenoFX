@@ -40,7 +40,7 @@ public partial class AssetSearchService
 
         // Map results to DTO
         var response = query.ToResult();
-        response.Matches = results;
+        response.Results = results;
         response.Total = filtered.Count();
         response.Duration = elapsed;
         response.Timestamp = DateTime.UtcNow;

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -80,6 +81,12 @@ public class Program
     private async static Task<WebApplication> PreInitializeAsync(WebApplication app, CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
+
+        // Redirect the default path to where it's needed
+        app.MapGet("/", () => Results.Redirect("/static/browse.html"));
+
+        // Enable static files
+        app.UseStaticFiles();
 
         // Initialize service groups
         await app.Services.PreInitializeXenoFxAsync(ctoken);

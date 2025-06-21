@@ -40,13 +40,13 @@ public sealed partial class AssetSearchController : ControllerBase
             var end = start + response.Count;
 
             _logger.LogInformation(
-                "Returning {page}:{count} of {total} for the query '{query}' generated in {elapsed}. Results: {list}",
-                response.Page,                                    // Page
-                response.Count,                                   // Count
-                response.Total,                                   // Total
-                query.SearchString,                             // Query
-                $"[{response.Duration}]",                   // Duration
-                response.Matches);
+                "Returning {page}:{count} of {total} for the query '{query}' generated in {elapsed}. Results: {@list}",
+                response.Page,              // Page
+                response.Count,             // Count
+                response.Total,             // Total
+                query.Keywords,             // Query
+                $"[{response.Duration}]",   // Duration
+                response.Results);
 
             // Results
             return Ok(response);

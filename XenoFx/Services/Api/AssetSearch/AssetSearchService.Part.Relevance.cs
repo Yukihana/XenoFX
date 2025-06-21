@@ -34,7 +34,7 @@ public partial class AssetSearchService
         AssetSearchQuery query)
     {
         // Prepare input
-        string normalizedQueryString = query.SearchString.ToLowerInvariant().Trim();
+        string normalizedQueryString = query.Keywords.ToLowerInvariant().Trim();
         var normalizedQueryTokens = Tokenize(normalizedQueryString);
 
         // Prepare output

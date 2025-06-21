@@ -10,7 +10,7 @@ public static class AssetSearchExtensions
 {
     public static AssetSearchResult ToResult(this AssetSearchQuery query) => new()
     {
-        SearchString = query.SearchString,
+        Keywords = query.Keywords,
         Page = query.Page,
         PageSize = query.PageSize,
         SortBy = query.SortBy,
@@ -23,7 +23,7 @@ public static class AssetSearchExtensions
         // Temporarily mapping AssetPresenceInfo properties to AssetSearchCardData
         Id = presence.AssetId.ToString(),
         Title = presence.OriginalPath.ToMakeshiftTitle(),
-        Source = presence.OriginalPath,                     // This needs to be removed when AssetIDs are implemented
+        Source = Path.GetFileNameWithoutExtension(presence.OriginalPath),                     // This needs to be removed when AssetIDs are implemented
         MediaType = MimeTypesMap.GetMimeType(Path.GetExtension(presence.OriginalPath)),
     };
 
