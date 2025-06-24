@@ -83,7 +83,7 @@ public class Program
         ctoken.ThrowIfCancellationRequested();
 
         // Redirect the default path to where it's needed
-        app.MapGet("/", () => Results.Redirect("/static/browse.html"));
+        app.MapGet("/", () => Results.Redirect("/static/browse"));
 
         // Enable static files
         app.UseStaticFiles();

@@ -5,32 +5,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Environment;
 
-namespace XenoFx.Database.AssetsDb;
+namespace XenoFx.Database.AuthDb;
 
-public static class AssetsDbExtensions
+public static class AuthDbExtensions
 {
-    public static IServiceCollection AddAssetsDbContextUsingSqlite(
+    public static IServiceCollection AddAuthDbContextUsingSqlite(
         this IServiceCollection services,
         XenoFxConfiguration xfc)
     {
-        string dbpath = xfc.GetAssetsDbPath();
+        string dbpath = xfc.GetAuthDbPath();
         string connectionString = $"Data Source={dbpath};Cache=Shared;";
-        services.AddDbContext<AssetsDbContext>(
+        services.AddDbContext<AuthDbContext>(
             options => options.UseSqlite(connectionString),
             optionsLifetime: ServiceLifetime.Singleton);
-        services.AddDbContextFactory<AssetsDbContext>(
+        services.AddDbContextFactory<AuthDbContext>(
             options => options.UseSqlite(connectionString));
         return services;
     }
 
-    public static async Task InitializeAssetsDbContextAsync(
+    public static async Task InitializeAuthDbContextAsync(
         this IServiceProvider serviceProvider,
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
         using var scope = serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AssetsDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
         // Ensures the database is created and ready for consumption.
         // dbContext.Database.EnsureCreated();

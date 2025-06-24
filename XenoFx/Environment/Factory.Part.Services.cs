@@ -1,15 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 using System.Threading;
 using XenoFx.Database.AssetsDb;
+using XenoFx.Database.AuthDb;
 using XenoFx.Database.CacheDb;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetUpload;
 using XenoFx.Services.Api.StateMonitor;
+using XenoFx.Services.Auth.IpPinAuth;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Hosted.AssetTracking;
 using XenoFx.Services.Storage.AssetPresence;
+using XenoFx.Services.Storage.IpPinAuthDatabase;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
 
@@ -25,8 +29,13 @@ public static partial class FactoryExtensions
     {
         ctoken.ThrowIfCancellationRequested();
 
-        // Databases
+        // Create the databases directory if it doesn't exist
+        string dbdir = xfc.GetDatabasesDirectory();
+        Directory.CreateDirectory(dbdir);
+
+        // Register databases
         services.AddAssetsDbContextUsingSqlite(xfc);
+        services.AddAuthDbContextUsingSqlite(xfc);
         services.AddCacheDbContextUsingSqlite(xfc);
 
         return services;
@@ -44,8 +53,12 @@ public static partial class FactoryExtensions
         services.AddXenoFxConfigurationService(xfc);
         services.AddSingleton<IPathValidatorService, PathValidatorService>();
 
-        // Storage layer
+        // Storage layer : Unscoped
         services.AddSingleton<IAssetPresenceService, AssetPresenceService>();
+        services.AddSingleton<IIpPinAuthDbWorkerService, IpPinAuthDbWorkerService>();
+
+        // Storage layer : Scoped
+        services.AddScoped<IIpPinAuthDbScopedService, IpPinAuthDbScopedService>();
 
         // Data layer (processing)
 
@@ -65,6 +78,8 @@ public static partial class FactoryExtensions
 
         // API layer (TODO Ensure all services here are changed to scoped)
         services.AddScoped<IAssetSearchService, AssetSearchService>();
+        services.AddScoped<IIpPinAuthService, IpPinAuthService>();
+
         services.AddSingleton<IAssetUploadService, AssetUploadService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();
 

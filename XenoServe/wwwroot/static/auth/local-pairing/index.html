@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/stylesheets/local-pairing.css" />
+    <title></title>
+</head>
+<body>
+    <div id="content-container">
+
+        <!--Menu-bar-->
+        <div id="menu-bar-container" class="menu-bar-container">
+            <div id="menu-bar">
+                <!--Logo-->
+                <span>XS</span>
+
+                <!--Menu-->
+            </div>
+        </div>
+
+        <!--Control panel-->
+        <div class="control-panel-container">
+            <div class="control-panel">
+
+                <!--Section: Status-->
+                <section class="cp-section">
+                    <div class="cp-section-header flex-h-spread flex-v-center">
+                        <span>STATUS</span>
+                        <div>
+                            <span>IP:</span>
+                            <span id="cp-device-ip">255.255.255.255</span>
+                        </div>
+                    </div>
+                    <div class="cp-section-content flex-h-spread flex-v-center">
+                        <div class="flex-left">
+                            <span id="cp-device-authorization">Expired</span>
+                        </div>
+                        <button class="flex-right" id="cp-logout-btn">Log off</button>
+                    </div>
+                </section>
+
+                <!--Section: Pin-->
+                <section class="cp-section">
+                    <div class="cp-section-header">
+                        <span>PIN</span>
+                    </div>
+                    <!--no need to autopopulate as page doesn't need to know when a new pin is issued'-->
+                    <div class="cp-section-content">
+                        <form id="cp-verify-pin-form">
+                            <div class="flex-column">
+                                <input type="text" id="cp-pin-box" name="pin" class="full-width" />
+                                <div class="flex-h-spread flex-v-center">
+                                    <button id="cp-generate-pin-btn">Generate</button>
+                                    <button type="submit" id="cp-submit-pin-btn">Verify</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!--Section: Token-->
+                <div class="cp-section">
+                    <div class="cp-section-header">
+                        <span>TOKENS</span>
+                    </div>
+                    <div class="cp-section-content flex-h-spread">
+                        <!--auto-populate based on status-->
+                        <button id="cp-renew-token-btn">Renew</button>
+                        <!--expanding-spacer-implementation-->
+                        <button id="cp-extend-lease-btn">Extend</button>
+                        <button id="cp-erase-token-btn">Erase</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { XsIpPinAuthClient } from "/js/auth/local-pairing.js";
+
+        const xsIpPinAuthClient = new XsIpPinAuthClient();
+        xsIpPinAuthClient.initialize();
+    </script>
+</body>
+</html>

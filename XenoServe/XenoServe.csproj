@@ -39,4 +39,8 @@
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Api\Auth\" />
+  </ItemGroup>
+
 </Project>

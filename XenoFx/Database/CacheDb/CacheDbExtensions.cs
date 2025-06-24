@@ -9,7 +9,9 @@ namespace XenoFx.Database.CacheDb;
 
 public static partial class CacheDbExtensions
 {
-    public static IServiceCollection AddCacheDbContextUsingSqlite(this IServiceCollection services, XenoFxConfiguration xfc)
+    public static IServiceCollection AddCacheDbContextUsingSqlite(
+        this IServiceCollection services,
+        XenoFxConfiguration xfc)
     {
         string dbpath = xfc.GetTempDbPath();
         string connectionString = $"Data Source={dbpath};Cache=Shared;";
@@ -18,11 +20,12 @@ public static partial class CacheDbExtensions
             optionsLifetime: ServiceLifetime.Singleton);
         services.AddDbContextFactory<CacheDbContext>(
             options => options.UseSqlite(connectionString));
-
         return services;
     }
 
-    public static async Task InitializeCacheDbContextAsync(this IServiceProvider serviceProvider, CancellationToken ctoken = default)
+    public static async Task InitializeCacheDbContextAsync(
+        this IServiceProvider serviceProvider,
+        CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 

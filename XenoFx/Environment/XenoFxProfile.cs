@@ -4,19 +4,21 @@ namespace XenoFx.Environment;
 
 public sealed partial class XenoFxProfile
 {
-    // Databases
-
-    public string AssetsDatabasePath { get; set; } = "Assets.sqlite";
-    public string TempDatabasePath { get; set; } = "Temp.sqlite";
-
-    // Directories
+    // Directories ----------------
 
     public string AssetsDirectory { get; set; } = "Assets";
     public string AssetUploadDirectory { get; set; } = "Uploads";
+    public string DatabasesDirectory { get; set; } = "Databases";
     public string CacheDirectory { get; set; } = "Cache";
     public string ThumbsDirectory { get; set; } = "Thumbs";
 
-    // Parameters
+    // Databases
+
+    public string AssetsDatabasePath { get; set; } = "Assets.sqlite";
+    public string AuthDatabasePath { get; set; } = "Auth.sqlite";
+    public string TempDatabasePath { get; set; } = "Temp.sqlite";
+
+    // Parameters ---------------
 
     public PathFilterConfiguration AssetFilterConfig { get; set; } = new()
     {

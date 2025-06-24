@@ -1,0 +1,16 @@
+attempts table:
+when submit pin or renew attempt is made, add ip to table;
+after 5 wrong attempts, increment retry bar time by n * 5 min, where n is number of attempts.
+this could be a middleware feature for tracking ip and clients.
+reason: separation of concerns, so that the pin auth service can focus on pin management.
+
+Additional:
+Replace DateTime.UtcNow with IClock across the board.
+Use a switch from server configuration to enable/disable the middleware auth
+Change DateTime to DateTimeOffset across the board. Especially in the database.
+
+Housekeeping:
+Unify database creation extensions with add-on delegates as required
+Move Auth to a separate project. And use module-data folders. (separate for xenofx and the auth module)
+Modules use need to use their own injectable configuration interface.
+Move profiling system <T> into its own library.

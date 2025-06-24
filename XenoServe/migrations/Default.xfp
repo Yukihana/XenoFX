@@ -1,0 +1,21 @@
+{
+  "AssetsDirectory": "Assets",
+  "AssetUploadDirectory": "Uploads",
+  "DatabasesDirectory": "Databases",
+  "CacheDirectory": "Cache",
+  "ThumbsDirectory": "Thumbs",
+  "AssetsDatabasePath": "Assets.sqlite",
+  "AuthDatabasePath": "Auth.sqlite",
+  "TempDatabasePath": "Temp.sqlite",
+  "AssetFilterConfig": {
+    "Greylist": [
+      "**/*.*"
+    ],
+    "Blacklist": [
+      "**/*.x",
+      "**/*.xfu"
+    ],
+    "Whitelist": []
+  },
+  "AssetEnumerationIntervalSeconds": 3600
+}
