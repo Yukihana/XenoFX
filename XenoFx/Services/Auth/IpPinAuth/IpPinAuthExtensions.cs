@@ -23,7 +23,7 @@ public static class IpPinAuthExtensions
         if (!now.HasValue)
             now = DateTimeOffset.UtcNow;
 
-        if (session.ExpiresAt is not null && session.ExpiresAt > now)
+        if (session.ExpiresAt.HasValue && session.ExpiresAt.Value < now)
             return SessionStates.Expired;
 
         return SessionStates.Active;

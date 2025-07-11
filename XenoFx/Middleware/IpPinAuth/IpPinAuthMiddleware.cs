@@ -30,7 +30,7 @@ public partial class IpPinAuthMiddleware : IMiddleware
     {
         var path = context.Request.Path;
 
-        // Only act on /api/* routes
+        // Only act on /api/* routes (TODO, make it a part of configuration)
         if (path.StartsWithSegments("/api"))
         {
             var ip = context.Connection.RemoteIpAddress;

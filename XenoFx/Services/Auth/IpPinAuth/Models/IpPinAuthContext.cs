@@ -10,9 +10,13 @@ public class IpPinAuthContext
 
     // Internal use only
 
-    internal SessionStates SessionState { get; set; } = SessionStates.Available;
+    public SessionStates SessionState { get; set; } = SessionStates.Available;
 
-    internal AuthTokenStates AuthTokenState { get; set; } = AuthTokenStates.None;
+    public AuthTokenStates AuthTokenState { get; set; } = AuthTokenStates.None;
+
+    public bool IsRequestAuthorized
+        => SessionState == SessionStates.Active
+        && AuthTokenState == AuthTokenStates.Matched;
 
     // LifeCycle
 

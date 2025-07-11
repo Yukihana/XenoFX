@@ -13,7 +13,7 @@ public class IpPinAuthDto
     // Service
 
     public SessionStates SessionState { get; set; } = SessionStates.Available;
-    public bool IsRequestAuthenticated { get; set; } = false;
+    public bool IsAuthorized { get; set; } = false;
 
     // Result
 

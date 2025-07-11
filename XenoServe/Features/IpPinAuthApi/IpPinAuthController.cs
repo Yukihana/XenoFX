@@ -13,7 +13,7 @@ using XenoServe.Shared.Extensions;
 
 namespace XenoServe.Features.IpPinAuthApi;
 
-[Route("auth/local-ip-pin")]
+[Route("auth/ip-pin-auth")]
 [ApiController]
 public class IpPinAuthController : ControllerBase
 {
@@ -107,7 +107,10 @@ public class IpPinAuthController : ControllerBase
         }
     }
 
-    // Endpoints with payload in response body
+    // Note: cannot use [Authorize] for /auth endpoints.
+    // It would prevent users from logging in.
+
+    // Endpoints: with payload in response body
 
     [HttpPost("status")]
     public async Task<IActionResult> GetStatusAsync(

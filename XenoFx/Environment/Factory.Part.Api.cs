@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Database.AssetsDb;
+using XenoFx.Database.AuthDb;
 using XenoFx.Database.CacheDb;
+using XenoFx.Middleware.IpPinAuth;
 
 namespace XenoFx.Environment;
 
@@ -26,6 +29,12 @@ public static partial class Factory
         return services;
     }
 
+    // Attach middlewares to the pipeline
+    public static IApplicationBuilder AddXenoFxMiddlewares(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<IpPinAuthMiddleware>();
+    }
+
     // TODO Documentation: Handles pre-initialization for the framework before consumption.
     public async static Task<IServiceProvider> PreInitializeXenoFxAsync(
         this IServiceProvider serviceProvider,
@@ -33,6 +42,7 @@ public static partial class Factory
     {
         // Validate database connections
         await serviceProvider.InitializeAssetsDbContextAsync(ctoken);
+        await serviceProvider.InitializeAuthDbContextAsync(ctoken);
         await serviceProvider.InitializeCacheDbContextAsync(ctoken);
 
         // Warm up the file tracker

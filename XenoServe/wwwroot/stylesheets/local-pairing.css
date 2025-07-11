@@ -23,6 +23,7 @@
 }
 
 .control-panel {
+    min-width: 360px;
 }
 .cp-section {
     box-sizing: border-box;
@@ -46,6 +47,7 @@
         background-color:#666;
         border: 0px;
         border-radius: 3px;
+        min-width: 100px;
     }
     .cp-section-content input[type="text"]{
         padding:10px;
@@ -69,7 +71,7 @@
 
 }
 .flex-right{
-
+    margin-left:auto;
 }
 .full-width {
     width: 100%;

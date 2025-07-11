@@ -9,33 +9,38 @@
 */
 
 export class XsIpPinAuthClient {
-    // Login form elements
-    #pinField = undefined;
     #systemMessageText = undefined; // all exceptions will be shown here
-
-    // Login/logout elements
+    // Status
+    #currentIpText = undefined;
     #loginStateText = undefined; // will show 'logged in until {expiry}' or 'logged out'
     #logoutBtn = undefined;
-
+    // Login form elements
+    #pinField = undefined;
     // Ip
     #ipSection = undefined;
-    #currentIpText = undefined;
+
     #activeIpText = undefined;
     #leaseText = undefined;
+    #activateIpText = undefined;
 
     // internal parameters
     #currentMessageId = 0;
 
+    // Lifecycle
+
+    constructor() {
+    }
+
     // Properties
 
     get partialApiPath() {
-        return '/api/auth/ip-pin-auth/';
+        return '/auth/ip-pin-auth/';
     }
 
     // System
 
     showMessage = async (message, type) => {
-        this.#systemMessageText.innerHtml = message;
+        this.#systemMessageText.innerHTML = message;
         if (type == 'error') {
             this.#systemMessageText.style.color = '#f99'; // red
         } else if (type == 'success') {
@@ -52,7 +57,7 @@ export class XsIpPinAuthClient {
         const currentMessageId = ++this.#currentMessageId;
         this.#systemMessageText.style.opacity = 1;
         this.#systemMessageText.pointerEvents = 'auto';
-        await new Promise(resolve => setTimeout(resolve, duration));
+        await new Promise(resolve => setTimeout(resolve, 10000));
 
         // Ensure same message id, then hide message
         if (currentMessageId === this.#currentMessageId) {
@@ -85,10 +90,11 @@ export class XsIpPinAuthClient {
     // Endpoints --------------
     // State
 
-    syncState = async (event) => {
+    syncState = async () => {
         // request state and apply it
         try {
-            const response = await fetch(getPartialApiPath + 'status', {
+            const apiPath = this.partialApiPath;
+            const response = await fetch(apiPath + 'status', {
                 method: 'POST',
                 credentials: 'include', // attach httponly cookies
                 headers: {
@@ -103,6 +109,7 @@ export class XsIpPinAuthClient {
             // Parse JSON body (assumes valid camelCase payload)
             /** @type {ClientInfoResponse} */
             const payload = await response.json();
+            console.log(payload);
 
             // Apply state
             this.setState(
@@ -117,6 +124,7 @@ export class XsIpPinAuthClient {
                 payload.leaseEndTime
             );
         } catch (error) {
+            console.trace();
             console.error(error.message);
             this.showMessage(error.message, 'error');
         }
@@ -125,9 +133,11 @@ export class XsIpPinAuthClient {
     // Session
 
     generatePin = async (event) => {
+        event.preventDefault(); // prevent form submission
         try {
             // request pin
-            const response = await fetch(getPartialApiPath + 'generate', {
+            const apiPath = this.partialApiPath;
+            const response = await fetch(apiPath + 'generate', {
                 method: 'POST',
                 credentials: 'include', // attach httponly cookies
                 headers: {
@@ -138,7 +148,7 @@ export class XsIpPinAuthClient {
 
             // Handle response and sync
             await this.handle(response);
-            await this.syncState(event);
+            await this.syncState();
         } catch (error) {
             console.error(error.message);
             this.showMessage(error.message, 'error');
@@ -146,6 +156,7 @@ export class XsIpPinAuthClient {
     };
 
     verifyPin = async (event) => {
+        event.preventDefault(); // prevent form submission
         try {
             // get submitted pin
             const pin = this.#pinField.value;
@@ -155,7 +166,8 @@ export class XsIpPinAuthClient {
             }
 
             // send pin to server
-            const response = await fetch(getPartialApiPath + 'authorize', {
+            const apiPath = this.partialApiPath;
+            const response = await fetch(apiPath + 'authorize', {
                 method: 'POST',
                 credentials: 'include', // attach httponly cookies
                 headers: {
@@ -176,7 +188,8 @@ export class XsIpPinAuthClient {
     logOut = async (event) => {
         try {
             // send log out request
-            const response = await fetch(getPartialApiPath + 'logout', {
+            const apiPath = this.partialApiPath;
+            const response = await fetch(apiPath + 'logout', {
                 method: 'POST',
                 credentials: 'include', // attach httponly cookies
                 headers: {
@@ -199,7 +212,8 @@ export class XsIpPinAuthClient {
     activateIp = async (event) => {
         try {
             // request to activate a lease for the current ip
-            const response = await fetch(getPartialApiPath + 'activate-ip', {
+            const apiPath = this.partialApiPath;
+            const response = await fetch(apiPath + 'activate-ip', {
                 method: 'POST',
                 credentials: 'include', // attach httponly cookies
                 headers: {
@@ -220,7 +234,8 @@ export class XsIpPinAuthClient {
     deactivateIp = async (event) => {
         try {
             // request to deactivate the lease for the current ip
-            const response = await fetch(getPartialApiPath + 'deactivate-ip', {
+            const apiPath = this.partialApiPath;
+            const response = await fetch(apiPath + 'deactivate-ip', {
                 method: 'POST',
                 credentials: 'include', // attach httponly cookies
                 headers: {
@@ -245,11 +260,11 @@ export class XsIpPinAuthClient {
 
         if (authenticated) {
             this.#logoutBtn.style.display = 'block';
-            this.#loginStateText.innerHtml = `Authenticated until ${expiry}`;
+            this.#loginStateText.innerHTML = `Authenticated until ${expiry}`;
             this.#loginStateText.style.color = 'green'; // green
         } else {
             this.#logoutBtn.style.display = 'none';
-            this.#loginStateText.innerHtml = 'Not logged in';
+            this.#loginStateText.innerHTML = 'Not logged in';
             this.#loginStateText.style.color = '#f99'; // red
         }
     }
@@ -262,46 +277,47 @@ export class XsIpPinAuthClient {
             this.#activeIpText.style.color = 'white';
             this.#leaseText.innerHTML = `Lease: ${startTime} - ${endTime}`;
             this.#leaseText.style.display = 'block';
-            this.#activateIpText.innerHtml = 'Renew';
+            this.#activateIpText.innerHTML = 'Renew';
         } else {
             this.#activeIpText.innerHTML = 'Not set';
             this.#activeIpText.style.color = '#999';
             this.#leaseText.style.display = 'none';
-            this.#activateIpText.innerHtml = 'Activate';
+            this.#activateIpText.innerHTML = 'Activate';
         }
     }
 
     // Setup
 
-    setupInteractions = () => {
-        // Logged status
-        this.#logoutBtn.addEventListener('click', event => this.logOut(event));
-        // Pin
-        document.querySelector('#cpbtn-generate-pin').addEventListener('click', event => this.generatePin(event));
-        document.querySelector('#cpbtn-authorize').addEventListener('click', event => this.verifyPin(event));
-        // Ip
-        document.querySelector('#cpbtn-activate-ip').addEventListener('click', event => this.activateIp(event));
-        document.querySelector('#cpbtn-deactivate-ip').addEventListener('click', event => this.deactivateIp(event));
-    }
     setupElements = () => {
         // Status
-        #currentIpText = document.querySelector('#cp-current-ip-text');
-        #loginStateText = document.querySelector('#cp-login-state-text'); // will show 'logged in until {expiry}' or 'logged out'
-        #logoutBtn = document.querySelector('#cpbtn-logout');
-        // Login
-        #pinField = document.querySelector('#cpform-auth-pin-field');
-        #systemMessageText = document.querySelector('#cp-message-box-text'); // all exceptions will be shown here
+        this.#systemMessageText = document.querySelector('#cptext-system-message'); // all exceptions will be shown here
+        this.#currentIpText = document.querySelector('#cp-current-ip-text');
+        this.#loginStateText = document.querySelector('#cp-login-state-text'); // will show 'logged in until {expiry}' or 'logged out'
+        this.#logoutBtn = document.querySelector('#cpbtn-logout');
+        // Pin
+        this.#pinField = document.querySelector('#cpform-auth-pin-field');
         // Ip
-        #ipSection = document.querySelector('#cpsection-active-ip');
-        #activeIpText = document.querySelector('#cp-active-ip-text');
-        #leaseText = document.querySelector('#cp-active-ip-lease-text');
+        this.#ipSection = document.querySelector('#cpsection-active-ip');
+        this.#activeIpText = document.querySelector('#cptext-active-ip');
+        this.#leaseText = document.querySelector('#cptext-ip-lease');
+        this.#activateIpText = document.querySelector('#cptext-activate-ip-btn');
+    }
+    setupEvents = () => {
+        // Logged status
+        this.#logoutBtn.addEventListener('click', this.logOut.bind(this));
+        // Pin
+        document.querySelector('#cpform-ip-pin-form').addEventListener('submit', this.verifyPin.bind(this));
+        document.querySelector('#cpbtn-generate-pin').addEventListener('click', this.generatePin.bind(this));
+        // Ip
+        document.querySelector('#cpbtn-activate-ip').addEventListener('click', this.activateIp.bind(this));
+        document.querySelector('#cpbtn-deactivate-ip').addEventListener('click', this.deactivateIp.bind(this));
     }
 
     // Bootstrap
 
     initialize = () => {
         this.setupElements();
-        this.setupInteractions();
-        this.checkStatus();
+        this.setupEvents();
+        this.syncState();
     }
 }

@@ -39,7 +39,32 @@ public partial class IpPinAuthService : IIpPinAuthService
         _logger = logger;
     }
 
-    // Core
+    // Middleware
+
+    public async Task<bool> AuthorizeIpAsync(
+        IPAddress ip,
+        CancellationToken ctoken = default)
+    {
+        string ipString = ip.ToString();
+
+        // Check ip blacklist here
+
+        // Get all sessions with this ip
+        var sessions = await _db.ExecuteAsync(async (db, ct) =>
+        {
+            return await db.Sessions
+                .Where(x => x.IpAddress == ipString)
+                .AsNoTracking()
+                .ToListAsync(ct);
+        }, ctoken);
+
+        // Check which session hasn't expired yet
+        var now = DateTimeOffset.UtcNow;
+        var allowIp = sessions.Any(x => x.GetState() == SessionStates.Active && x.IsIpActive(now));
+        return allowIp;
+    }
+
+    // Shared
 
     private async Task<IpPinAuthSession> GetOrCreateSessionAsync(
         AuthDbContext db,
@@ -67,25 +92,24 @@ public partial class IpPinAuthService : IIpPinAuthService
                 if (context.SessionState == SessionStates.Disabled)
                     throw new ClientDisabledException();
                 context.AuthTokenState = session.AuthorizeClientToken(context.Dto.AuthToken);
+                context.Dto.IsAuthorized = context.IsRequestAuthorized;
 
                 // Case: Authentic client, i.e. auth-token matches;
                 // Authorize if not expired
                 if (context.AuthTokenState == AuthTokenStates.Matched)
                 {
-                    if (context.SessionState == SessionStates.Active)
-                        context.Dto.IsRequestAuthenticated = true;
                     return session;
                 }
                 // Case: Registered client, but token missing on either or both sides;
                 // Treat as unauthenticated, but not faulted
-                else if (context.AuthTokenState == AuthTokenStates.None ||
+                if (context.AuthTokenState == AuthTokenStates.None ||
                     context.AuthTokenState == AuthTokenStates.NotFound)
                 {
                     return session;
                 }
                 // Case: Faulted client, stale or malicious token;
                 // Fall-through for re-initialize, flag for logging the transition
-                else if (context.AuthTokenState == AuthTokenStates.Mismatched)
+                if (context.AuthTokenState == AuthTokenStates.Mismatched)
                 {
                     isFaultedClient = true;
                 }
@@ -151,7 +175,7 @@ public partial class IpPinAuthService : IIpPinAuthService
         IpPinAuthClientInfo info = new()
         {
             CurrentIP = dto.IPAddress.EnsureNotNull().ToString(),
-            IsAuthorized = context.Dto.IsRequestAuthenticated, // Ensures session is authenticated and request is authorized
+            IsAuthorized = context.Dto.IsAuthorized, // Ensures session is authenticated and request is authorized
         };
 
         // Give more details if it's an authorized request
@@ -201,7 +225,7 @@ public partial class IpPinAuthService : IIpPinAuthService
 
             // Set a new cooldown:
             // TODO use IClock and TimeSpan from config in production
-            session.PinGenerationDisabledUntil = now + TimeSpan.FromMinutes(5);
+            session.PinGenerationDisabledUntil = now.AddMinutes(5);
             await db.SaveChangesAsync(ct);
 
             // Set the payload
@@ -230,11 +254,10 @@ public partial class IpPinAuthService : IIpPinAuthService
             // Ensure pin is still valid
             if (session.Pin.HasValue &&
                 session.PinGenerationDisabledUntil.HasValue &&
-                session.PinGenerationDisabledUntil.Value < now &&
-                session.Pin.Value is int pin)
+                session.PinGenerationDisabledUntil.Value > now)
             {
                 // On pin match, authenticate the session
-                if (dto.RequestPayload == pin)
+                if (dto.RequestPayload == session.Pin.Value)
                 {
                     // Optionally make a snapshot here for history
 
@@ -274,19 +297,23 @@ public partial class IpPinAuthService : IIpPinAuthService
             // Get or pre-allocate
             IpPinAuthSession session = await GetOrCreateSessionAsync(db, context, ctoken);
 
-            // In case of an authentic token, do an actual logout
-            // session state doesn't matter
+            // In case of an authentic token:
             if (context.AuthTokenState == AuthTokenStates.Matched)
             {
-                // optionally record history here
+                DateTimeOffset now = DateTimeOffset.UtcNow;
 
-                // logout
-                session.RevokedAt = DateTimeOffset.UtcNow;
+                // If already expired or revoked: silently ignore it
+                // This prevents stale session probing by attackers
+                if (session.RevokedAt.HasValue ||
+                    session.ExpiresAt < now)
+                    return;
+
+                // Otherwise, revoke the session
+                session.RevokedAt = now;
                 await db.SaveChangesAsync(ct);
             }
 
-            // No response needed:
-            // Logout should always report success
+            // Silently succeed even if unauthorized
         }, ctoken);
     }
 
@@ -302,27 +329,29 @@ public partial class IpPinAuthService : IIpPinAuthService
         {
             // Get or pre-allocate
             IpPinAuthSession session = await GetOrCreateSessionAsync(db, context, ctoken);
-            TimeSpan max = TimeSpan.FromDays(7);
 
-            // Verify token authenticity
-            if (context.SessionState == SessionStates.Active &&
-                context.AuthTokenState == AuthTokenStates.Matched &&
-                dto.IPAddress is IPAddress ip &&
-                dto.RequestPayload.HasValue &&
-                dto.RequestPayload.Value is TimeSpan duration &&
-                duration <= max)
+            // Operation is only allowed for authorized requests
+            if (!context.IsRequestAuthorized)
+                throw new UnauthorizedAccessException();
+
+            // Only proceed if verified
+            TimeSpan max = TimeSpan.FromDays(30);
+            TimeSpan leaseTime = TimeSpan.FromDays(7); // if no duration is specified this will be used
+
+            // if requested time is beyond request parameters
+            if (dto.RequestPayload.HasValue)
             {
-                // Enable Ip
-                var now = DateTimeOffset.UtcNow;
-                session.IpAddress = ip.ToString();
-                session.ActivatedIpAt = now;
-                session.DeactivatesIpAt = now + duration;
-                await db.SaveChangesAsync(ct);
-                return;
+                if (dto.RequestPayload.Value > max)
+                    throw new BusinessRuleViolationException($"Requested duration below Zero or above {max}.");
+                leaseTime = dto.RequestPayload.Value;
             }
 
-            // Default fail
-            throw new UnauthorizedAccessException();
+            // Enable Ip
+            var now = DateTimeOffset.UtcNow;
+            session.IpAddress = dto.IPAddress.EnsureNotNull().ToString();
+            session.ActivatedIpAt = now;
+            session.DeactivatesIpAt = now + leaseTime;
+            await db.SaveChangesAsync(ct);
         }, ctoken);
     }
 
@@ -337,48 +366,19 @@ public partial class IpPinAuthService : IIpPinAuthService
             // Get or pre-allocate
             IpPinAuthSession session = await GetOrCreateSessionAsync(db, context, ctoken);
 
-            // Verify token authenticity
-            if (context.SessionState == SessionStates.Active &&
-                context.AuthTokenState == AuthTokenStates.Matched)
-            {
-                // Save history if applicable
-                // Since we are nulling all the fields, no need to set revokedAt
-                // If stored in history, it can be added explicitly.
+            // Operation is only allowed for authorized requests
+            if (!context.IsRequestAuthorized)
+                throw new UnauthorizedAccessException();
 
-                // Disable Ip
-                session.IpAddress = null;
-                session.ActivatedIpAt = null;
-                session.DeactivatesIpAt = null;
-                await db.SaveChangesAsync(ct);
-                return;
-            }
+            // Since we are nulling all the fields, no need for revokedAt
+            // If saving the expired lease in history,
+            // set {StaleLeaseEntry}.RevokedAt to DateTimeOffset.UtcNow explicitly.
 
-            // Default fail
-            throw new UnauthorizedAccessException();
+            // Disable Ip
+            session.IpAddress = null;
+            session.ActivatedIpAt = null;
+            session.DeactivatesIpAt = null;
+            await db.SaveChangesAsync(ct);
         }, ctoken);
-    }
-
-    // Middleware
-
-    public async Task<bool> AuthorizeIpAsync(
-        IPAddress ip,
-        CancellationToken ctoken = default)
-    {
-        string ipString = ip.ToString();
-
-        // Check ip blacklist here
-
-        // Get all sessions with this ip
-        var sessions = await _db.ExecuteAsync(async (db, ct) =>
-        {
-            return await db.Sessions
-                .Where(x => x.IpAddress == ipString)
-                .AsNoTracking()
-                .ToListAsync(ct);
-        }, ctoken);
-
-        // Check which session hasn't expired yet
-        var now = DateTimeOffset.UtcNow;
-        return sessions.Any(x => x.GetState() == SessionStates.Active && x.IsIpActive(now));
     }
 }

@@ -4,6 +4,7 @@ using System.Threading;
 using XenoFx.Database.AssetsDb;
 using XenoFx.Database.AuthDb;
 using XenoFx.Database.CacheDb;
+using XenoFx.Middleware.IpPinAuth;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetUpload;
@@ -76,14 +77,20 @@ public static partial class FactoryExtensions
         // Abstraction layer (reader and queue notifier; no write tasks)
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
 
-        // API layer (TODO Ensure all services here are changed to scoped)
+        // API layer : Scoped (Avoid unless using a state is fundamental)
         services.AddScoped<IAssetSearchService, AssetSearchService>();
-        services.AddScoped<IIpPinAuthService, IpPinAuthService>();
 
+        // API layer : Singleton (stateless, thread-safe)
         services.AddSingleton<IAssetUploadService, AssetUploadService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();
+        services.AddSingleton<IIpPinAuthService, IpPinAuthService>(); // Move to auth library later
 
         // Control layer
+
+        // Middlewares
+        // Note: They must also be registered with the app
+        // e.g. app.UseMiddleware<Middleware>(), where Middleware : IMiddleware
+        services.AddSingleton<IpPinAuthMiddleware>();
 
         // Finish
         return services;

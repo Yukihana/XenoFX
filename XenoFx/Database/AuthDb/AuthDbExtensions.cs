@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using XenoFx.Database.AssetsDb;
 using XenoFx.Environment;
 
 namespace XenoFx.Database.AuthDb;

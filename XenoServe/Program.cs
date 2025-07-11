@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Environment;
+using XenoFx.Middleware.IpPinAuth;
 
 namespace XenoServe;
 
@@ -85,7 +86,14 @@ public class Program
         // Redirect the default path to where it's needed
         app.MapGet("/", () => Results.Redirect("/static/browse"));
 
+        // Enable IpPinAuthMiddleware (currently part of XenoFx)
+        app.UseMiddleware<IpPinAuthMiddleware>();
+
         // Enable static files
+        app.UseDefaultFiles(new DefaultFilesOptions()
+        {
+            DefaultFileNames = ["default.html"], // Default file to serve
+        });
         app.UseStaticFiles();
 
         // Initialize service groups

@@ -33,7 +33,7 @@ export class XenoServeMediaListing {
     #totalItems = 0;
 
     constructor() {
-        this.onResultClicked = this.onResultClicked.bind(this);
+        // this.onResultClicked = this.onResultClicked.bind(this);
     }
 
     // Properties : Search
@@ -67,7 +67,6 @@ export class XenoServeMediaListing {
     }
     set totalItems(value) {
         this.#totalItems = value;
-        console.log(this.#totalItems);
     }
 
     // Properties : Media
@@ -91,7 +90,7 @@ export class XenoServeMediaListing {
     // Form submit
 
     onFormSubmit = event => {
-        console.log(this.#page);
+        console.log(this.page);
         event.preventDefault(); // Prevent page reload
         window.xenoserveMediaListing.doSearchScaffold(0);
     }
@@ -141,27 +140,31 @@ export class XenoServeMediaListing {
     }
 
     fetchSearchResults = async (keywords, page, pageSize) => {
-        try {
-            let keywordsComponent = "";
-            if (keywords)
-                keywordsComponent = "keywords=" + encodeURIComponent(keywords) + "&";
+        let keywordsComponent = "";
+        if (keywords)
+            keywordsComponent = "keywords=" + encodeURIComponent(keywords) + "&";
 
-            var url = "/api/assets/search?"
-                + keywordsComponent
-                + "page=" + encodeURIComponent(page) + "&"
-                + "pagesize=" + encodeURIComponent(pageSize);
+        var url = "/api/assets/search?"
+            + keywordsComponent
+            + "page=" + encodeURIComponent(page) + "&"
+            + "pagesize=" + encodeURIComponent(pageSize);
 
-            /** @type {AssetSearchResult} */
-            var response = await fetch(url);
+        /** @type {AssetSearchResult} */
+        var response = await fetch(url);
 
-            if (!response.ok) {
-                throw new Error("HTTP error " + response.status);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.debug(error.message);
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
         }
+
+        if (!response.headers.get("content-type")?.includes("application/json")) {
+            throw new Error("Expected JSON response but got: " + response.headers.get("content-type"));
+        }
+
+        const payload = await response.json();
+        if (!payload)
+            throw new Error("payload is missing from OK response");
+
+        return payload;
     }
 
     populateResults = results => {
@@ -227,7 +230,7 @@ export class XenoServeMediaListing {
     // pagination
 
     updatePagination = (currentPage, pageSize, totalItems) => {
-        this.#totalItems = totalItems;
+        this.totalItems = totalItems;
 
         // disable enable pagination buttons
         const lastPage = Math.max(0, Math.ceil(totalItems / pageSize) - 1);
@@ -314,28 +317,28 @@ export class XenoServeMediaListing {
         // set parameter backing values
         const keywords = restoredState.get("keywords");
         if (this.isValid(keywords)) {
-            this.#keywords = keywords;
+            this.keywords = keywords;
             this.searchInput.value = this.keywords;
         }
 
         const page = parseInt(restoredState.get("page"));
         if (!isNaN(page))
-            this.#page = page;
+            this.page = page;
 
         let pageSize = parseInt(restoredState.get("pageSize"));
         if (!isNaN(pageSize)) {
-            this.#pageSize = pageSize;
+            this.pageSize = pageSize;
         }
 
-        this.doSearchScaffold(page);
+        this.doSearchScaffold(this.page);
 
         const view = restoredState.get("view");
         if (this.isValid(view))
-            this.#view = view;
+            this.view = view;
 
         const type = restoredState.get("type");
         if (this.isValid(type))
-            this.#type = type;
+            this.type = type;
 
         // update interface
 
