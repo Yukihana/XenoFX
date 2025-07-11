@@ -6,13 +6,13 @@ public class AssetCreatedEventContext : AssetQueueEventContextBase
 {
     // Request
 
-    public FileSystemEventArgs EventArgs { get; }
+    public string FullPath { get; }
 
     // Lifecycle
 
     public AssetCreatedEventContext(
-        FileSystemEventArgs eventArgs)
+        string fullPath)
     {
-        EventArgs = eventArgs;
+        FullPath = fullPath;
     }
 }

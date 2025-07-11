@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using CSX.Common.Data.Events;
+using System.Collections.Generic;
 
 namespace XenoFx.Services.Background.AssetQueue.Models;
 
@@ -6,13 +7,13 @@ public class AssetResyncEventContext : AssetQueueEventContextBase
 {
     // Request
 
-    public FileSystemEventArgs EventArgs { get; }
+    public List<string> FileList { get; }
 
     // Lifecycle
 
     public AssetResyncEventContext(
-        FileSystemEventArgs eventArgs)
+        List<string> fileList)
     {
-        EventArgs = eventArgs;
+        FileList = fileList;
     }
 }

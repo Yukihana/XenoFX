@@ -17,6 +17,16 @@ public partial class AssetIndexingService
 
     // Indexing
 
+    // Make this obsolete
+    // Upload to cache/uploads with 128bit_uid
+    // Then move to assets/uploaded/128bit_uid/file_original_name.ext
+    // The file tracker will grab that and send it to 'onCreatedAsync'
+    // there can be a separate uploaded table for recording metadata,
+    // if the newly found file doesn't have existing metadata in the assets table,
+    // the indexer will check the 'uploaded' table for metadata and sync it
+    // matching will be done based on the saved path in the table (not hashing)
+    // user can move it as required later
+
     public async Task<bool> IndexUploadEventAsync(
         FileUploadedEventArgs eventArgs,
         CancellationToken ctoken = default)

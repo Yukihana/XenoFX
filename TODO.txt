@@ -1,8 +1,13 @@
-attempts table:
-when submit pin or renew attempt is made, add ip to table;
-after 5 wrong attempts, increment retry bar time by n * 5 min, where n is number of attempts.
-this could be a middleware feature for tracking ip and clients.
-reason: separation of concerns, so that the pin auth service can focus on pin management.
+attempts table, for ip tracking middleware:
+when an 'Unauthorized' attempt is made to the /auth namespace, add ip to table;
+after 5 wrong attempts, increment retry bar time by (n-5) * 5 min, where n is number of attempts.
+max out at 24 hours. reset on success.
+
+Repurpose presence table:
+it should only serve as a reverse lookup,
+every reverse lookup should be verified with a corresponding forward lookup
+to ensure the presence entry is not stale.
+check for the actual asset instead of presence to reduce redundancy.
 
 Additional:
 Replace DateTime.UtcNow with IClock across the board.
@@ -14,3 +19,4 @@ Unify database creation extensions with add-on delegates as required
 Move Auth to a separate project. And use module-data folders. (separate for xenofx and the auth module)
 Modules use need to use their own injectable configuration interface.
 Move profiling system <T> into its own library.
+

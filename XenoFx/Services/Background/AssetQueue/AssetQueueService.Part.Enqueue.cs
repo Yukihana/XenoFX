@@ -12,11 +12,11 @@ public partial class AssetQueueService
     // Incoming : Resync
 
     public async Task OnFileResyncingAsync(
-        FileSystemEventArgs eventArgs,
+        FileListingEventArgs eventArgs,
         CancellationToken ctoken = default)
     {
         var context = new AssetResyncEventContext(
-            eventArgs: eventArgs);
+            fileList: [.. eventArgs.FilePaths]);
         await EnqueueAsync(context, ctoken);
     }
 
@@ -27,7 +27,7 @@ public partial class AssetQueueService
         CancellationToken ctoken = default)
     {
         var context = new AssetCreatedEventContext(
-            eventArgs: eventArgs);
+            fullPath: eventArgs.FullPath);
         await EnqueueAsync(context, ctoken);
     }
 
@@ -36,7 +36,7 @@ public partial class AssetQueueService
         CancellationToken ctoken = default)
     {
         var context = new AssetDeletedEventContext(
-            eventArgs: eventArgs);
+            fullPath: eventArgs.FullPath);
         await EnqueueAsync(context, ctoken);
     }
 
@@ -45,7 +45,7 @@ public partial class AssetQueueService
         CancellationToken ctoken = default)
     {
         var context = new AssetModifiedEventContext(
-            eventArgs: eventArgs);
+            fullPath: eventArgs.FullPath);
         await EnqueueAsync(context, ctoken);
     }
 
@@ -54,7 +54,8 @@ public partial class AssetQueueService
         CancellationToken ctoken = default)
     {
         var context = new AssetRenamedEventContext(
-            eventArgs: eventArgs);
+            fullPath: eventArgs.FullPath,
+            oldFullPath: eventArgs.OldFullPath);
         await EnqueueAsync(context, ctoken);
     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CSX.Common.Data.Events;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading;
@@ -36,18 +37,13 @@ public partial class AssetTrackingService
             if (!Directory.Exists(WatchPath))
                 Directory.CreateDirectory(WatchPath);
 
+            // Prepare a list of all files in designated areas
             string[] paths = Directory.GetFiles(WatchPath, "*.*", SearchOption.AllDirectories);
+            _logger.LogInformation("Queueing resync: Enumerated {count} files.", paths.Length);
 
-            _logger.LogInformation("Enumerated {count} files. Pushing for indexing...", paths.Length);
-
-            foreach (var path in paths)
-            {
-                FileSystemEventArgs eventArgs = new(
-                    WatcherChangeTypes.All,
-                    Path.GetDirectoryName(path)!,
-                    Path.GetFileName(path)!);
-                await _assetQueue.OnFileResyncingAsync(eventArgs, ctoken);
-            }
+            // Queue for resyncing
+            FileListingEventArgs eventArgs = new(paths);
+            await _assetQueue.OnFileResyncingAsync(eventArgs, ctoken);
         }
         catch (Exception ex)
         {

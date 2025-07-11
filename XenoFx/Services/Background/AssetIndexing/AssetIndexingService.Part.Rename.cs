@@ -9,13 +9,14 @@ namespace XenoFx.Services.Background.AssetIndexing;
 public partial class AssetIndexingService
 {
     public async Task<bool> IndexRenameEventAsync(
-        RenamedEventArgs eventArgs,
+        string fullPath,
+        string oldFullPath,
         CancellationToken ctoken = default)
     {
         try
         {
-            bool oldValid = _pathValidator.TryTruncateAssetPath(eventArgs.OldFullPath, out string? oldRelativePath);
-            bool newValid = _pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? newRelativePath);
+            bool oldValid = _pathValidator.TryTruncateAssetPath(oldFullPath, out string? oldRelativePath);
+            bool newValid = _pathValidator.TryTruncateAssetPath(fullPath, out string? newRelativePath);
 
             var result = false;
 
@@ -33,7 +34,7 @@ public partial class AssetIndexingService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Indexing the rename event failed for: {eventArgs}", eventArgs);   // Pass the composite args.
+            _logger.LogError(ex, "Indexing the rename event failed for: {oldpath} => {newpath}", oldFullPath, fullPath);
             // Requeue unhandled exceptions for more log visibility, so it can be fixed. Maybe have an unhandled cases service to keep track.
             return true;
         }

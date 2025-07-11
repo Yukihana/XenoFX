@@ -6,13 +6,16 @@ public class AssetRenamedEventContext : AssetQueueEventContextBase
 {
     // Request
 
-    public RenamedEventArgs EventArgs { get; }
+    public string FullPath { get; }
+    public string OldFullPath { get; }
 
     // Lifecycle
 
     public AssetRenamedEventContext(
-        RenamedEventArgs eventArgs)
+        string fullPath,
+        string oldFullPath)
     {
-        EventArgs = eventArgs;
+        FullPath = fullPath;
+        OldFullPath = oldFullPath;
     }
 }

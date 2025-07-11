@@ -59,9 +59,10 @@ public partial class AssetQueueService
 
         if (context is AssetResyncEventContext resyncContext)
         {
-            return await _assetIndexing.IndexResyncEventAsync(
-                eventArgs: resyncContext.EventArgs,
+            int count = await _assetIndexing.IndexResyncEventAsync(
+                fileList: resyncContext.FileList,
                 ctoken: ctoken);
+            return count > 0;
         }
 
         // Watcher
@@ -69,28 +70,29 @@ public partial class AssetQueueService
         if (context is AssetCreatedEventContext createdContext)
         {
             return await _assetIndexing.IndexCreateEventAsync(
-                eventArgs: createdContext.EventArgs,
+                fullPath: createdContext.FullPath,
                 ctoken: ctoken);
         }
 
         if (context is AssetDeletedEventContext deletedContext)
         {
             return await _assetIndexing.IndexDeleteEventAsync(
-                eventArgs: deletedContext.EventArgs,
+                fullPath: deletedContext.FullPath,
                 ctoken: ctoken);
         }
 
         if (context is AssetModifiedEventContext modifiedContext)
         {
             return await _assetIndexing.IndexModifyEventAsync(
-                eventArgs: modifiedContext.EventArgs,
+                fullPath: modifiedContext.FullPath,
                 ctoken: ctoken);
         }
 
         if (context is AssetRenamedEventContext renamedContext)
         {
             return await _assetIndexing.IndexRenameEventAsync(
-                eventArgs: renamedContext.EventArgs,
+                fullPath: renamedContext.FullPath,
+                oldFullPath: renamedContext.OldFullPath,
                 ctoken);
         }
 

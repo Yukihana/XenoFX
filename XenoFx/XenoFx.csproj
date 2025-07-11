@@ -32,4 +32,8 @@
     <ProjectReference Include="..\CSX.Common\CSX.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Background\AssetIndexing\Models\" />
+  </ItemGroup>
+
 </Project>

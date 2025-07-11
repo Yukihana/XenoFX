@@ -8,10 +8,10 @@ namespace XenoFx.Services.Background.AssetIndexing;
 public partial class AssetIndexingService
 {
     public async Task<bool> IndexModifyEventAsync(
-        FileSystemEventArgs eventArgs,
+        string fullPath,
         CancellationToken ctoken = default)
     {
-        if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
+        if (!_pathValidator.TryTruncateAssetPath(fullPath, out string? relativePath))
             return false;
 
         var result = await OnModifiedAsync(relativePath, ctoken);

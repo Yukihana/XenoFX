@@ -14,7 +14,7 @@ public interface IAssetQueueService
 
     // Hosted source : AssetEnumeration
 
-    Task OnFileResyncingAsync(FileSystemEventArgs eventArgs, CancellationToken ctoken = default);
+    Task OnFileResyncingAsync(FileListingEventArgs eventArgs, CancellationToken ctoken = default);
 
     // Hosted source : AssetTracking
 

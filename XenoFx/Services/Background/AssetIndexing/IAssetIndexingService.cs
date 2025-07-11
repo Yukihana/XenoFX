@@ -1,5 +1,6 @@
 ﻿using CSX.Common.Data.Events;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,26 +11,27 @@ public interface IAssetIndexingService
 {
     // Enumerator
 
-    Task<bool> IndexResyncEventAsync(
-        FileSystemEventArgs eventArgs,
+    Task<int> IndexResyncEventAsync(
+        List<string> fileList,
         CancellationToken ctoken = default);
 
     // File system watcher
 
     Task<bool> IndexCreateEventAsync(
-        FileSystemEventArgs eventArgs,
+        string fullPath,
         CancellationToken ctoken = default);
 
     Task<bool> IndexDeleteEventAsync(
-        FileSystemEventArgs eventArgs,
+        string fullPath,
         CancellationToken ctoken = default);
 
     Task<bool> IndexModifyEventAsync(
-        FileSystemEventArgs eventArgs,
+        string fullPath,
         CancellationToken ctoken = default);
 
     Task<bool> IndexRenameEventAsync(
-        RenamedEventArgs eventArgs,
+        string fullPath,
+        string oldFullPath,
         CancellationToken ctoken = default);
 
     // Uploads

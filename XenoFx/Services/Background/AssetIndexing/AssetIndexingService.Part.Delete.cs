@@ -9,12 +9,12 @@ namespace XenoFx.Services.Background.AssetIndexing;
 public partial class AssetIndexingService
 {
     public async Task<bool> IndexDeleteEventAsync(
-        FileSystemEventArgs eventArgs,
+        string fullPath,
         CancellationToken ctoken = default)
     {
         try
         {
-            if (!_pathValidator.TryTruncateAssetPath(eventArgs.FullPath, out string? relativePath))
+            if (!_pathValidator.TryTruncateAssetPath(fullPath, out string? relativePath))
                 return false;
 
             var result = await OnDeletedAsync(relativePath, ctoken);
@@ -26,7 +26,7 @@ public partial class AssetIndexingService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Indexing the deletion event failed for: {path}", eventArgs.FullPath);
+            _logger.LogError(ex, "Indexing the deletion event failed for: {path}", fullPath);
             // Requeue unhandled exceptions for more log visibility, so it can be fixed. Maybe have an unhandled cases service to keep track.
             return true;
         }
