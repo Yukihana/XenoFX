@@ -4,7 +4,7 @@
     margin: 0;
     padding: 0;
     background-color: #111;
-    min-height:100vh;
+    min-height: 100vh;
 }
 
 .menu-bar-container {
@@ -25,6 +25,7 @@
 .control-panel {
     min-width: 360px;
 }
+
 .cp-section {
     box-sizing: border-box;
     margin: 20px;
@@ -32,30 +33,34 @@
     background: #444;
     overflow: hidden;
 }
+
 .cp-section-header {
     padding: 10px 20px;
     font-weight: bold;
     background: #333;
 }
+
 .cp-section-content {
     padding: 20px;
     gap: 1rem;
 }
+
     .cp-section-content button {
         padding: 10px 20px;
         color: #DDD;
-        background-color:#666;
+        background-color: #666;
         border: 0px;
         border-radius: 3px;
         min-width: 100px;
     }
-    .cp-section-content input[type="text"]{
-        padding:10px;
-        border-radius:3px;
-        border:0px;
-        background:#272727;
-        color:#DDD;
-        text-align:center;
+
+    .cp-section-content input[type="text"] {
+        padding: 10px;
+        border-radius: 3px;
+        border: 0px;
+        background: #272727;
+        color: #DDD;
+        text-align: center;
     }
 
 /*Generic-styles;Move-to-shared*/
@@ -63,22 +68,26 @@
     display: flex;
     justify-content: space-between;
 }
-.flex-v-center{
-    display:flex;
-    align-items:center;
-}
-.flex-left {
 
+.flex-v-center {
+    display: flex;
+    align-items: center;
 }
-.flex-right{
-    margin-left:auto;
+
+.flex-left {
 }
+
+.flex-right {
+    margin-left: auto;
+}
+
 .full-width {
     width: 100%;
     box-sizing: border-box;
 }
-.flex-column{
-    display:flex;
-    flex-direction:column;
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
 }

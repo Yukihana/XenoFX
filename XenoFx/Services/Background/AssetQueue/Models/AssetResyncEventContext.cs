@@ -1,5 +1,4 @@
-﻿using CSX.Common.Data.Events;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace XenoFx.Services.Background.AssetQueue.Models;
 

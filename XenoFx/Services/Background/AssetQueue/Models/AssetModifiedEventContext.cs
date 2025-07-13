@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace XenoFx.Services.Background.AssetQueue.Models;
+﻿namespace XenoFx.Services.Background.AssetQueue.Models;
 
 public class AssetModifiedEventContext : AssetQueueEventContextBase
 {

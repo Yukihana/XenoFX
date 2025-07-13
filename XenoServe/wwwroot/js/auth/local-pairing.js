@@ -217,8 +217,9 @@ export class XsIpPinAuthClient {
                 credentials: 'include', // attach httponly cookies
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({}) // no body needed
+                }
+                // Not sending a body parameter to let body members be parsed as null automatically
+                // body: JSON.stringify({ duration: null }) // TODO API: add field that uses this
             });
 
             // Handle response and sync
