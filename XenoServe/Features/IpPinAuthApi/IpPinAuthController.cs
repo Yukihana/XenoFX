@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Auth.IpPinAuth;
 using XenoFx.Services.Auth.IpPinAuth.Models;
 using XenoServe.Features.IpPinAuthApi.Payloads;
-using XenoServe.Shared.Extensions;
 
 namespace XenoServe.Features.IpPinAuthApi;
 
@@ -46,19 +46,22 @@ public class IpPinAuthController : ControllerBase
         Func<IpPinAuthDto<TQuery, TResult>, CancellationToken, Task<IActionResult>> func,
         CancellationToken ctoken = default)
     {
-        IpPinAuthDto<TQuery, TResult> dto = new();
+        IpPinAuthDto<TQuery, TResult>? dto = null;
 
         try
         {
             ctoken.ThrowIfCancellationRequested();
 
-            // Build dto
-            dto.IPAddress = HttpContext.Connection.RemoteIpAddress;
-            dto.ClientId = Request.Cookies[DeviceIdHeaderKey]?.Trim().ToLowerInvariant();   // Hexdec, normalized
-            dto.AuthToken = Request.Cookies[AuthTokenHeaderKey]?.Trim();                    // Base64url, case sensitive
+            // ensure valid remote ip
+            IPAddress ip = HttpContext.Connection.RemoteIpAddress
+                ?? throw new MalformedIpException("Bad remote ip address.");
 
-            // Ensure valid Ip
-            dto.IPAddress.ThrowIfNull();
+            // Build dto
+            dto = new IpPinAuthDto<TQuery, TResult>(ip: ip)
+            {
+                ClientId = Request.Cookies[DeviceIdHeaderKey]?.Trim().ToLowerInvariant(),   // Hexdec, normalized
+                AuthToken = Request.Cookies[AuthTokenHeaderKey]?.Trim()                     // Base64url, case sensitive
+            };
 
             // Introduce artificial delay to prevent timed attacks
             Task delay = Task.Delay(500 + Random.Shared.Next(0, 500), ctoken);
@@ -84,23 +87,44 @@ public class IpPinAuthController : ControllerBase
         }
         catch (MalformedIpException ex)
         {
-            _logger.LogWarning(ex, "Bad IP: {ip} for endpoint '{path}'", dto.IPAddress, Request.Path);
+            _logger.LogWarning(ex, "Bad remote address: {ip}. Endpoint: '{path}'",
+                HttpContext.Connection.RemoteIpAddress,
+                Request.Path);
             return Unauthorized(ex.Message);
         }
         catch (ClientDisabledException ex)
         {
-            _logger.LogWarning(ex, "Banned client with IP: {ip} for endpoint '{path}'", dto.IPAddress, Request.Path);
+            _logger.LogWarning(ex, "Client with banned IP: {ip}. Endpoint: '{path}'",
+                HttpContext.Connection.RemoteIpAddress,
+                Request.Path);
             return Unauthorized(ex.Message);
         }
         catch (MissingHttpHeaderException ex)
         {
-            _logger.LogWarning(ex, "Required header missing from request.");
+            _logger.LogWarning(ex, "Missing header in request from ip {ip} at path {path}. Headers: {headers}",
+                HttpContext.Connection.RemoteIpAddress,
+                Request.Path,
+                Request.Headers);
             return BadRequest(ex.Message);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _logger.LogWarning("Unauthorized access attempt at endpoint '{path}' from the ip {ip}.",
+                HttpContext.Connection.RemoteIpAddress,
+                Request.Path);
+            return Unauthorized("Unauthorized access");
+        }
+        catch (ServiceFailureException ex)
+        {
+            _logger.LogError(ex, "Service failure occured at endpoint '{path}' for the ip {ip}. Details: @{dto}",
+                HttpContext.Connection.RemoteIpAddress,
+                Request.Path,
+                dto);
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Service unavailable");
         }
         catch (Exception ex)
         when (ex is not OperationCanceledException
-        and not TaskCanceledException
-        and not UnauthorizedAccessException)
+        and not TaskCanceledException)
         {
             _logger.LogError(ex, "Error executing request from {dto}", dto);
             return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
@@ -201,11 +225,14 @@ public class IpPinAuthController : ControllerBase
 
     [HttpPost("activate-ip")]
     public async Task<IActionResult> ActivateIpAsync(
+        [FromBody] TimeSpan? duration,
         CancellationToken ctoken = default)
     {
-        // Expected behavior: noValue = default, 0 = max
         return await SafeExecuteEndpointAsync<TimeSpan?, Unit>(async (dto, ct) =>
         {
+            // Expected behavior: noValue = default, 0 = max
+            dto.RequestPayload = duration;
+
             await _ipPinAuth.ActivateIpAsync(dto, ctoken);
 
             return Ok();

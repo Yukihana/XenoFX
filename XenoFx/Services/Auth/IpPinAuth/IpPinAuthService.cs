@@ -3,6 +3,7 @@ using CSX.Common.Data.Exceptions;
 using CSX.Common.Data.Placeholders;
 using CSX.Common.Extensions.Database;
 using CSX.Common.Extensions.Validations;
+using CSX.Common.Net.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -45,7 +46,7 @@ public partial class IpPinAuthService : IIpPinAuthService
         IPAddress ip,
         CancellationToken ctoken = default)
     {
-        string ipString = ip.ToString();
+        string[] variations = ip.ToStringVariants();
 
         // Check ip blacklist here
 
@@ -53,13 +54,15 @@ public partial class IpPinAuthService : IIpPinAuthService
         var sessions = await _db.ExecuteAsync(async (db, ct) =>
         {
             return await db.Sessions
-                .Where(x => x.IpAddress == ipString)
+                .Where(x => variations.Contains(x.IpAddress))
+                .Distinct()
                 .AsNoTracking()
                 .ToListAsync(ct);
         }, ctoken);
 
         // Check which session hasn't expired yet
         var now = DateTimeOffset.UtcNow;
+
         var allowIp = sessions.Any(x => x.GetState() == SessionStates.Active && x.IsIpActive(now));
         return allowIp;
     }
@@ -348,7 +351,7 @@ public partial class IpPinAuthService : IIpPinAuthService
 
             // Enable Ip
             var now = DateTimeOffset.UtcNow;
-            session.IpAddress = dto.IPAddress.EnsureNotNull().ToString();
+            session.IpAddress = dto.IPAddress.ToString();
             session.ActivatedIpAt = now;
             session.DeactivatesIpAt = now + leaseTime;
             await db.SaveChangesAsync(ct);

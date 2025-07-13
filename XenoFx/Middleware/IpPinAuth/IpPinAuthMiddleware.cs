@@ -42,10 +42,6 @@ public partial class IpPinAuthMiddleware : IMiddleware
                 return;
             }
 
-            // Optionally handle IPv4-mapped IPv6
-            if (ip.IsIPv4MappedToIPv6)
-                ip = ip.MapToIPv4();
-
             var isAuthorized = await _authService.AuthorizeIpAsync(ip, context.RequestAborted);
             if (!isAuthorized)
             {
