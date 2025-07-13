@@ -18,7 +18,7 @@ public class IpPinAuthSession
     // Verification
 
     public int? Pin { get; set; } = null;
-    public DateTimeOffset? PinGenerationDisabledUntil { get; set; } = null;
+    public DateTimeOffset? PinExpiry { get; set; } = null;
 
     public int RetryCount { get; set; } = 0; // Reject past configured max count
     public DateTimeOffset? RetryDisabledUntil { get; set; } = null; // Adaptive increment
@@ -50,7 +50,7 @@ public class IpPinAuthSession
         RevokedAt = RevokedAt,
 
         Pin = Pin,
-        PinGenerationDisabledUntil = PinGenerationDisabledUntil,
+        PinExpiry = PinExpiry,
 
         RetryCount = RetryCount,
         RetryDisabledUntil = RetryDisabledUntil,

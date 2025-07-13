@@ -11,7 +11,7 @@ using XenoFx.Database.AuthDb;
 namespace XenoFx.Database.AuthDb.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20250710064021_InitialCreate")]
+    [Migration("20250713104951_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -61,7 +61,7 @@ namespace XenoFx.Database.AuthDb.Migrations
                     b.Property<int?>("Pin")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("PinGenerationDisabledUntil")
+                    b.Property<DateTimeOffset?>("PinExpiry")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("RetryCount")

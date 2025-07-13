@@ -58,7 +58,7 @@ namespace XenoFx.Database.AuthDb.Migrations
                     b.Property<int?>("Pin")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("PinGenerationDisabledUntil")
+                    b.Property<DateTimeOffset?>("PinExpiry")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("RetryCount")

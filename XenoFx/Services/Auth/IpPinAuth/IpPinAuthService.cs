@@ -211,8 +211,8 @@ public partial class IpPinAuthService : IIpPinAuthService
             // If a pin exists and within cooldown period:
             // Return the already generated pin
             if (session.Pin.HasValue &&
-                session.PinGenerationDisabledUntil.HasValue &&
-                session.PinGenerationDisabledUntil.Value > now)
+                session.PinExpiry.HasValue &&
+                session.PinExpiry.Value > now)
             {
                 dto.ResponsePayload = session.Pin.Value;
                 return;
@@ -225,7 +225,7 @@ public partial class IpPinAuthService : IIpPinAuthService
 
             // Set a new cooldown:
             // TODO use IClock and TimeSpan from config in production
-            session.PinGenerationDisabledUntil = now.AddMinutes(5);
+            session.PinExpiry = now.AddMinutes(5);
             await db.SaveChangesAsync(ct);
 
             // Set the payload
@@ -253,8 +253,8 @@ public partial class IpPinAuthService : IIpPinAuthService
 
             // Ensure pin is still valid
             if (session.Pin.HasValue &&
-                session.PinGenerationDisabledUntil.HasValue &&
-                session.PinGenerationDisabledUntil.Value > now)
+                session.PinExpiry.HasValue &&
+                session.PinExpiry.Value > now)
             {
                 // On pin match, authenticate the session
                 if (dto.RequestPayload == session.Pin.Value)
@@ -272,7 +272,7 @@ public partial class IpPinAuthService : IIpPinAuthService
 
                     // Delete pin since it's been used up
                     session.Pin = null;
-                    session.PinGenerationDisabledUntil = null;
+                    session.PinExpiry = null;
 
                     // Commit and set payload
                     await db.SaveChangesAsync(ct);

@@ -1,4 +1,5 @@
-﻿Add-Migration InitialCreate -Context AuthDbContext -OutputDir Database/AuthDb/Migrations
+﻿Select this project in this package manager console, then enter:
+Add-Migration InitialCreate -Context AuthDbContext -OutputDir Database/AuthDb/Migrations
 
 Breakdown:
 
