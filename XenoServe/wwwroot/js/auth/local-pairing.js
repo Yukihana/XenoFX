@@ -109,7 +109,6 @@ export class XsIpPinAuthClient {
             // Parse JSON body (assumes valid camelCase payload)
             /** @type {ClientInfoResponse} */
             const payload = await response.json();
-            console.log(payload);
 
             // Apply state
             this.setState(

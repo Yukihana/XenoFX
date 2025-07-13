@@ -73,7 +73,7 @@ public class IpPinAuthController : ControllerBase
                 Response.Cookies.Append(DeviceIdHeaderKey, newDeviceId, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,                  // Required for HTTPS
+                    //Secure = true,                  // Required for HTTPS
                     SameSite = SameSiteMode.Strict, // or Lax, depending on your needs
                     Expires = DateTimeOffset.UtcNow.AddYears(20)
                 });
@@ -177,7 +177,7 @@ public class IpPinAuthController : ControllerBase
             Response.Cookies.Append(AuthTokenHeaderKey, authToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
+                // Secure = true, // Https only
                 SameSite = SameSiteMode.Strict,
                 Expires = expiry,
             });

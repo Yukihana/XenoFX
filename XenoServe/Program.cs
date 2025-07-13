@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,6 +77,9 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        // If debugging for non-loopback addresses, uncomment line below
+        if (builder.Environment.IsDevelopment()) { builder.WebHost.ConfigureKestrel(o => o.ListenAnyIP(9600)); }
+
         return builder;
     }
 
@@ -85,6 +89,7 @@ public class Program
 
         // Redirect the default path to where it's needed
         app.MapGet("/", () => Results.Redirect("/static/browse"));
+        app.MapGet("/auth", () => Results.Redirect("/static/ip-pin-auth"));
 
         // Enable IpPinAuthMiddleware (currently part of XenoFx)
         app.UseMiddleware<IpPinAuthMiddleware>();

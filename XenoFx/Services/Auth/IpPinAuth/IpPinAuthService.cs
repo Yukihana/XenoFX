@@ -212,7 +212,7 @@ public partial class IpPinAuthService : IIpPinAuthService
             // Return the already generated pin
             if (session.Pin.HasValue &&
                 session.PinGenerationDisabledUntil.HasValue &&
-                session.PinGenerationDisabledUntil.Value < now)
+                session.PinGenerationDisabledUntil.Value > now)
             {
                 dto.ResponsePayload = session.Pin.Value;
                 return;
