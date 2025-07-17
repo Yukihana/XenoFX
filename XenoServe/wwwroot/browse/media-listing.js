@@ -22,11 +22,12 @@
  */
 
 // Required for url state
-import { updateQueryParam, getQueryParams } from "../shared/url-state.js";
+import { updateQueryParam, getQueryParams } from "../js/shared/url-state.js";
 
 export class XenoServeMediaListing {
-    #view = "";
-    #type = "";
+    // Elements
+    playbackHandler = null;
+    // Search related
     #keywords = "";
     #page = 0;
     #pageSize = 30;
@@ -67,24 +68,6 @@ export class XenoServeMediaListing {
     }
     set totalItems(value) {
         this.#totalItems = value;
-    }
-
-    // Properties : Media
-
-    get view() {
-        return this.#view;
-    }
-    set view(value) {
-        this.#view = value;
-        updateQueryParam("view", value);
-    }
-
-    get type() {
-        return this.#type;
-    }
-    set type(value) {
-        this.#type = value;
-        updateQueryParam("type", value);
     }
 
     // Form submit
@@ -207,24 +190,14 @@ export class XenoServeMediaListing {
             const target = event.target.closest('.media-card');
             if (target) {
                 const id = target.getAttribute('data-media-id');
-                const type = target.getAttribute('data-media-type');
 
-                this.setMedia(id, type, false);
-                this.view = id;
-                this.type = type;
+                if (typeof this.playbackHandler === 'function') {
+                    this.playbackHandler(id, this.keywords);
+                }
             }
         } catch (error) {
             console.debug(error.message);
         }
-    }
-
-    setMedia = (id, type) => {
-        // Temporary: change source in video player
-        // Future: change viewer based on content type
-        const viewer = this.mediaContainer.querySelector('video#media-viewer');
-        viewer.style.display = 'block';
-        viewer.setAttribute('src', `/api/assets/file?id=${id}`);
-        viewer.load();
     }
 
     // pagination
@@ -243,36 +216,38 @@ export class XenoServeMediaListing {
         this.paginationLast.disabled = isLast;
     }
 
-    onFirst = event => {
+    // Pagination controls
+
+    onFirst = async (event) => {
         let page = this.page;
         if (page > 0) {
-            this.doSearchScaffold(0);
+            await this.doSearchScaffold(0);
         }
     }
-    onPrevious = event => {
+    onPrevious = async (event) => {
         let page = this.page;
         if (page > 0) {
-            this.doSearchScaffold(page - 1);
+            await this.doSearchScaffold(page - 1);
         }
     }
-    onNext = event => {
+    onNext = async (event) => {
         let page = this.page;
         let pageSize = this.pageSize;
         if (pageSize < 1)
             pageSize = 30;
         let lastPage = Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1);
         if (page < lastPage) {
-            this.doSearchScaffold(page + 1);
+            await this.doSearchScaffold(page + 1);
         }
     }
-    onLast = event => {
+    onLast = async (event) => {
         let page = this.page;
         let pageSize = this.pageSize;
         if (pageSize < 1)
             pageSize = 30;
         let lastPage = Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1);
         if (page < lastPage)
-            this.doSearchScaffold(lastPage);
+            await this.doSearchScaffold(lastPage);
     }
 
     // Internal
@@ -303,9 +278,6 @@ export class XenoServeMediaListing {
         this.paginationLast = document.querySelector('#pagination-last');
         this.paginationLast.addEventListener('click', event => this.onLast(event));
 
-        this.mediaContainer = document.querySelector('#media-container');
-        this.mediaViewer = document.querySelector('#media-viewer');
-
         // Results
         this.searchResultsList = document.querySelector('#results-list');
         this.searchResultsList.addEventListener("click", event => window.xenoserveMediaListing.onResultClicked(event));
@@ -331,19 +303,6 @@ export class XenoServeMediaListing {
         }
 
         this.doSearchScaffold(this.page);
-
-        const view = restoredState.get("view");
-        if (this.isValid(view))
-            this.view = view;
-
-        const type = restoredState.get("type");
-        if (this.isValid(type))
-            this.type = type;
-
-        // update interface
-
-        if (this.view && this.type)
-            this.setMedia(this.view, this.type);
     }
 
     // Bootstrap

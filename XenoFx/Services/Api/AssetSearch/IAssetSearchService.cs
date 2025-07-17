@@ -6,11 +6,18 @@ namespace XenoFx.Services.Api.AssetSearch;
 
 public interface IAssetSearchService
 {
-    Task<string[]> GetHaveAsync(
-        string searchString,
-        CancellationToken ctoken = default);
-
     Task<AssetSearchResult> SearchAsync(
         AssetSearchQuery query,
+        string partialSeed,
+        CancellationToken ctoken = default);
+
+    Task<AssetSearchCardData?> NextploreAsync(
+        AssetNextploreQuery query,
+        string partialSeed,
+        CancellationToken ctoken);
+
+    // Legacy, requires revamp
+    Task<string[]> GetHaveAsync(
+        string searchString,
         CancellationToken ctoken = default);
 }

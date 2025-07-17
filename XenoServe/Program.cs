@@ -88,7 +88,7 @@ public class Program
         ctoken.ThrowIfCancellationRequested();
 
         // Redirect the default path to where it's needed
-        app.MapGet("/", () => Results.Redirect("/static/browse"));
+        app.MapGet("/", () => Results.Redirect("/browse"));
         app.MapGet("/auth", () => Results.Redirect("/static/ip-pin-auth"));
 
         // Enable IpPinAuthMiddleware (currently part of XenoFx)

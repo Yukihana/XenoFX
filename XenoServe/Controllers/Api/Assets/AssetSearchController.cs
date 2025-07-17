@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetSearch.Contracts;
+using XenoServe.Shared.Extensions;
 
 namespace XenoServe.Controllers.Api.Assets;
 
@@ -34,7 +35,8 @@ public sealed partial class AssetSearchController : ControllerBase
     {
         try
         {
-            var response = await _assetSearch.SearchAsync(query, ctoken);
+            var partialSeed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
+            var response = await _assetSearch.SearchAsync(query, partialSeed, ctoken);
             var start = response.Page * response.PageSize;
             var end = start + response.Count;
 
@@ -57,7 +59,32 @@ public sealed partial class AssetSearchController : ControllerBase
         }
     }
 
-    // Cache (aka Get Have; To be removed)
+    // NextItem
+    [HttpGet]
+    [Route("nextplore")]
+    public async Task<IActionResult> NextploreAsync(
+        [FromQuery] AssetNextploreQuery query,
+        CancellationToken ctoken = default)
+    {
+        try
+        {
+            var partialSeed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
+            var response = await _assetSearch.NextploreAsync(query, partialSeed, ctoken);
+
+            return response == null
+                ? NoContent() // Only on db row count = 0, since results loop.
+                : Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while searching for assets with query '{query}'", query);
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
+    }
+
+    // PreviousItem
+
+    // Cache (aka Get Have; To be removed when ids are implemented)
 
     [HttpGet]
     [Route("matches")]

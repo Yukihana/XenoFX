@@ -39,4 +39,11 @@
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\home\" />
+    <Folder Include="wwwroot\play\" />
+    <Folder Include="wwwroot\static\features\browse\" />
+    <Folder Include="wwwroot\static\features\mediaviewer\" />
+  </ItemGroup>
+
 </Project>

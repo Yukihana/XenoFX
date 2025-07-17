@@ -1,4 +1,5 @@
-﻿using CSX.Common.Extensions.Collections;
+﻿using CSX.Common.Data.DataGenerators;
+using CSX.Common.Extensions.Collections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,7 @@ public partial class AssetSearchService
 {
     public async Task<AssetSearchResult> SearchAsync(
         AssetSearchQuery query,
+        string partialSeed,
         CancellationToken ctoken = default)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -24,7 +26,7 @@ public partial class AssetSearchService
         // Filter and order the presences based on the query
         var sorted
             = string.IsNullOrWhiteSpace(query.Keywords)
-            ? presences.Randomize()
+            ? presences.Randomize(Int32Generators.CreateHourSeed(partialSeed))
             : presences.Let(FilterAndOrder, query);
 
         // Apply pagination

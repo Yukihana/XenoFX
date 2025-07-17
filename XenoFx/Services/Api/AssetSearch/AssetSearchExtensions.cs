@@ -38,13 +38,16 @@ public static class AssetSearchExtensions
     }
 
     // For unspecified
-    public static IEnumerable<T> Randomize<T>(this IEnumerable<T> source)
+    public static IEnumerable<T> Randomize<T>(
+        this IEnumerable<T> source,
+        int seed)
     {
         List<T> copy = [.. source];
+        Random rng = new(seed);
 
         while (copy.Count > 0)
         {
-            int index = Random.Shared.Next(copy.Count);
+            int index = rng.Next(copy.Count);
             yield return copy[index];
             copy.RemoveAt(index);
         }

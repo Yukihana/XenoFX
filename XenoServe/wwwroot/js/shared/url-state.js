@@ -10,7 +10,9 @@ export function updateQueryParam(key, value) {
     }
 
     const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, "", newUrl);
+    // push creates a new url state in history
+    // to overwrite, use replace instead of push
+    window.history.pushState({}, "", newUrl);
 }
 
 export function getQueryParams() {
