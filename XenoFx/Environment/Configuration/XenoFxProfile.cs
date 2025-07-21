@@ -1,0 +1,47 @@
+﻿using CSX.Common.IO;
+using System.IO;
+
+namespace XenoFx.Environment.Configuration;
+
+public sealed partial class XenoFxProfile
+{
+    // Defaults
+
+    public const string DefaultFilename = "xenoFx.json";
+
+    public static string GetFilePath(string dataDirectory) => Path.Combine(
+        dataDirectory,
+        DefaultFilename);
+
+    // Directories
+
+    public string DatabasesDirectory { get; set; } = "Databases";
+    public string ThumbsDirectory { get; set; } = "Thumbs";
+
+    // Uploads
+
+    public string UploadCacheDirectory { get; set; } = "UploadCache";
+    public string AssetsUploadDirectory { get; set; } = "Uploaded";
+
+    // Assets database
+
+    public string AssetsDatabasePath { get; set; } = "Assets.sqlite";
+    public string AssetsDatabaseType { get; set; } = "sqlite";
+
+    // Cache database
+
+    public string CacheDatabasePath { get; set; } = "Cache.sqlite";
+    public string CacheDatabaseType { get; set; } = "sqlite";
+
+    // Parameters
+
+    public PathFilterConfiguration AssetFilterConfig { get; set; } = new()
+    {
+        Greylist = ["**/*.*"],
+        Blacklist = [
+            "**/*.x",                                           // Text Metadata
+            $"**/*{XenoFxConstants.DefaultUploadExtension}"]    // Uploads
+    };
+
+    public ulong AssetEnumerationIntervalSeconds { get; set; } = 3600;
+}

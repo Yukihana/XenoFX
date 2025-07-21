@@ -1,19 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CSX.DotNet.EFC.Common.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Environment;
+using XenoFx.Environment.Configuration;
 
 namespace XenoFx.Database.CacheDb;
 
 public static partial class CacheDbExtensions
 {
-    public static IServiceCollection AddCacheDbContextUsingSqlite(
+    public static IServiceCollection AddCacheDbContext(
         this IServiceCollection services,
-        XenoFxConfiguration xfc)
+        XenoFxConfiguration config)
     {
-        string dbpath = xfc.GetTempDbPath();
+        if (config.CacheDatabaseType.Equals("sqlite", StringComparison.OrdinalIgnoreCase))
+            return services.AddCacheDbContextUsingSqlite(config);
+
+        throw new InvalidOperationException("Unsupported database type");
+    }
+
+    private static IServiceCollection AddCacheDbContextUsingSqlite(
+        this IServiceCollection services,
+        XenoFxConfiguration config)
+    {
+        string dbpath = config.CacheDatabasePath;
         string connectionString = $"Data Source={dbpath};Cache=Shared;";
         services.AddDbContext<CacheDbContext>(
             options => options.UseSqlite(connectionString),
@@ -30,12 +41,15 @@ public static partial class CacheDbExtensions
         ctoken.ThrowIfCancellationRequested();
 
         using var scope = serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<CacheDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<CacheDbContext>();
+
+        // Ensure pre-migration
+        dbContext.EnsurePreMigration();
 
         // Ensures the database is created and ready for consumption.
         // dbContext.Database.EnsureCreated();
 
         // If using migrations instead, use this to update the database.
-        await context.Database.MigrateAsync(cancellationToken: ctoken);
+        await dbContext.Database.MigrateAsync(cancellationToken: ctoken);
     }
 }

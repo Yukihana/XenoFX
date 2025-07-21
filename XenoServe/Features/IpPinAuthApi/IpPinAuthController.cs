@@ -1,5 +1,7 @@
 ﻿using CSX.Common.Data.Exceptions;
 using CSX.Common.Data.Placeholders;
+using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi;
+using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -7,8 +9,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Auth.IpPinAuth;
-using XenoFx.Services.Auth.IpPinAuth.Models;
 using XenoServe.Features.IpPinAuthApi.Payloads;
 
 namespace XenoServe.Features.IpPinAuthApi;
@@ -27,13 +27,13 @@ public class IpPinAuthController : ControllerBase
 
     // Infrastructure
 
-    private readonly IIpPinAuthService _ipPinAuth;
+    private readonly IAuthApiService _ipPinAuth;
     private readonly ILogger<IpPinAuthController> _logger;
 
     // Lifecycle
 
     public IpPinAuthController(
-        IIpPinAuthService ipPinAuth,
+        IAuthApiService ipPinAuth,
         ILogger<IpPinAuthController> logger)
     {
         _ipPinAuth = ipPinAuth;

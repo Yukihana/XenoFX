@@ -21,18 +21,21 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.13.61" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CSX.Common\CSX.Common.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.EFC.Common\CSX.DotNet.EFC.Common.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\Auth\" />
     <Folder Include="Services\Background\AssetIndexing\Models\" />
   </ItemGroup>
 

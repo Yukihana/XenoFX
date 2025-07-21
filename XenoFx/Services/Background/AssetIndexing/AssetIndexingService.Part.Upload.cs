@@ -13,7 +13,7 @@ namespace XenoFx.Services.Background.AssetIndexing;
 public partial class AssetIndexingService
 {
     public string AssetUploadDirectory
-        => _configuration.AssetUploadDirectory;
+        => _configuration.AssetsUploadDirectory;
 
     // Indexing
 

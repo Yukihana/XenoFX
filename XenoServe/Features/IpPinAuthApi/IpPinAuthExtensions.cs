@@ -1,4 +1,4 @@
-﻿using XenoFx.Services.Auth.IpPinAuth.Models;
+﻿using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi.Models;
 using XenoServe.Features.IpPinAuthApi.Payloads;
 
 namespace XenoServe.Features.IpPinAuthApi;

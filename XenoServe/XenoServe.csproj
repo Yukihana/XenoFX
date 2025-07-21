@@ -14,36 +14,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="XenoServeWorkspace\**" />
-    <Content Remove="XenoServeWorkspace\**" />
-    <EmbeddedResource Remove="XenoServeWorkspace\**" />
-    <None Remove="XenoServeWorkspace\**" />
+    <Compile Remove="Workspaces\**" />
+    <Content Remove="Workspaces\**" />
+    <EmbeddedResource Remove="Workspaces\**" />
+    <None Remove="Workspaces\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CSX.DotNet.Modules.AuthIpPin\CSX.DotNet.Modules.AuthIpPin.csproj" />
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\home\" />
+    <Folder Include="wwwroot\dashboard\" />
     <Folder Include="wwwroot\play\" />
-    <Folder Include="wwwroot\static\features\browse\" />
-    <Folder Include="wwwroot\static\features\mediaviewer\" />
+    <Folder Include="wwwroot\shared\stylesheets\" />
   </ItemGroup>
 
 </Project>

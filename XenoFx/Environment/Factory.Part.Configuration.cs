@@ -1,18 +1,21 @@
-﻿using System.Threading;
+﻿using CSX.DotNet.Storage.AppProfiles;
+using System.Threading;
 using System.Threading.Tasks;
+using XenoFx.Environment.Configuration;
 
 namespace XenoFx.Environment;
 
 public static partial class Factory
 {
-    public async static Task<XenoFxConfiguration> GetDefaultConfigurationAsync(CancellationToken ctoken = default)
+    public static async Task<XenoFxConfiguration> GetConfigAsync(
+        this IXenoFxOptions options,
+        CancellationToken ctoken)
     {
-        await Task.Yield();
-        // Skip actual reading and generate defaults
-        // TODO Create the profile though
-        XenoFxOptions options = new();
-        XenoFxProfile profile = new();
-        string startupPath = options.GetProfilePath();
-        return new(startupPath, profile, options);
+        ctoken.ThrowIfCancellationRequested();
+
+        var profilePath = XenoFxProfile.GetFilePath(options.DataDirectory);
+        var profile = await ProfileStore.ReadOrCreateAsync<XenoFxProfile>(profilePath, ctoken);
+
+        return new(profile, options);
     }
 }

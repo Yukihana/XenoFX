@@ -1,3 +1,4 @@
+using CSX.DotNet.Modules.AuthIpPin.Environment;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Environment;
-using XenoFx.Middleware.IpPinAuth;
+using XenoServe.Configuration;
+using XenoServe.Configuration.Modules;
 
 namespace XenoServe;
 
@@ -44,21 +46,25 @@ public class Program
         }
     }
 
-    public async static Task<WebApplicationBuilder> GetBuilderAsync(string[] args)
+    public async static Task<WebApplicationBuilder> GetBuilderAsync(
+        string[] args,
+        CancellationToken ctoken = default)
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Read runtime profile
+        var xsConfig = await builder.Configuration
+            .GetXenoServeConfigAsync(args, ctoken);
+
         // Attach Logger (Apply actual serilog configuration from appsettings.json)
-        builder.Host.UseSerilog((context, services, config) =>
-        {
-            config
-                .ReadFrom.Configuration(context.Configuration)
-                .ReadFrom.Services(services)
-                .Enrich.FromLogContext();
-        });
+        builder.Host.UseSerilog((context, services, config) => config
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext());
 
         // Add services to the container.
-        await builder.Services.AddXenoFxAsync(builder.Configuration);
+        await builder.Services.AddXenoFxAsync(XenoFxOptions.Create(xsConfig), ctoken);
+        await builder.Services.AddAuthIpPinAsync(AuthIpPinOptions.Create(xsConfig), ctoken);
 
         // builder.Services.AddControllers(); // Api Only
         builder.Services.AddControllersWithViews(); // Also handles views
@@ -89,10 +95,10 @@ public class Program
 
         // Redirect the default path to where it's needed
         app.MapGet("/", () => Results.Redirect("/browse"));
-        app.MapGet("/auth", () => Results.Redirect("/static/ip-pin-auth"));
 
-        // Enable IpPinAuthMiddleware (currently part of XenoFx)
-        app.UseMiddleware<IpPinAuthMiddleware>();
+        // Enable IpPinAuthMiddleware
+        app.AddXenoFxMiddlewares();
+        app.AddAuthIpPinMiddlewares();
 
         // Enable static files
         app.UseDefaultFiles(new DefaultFilesOptions()
@@ -103,6 +109,7 @@ public class Program
 
         // Initialize service groups
         await app.Services.PreInitializeXenoFxAsync(ctoken);
+        await app.Services.PreInitializeAuthIpPinAsync(ctoken);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

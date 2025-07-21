@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using XenoFx.Environment;
+using XenoFx.Environment.Configuration;
 
 namespace XenoFx.Services.Utility.Configuration;
 

@@ -363,5 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # XenoFx specific ignore
-**/XenoServeWorkspace/
-**/XenoFxWorkspace/
+**/Workspaces/

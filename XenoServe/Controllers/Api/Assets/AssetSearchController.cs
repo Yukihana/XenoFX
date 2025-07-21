@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetSearch.Contracts;
-using XenoServe.Shared.Extensions;
 
 namespace XenoServe.Controllers.Api.Assets;
 

@@ -1,0 +1,16 @@
+﻿Select this project in this package manager console, then enter:
+Add-Migration InitialCreate -Context AuthDbContext -OutputDir Storage/AuthDb/Migrations
+
+Breakdown:
+
+Command
+MigrationName
+-Context Value
+-OutputDir Value
+
+Note: Use Package Manager Console
+1. Select the project with the DbContext
+Or
+2. Specify the project with `-project` parameter
+
+For more Info: Storage/Database_Migrations_HowTo.txt

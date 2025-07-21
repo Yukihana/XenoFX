@@ -36,12 +36,14 @@ public sealed partial class AssetUploadService : IAssetUploadService
 
     // Derived
 
-    public string UploadDirectoryPath
-        => _configuration.UploadDirectory;
+    public string UploadCacheDirectory
+        => _configuration.UploadCacheDirectory;
 
     // API for Controller
 
-    public async Task<AssetUploadResult> RegisterUploadAsync(AssetUploadRequest request, CancellationToken ctoken = default)
+    public async Task<AssetUploadResult> RegisterUploadAsync(
+        AssetUploadRequest request,
+        CancellationToken ctoken = default)
     {
         AssetUploadResult result = new();
 
@@ -93,7 +95,9 @@ public sealed partial class AssetUploadService : IAssetUploadService
 
     // Internal
 
-    private async Task<string> WriteToTemporaryFileAsync(Stream sourceStream, CancellationToken ctoken = default)
+    private async Task<string> WriteToTemporaryFileAsync(
+        Stream sourceStream,
+        CancellationToken ctoken = default)
     {
         string tempPath = string.Empty;
         try
@@ -130,7 +134,7 @@ public sealed partial class AssetUploadService : IAssetUploadService
     {
         ctoken.ThrowIfCancellationRequested();
 
-        string uploadDirectory = UploadDirectoryPath;
+        string uploadDirectory = UploadCacheDirectory;
         string uploadExtension = XenoFxConstants.DefaultUploadExtension;
 
         // Ensure target location.

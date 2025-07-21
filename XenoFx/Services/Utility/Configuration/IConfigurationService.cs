@@ -13,21 +13,17 @@ public interface IConfigurationService
 
     PathFilterConfiguration AssetPathFilterConfiguration { get; }
 
-    // Derived
-
-    string BaseDirectory { get; }
-
     // SubPaths : Base
 
     string AssetsDirectory { get; }
 
     // SubPaths : Cache
 
-    string UploadDirectory { get; }
+    string UploadCacheDirectory { get; }
 
     // SubPaths : Assets
 
-    string AssetUploadDirectory { get; }
+    string AssetsUploadDirectory { get; }
 
     // Parameters
 

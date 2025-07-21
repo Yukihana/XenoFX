@@ -24,7 +24,6 @@ export class XenoServeMediaViewer {
     #keywords = '';
 
     constructor() {
-
     }
 
     // properties
@@ -45,7 +44,6 @@ export class XenoServeMediaViewer {
         } catch (error) {
             console.error(error.message);
         }
-
     };
 
     onPlaybackEndedAsync = async (event) => {
@@ -190,7 +188,6 @@ export class XenoServeMediaViewer {
             else
                 throw error;
         }
-
     };
     /** @returns {HTMLVideoElement} */
     ensureVideoElement = () => {

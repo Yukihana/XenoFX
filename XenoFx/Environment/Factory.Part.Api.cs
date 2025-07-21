@@ -1,30 +1,28 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Database.AssetsDb;
-using XenoFx.Database.AuthDb;
 using XenoFx.Database.CacheDb;
-using XenoFx.Middleware.IpPinAuth;
+using XenoFx.Environment.Configuration;
 
 namespace XenoFx.Environment;
 
 public static partial class Factory
 {
-    // TODO Documentation: Preferred build method for XenoFx
+    // TODO Documentation: Preferred build method for the DI
     public async static Task<IServiceCollection> AddXenoFxAsync(
         this IServiceCollection services,
-        IConfiguration configuration,
+        IXenoFxOptions options,
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
-        XenoFxConfiguration xfc = await configuration.GetXenoFxConfigurationAsync(ctoken: ctoken);
+        var config = await options.GetConfigAsync(ctoken: ctoken);
 
-        services.AddXenoFxDatabases(xfc, ctoken);
-        services.AddXenoFxServices(xfc, ctoken);
+        services.AddXenoFxDatabases(config, ctoken);
+        services.AddXenoFxServices(config, ctoken);
 
         return services;
     }
@@ -32,7 +30,7 @@ public static partial class Factory
     // Attach middlewares to the pipeline
     public static IApplicationBuilder AddXenoFxMiddlewares(this IApplicationBuilder app)
     {
-        return app.UseMiddleware<IpPinAuthMiddleware>();
+        return app;
     }
 
     // TODO Documentation: Handles pre-initialization for the framework before consumption.
@@ -40,31 +38,17 @@ public static partial class Factory
         this IServiceProvider serviceProvider,
         CancellationToken ctoken = default)
     {
-        // Validate database connections
+        // Auto-upgrade and ensure database
         await serviceProvider.InitializeAssetsDbContextAsync(ctoken);
-        await serviceProvider.InitializeAuthDbContextAsync(ctoken);
         await serviceProvider.InitializeCacheDbContextAsync(ctoken);
-
-        // Warm up the file tracker
-
-        // Detect assets and run quick-mode integrity tests
-
-        // Register available assets for consumption
 
         return serviceProvider;
     }
 
-    // TODO Documentation: Activates parallel subroutines
-    public static IServiceProvider Activate(this IServiceProvider provider)
+    // TODO Documentation: Handles activation after preinitializing has completed
+    public static IServiceProvider Activate(
+        this IServiceProvider provider)
     {
-        // Start database connections
-
-        // Warm up the file tracker
-
-        // Detect assets and run quick-mode integrity tests
-
-        // Register available assets for consumption
-
         return provider;
     }
 }
