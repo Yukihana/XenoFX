@@ -1,5 +1,6 @@
 ﻿using CSX.Common.Data.Events;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,14 +69,16 @@ public partial class AssetQueueService
         return Task.CompletedTask;
     }
 
-    // Incoming : Upload
+    // Ingress : Upload
 
     public async Task OnFileUploadedAsync(
-        FileUploadedEventArgs eventArgs,
+        string uploadMetadataPath,
+        Func<string, CancellationToken, Task>? cleanupCallback,
         CancellationToken ctoken = default)
     {
         var context = new AssetUploadedEventContext(
-            eventArgs: eventArgs);
+            uploadMetadataPath: uploadMetadataPath,
+            cleanupCallback: cleanupCallback);
         await EnqueueAsync(context, ctoken);
     }
 }

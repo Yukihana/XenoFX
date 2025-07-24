@@ -1,8 +1,8 @@
 ﻿using CSX.Common.Data.DataGenerators;
 using CSX.Common.Data.Exceptions;
 using CSX.Common.Data.Placeholders;
+using CSX.Common.Data.Validations;
 using CSX.Common.Extensions.Database;
-using CSX.Common.Extensions.Validations;
 using CSX.Common.Net.Extensions;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi.Models;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthDatabase;

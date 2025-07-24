@@ -28,7 +28,13 @@ public interface IAssetQueueService
 
     Task OnFileSystemErrorAsync(ErrorEventArgs eventArgs, CancellationToken ctoken = default);
 
-    // API : AssetUpload
+    // API : Ingress
 
-    Task OnFileUploadedAsync(FileUploadedEventArgs eventArgs, CancellationToken ctoken = default);
+    Task OnFileUploadedAsync(
+        string uploadMetadataPath,
+        Func<string, CancellationToken, Task>? cleanupCallback,
+        CancellationToken ctoken = default);
+
+    // Obsolete: (but keep code until new module is fully set up)
+    // Task OnFileUploadedAsync(FileUploadedEventArgs eventArgs, CancellationToken ctoken = default);
 }

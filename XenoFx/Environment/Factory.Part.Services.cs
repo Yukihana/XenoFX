@@ -4,12 +4,13 @@ using XenoFx.Database.AssetsDb;
 using XenoFx.Database.CacheDb;
 using XenoFx.Environment.Configuration;
 using XenoFx.Services.Abstraction.AssetAbstraction;
+using XenoFx.Services.Api.AssetIngress;
 using XenoFx.Services.Api.AssetSearch;
-using XenoFx.Services.Api.AssetUpload;
 using XenoFx.Services.Api.StateMonitor;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Hosted.AssetTracking;
+using XenoFx.Services.Processing.AssetIngestion;
 using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
@@ -50,6 +51,7 @@ public static partial class FactoryExtensions
         // Storage layer : Scoped
 
         // Data layer (processing)
+        services.AddSingleton<IAssetIngestionService, AssetIngestionService>();
 
         // Data layer (processing router)
         services.AddSingleton<IAssetIndexingService, AssetIndexingService>();
@@ -67,9 +69,9 @@ public static partial class FactoryExtensions
 
         // API layer : Scoped (Avoid unless using a state is fundamental)
         services.AddScoped<IAssetSearchService, AssetSearchService>();
+        services.AddSingleton<IAssetIngressService, AssetIngressService>();
 
         // API layer : Singleton (stateless, thread-safe)
-        services.AddSingleton<IAssetUploadService, AssetUploadService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();
 
         // Control layer

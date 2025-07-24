@@ -1,4 +1,5 @@
 ﻿using CSX.Common.IO;
+using System.Collections.Immutable;
 using XenoFx.Services.Utility.Configuration.Models;
 
 namespace XenoFx.Services.Utility.Configuration;
@@ -13,19 +14,16 @@ public interface IConfigurationService
 
     PathFilterConfiguration AssetPathFilterConfiguration { get; }
 
-    // SubPaths : Base
+    // Directories
 
     string AssetsDirectory { get; }
-
-    // SubPaths : Cache
-
-    string UploadCacheDirectory { get; }
-
-    // SubPaths : Assets
-
     string AssetsUploadDirectory { get; }
+
+    string MetadataDirectory { get; }
+    string UploadsDirectory { get; }
 
     // Parameters
 
+    ImmutableArray<string> AllowedAssetExtensions { get; }
     ulong AssetEnumerationIntervalSeconds { get; }
 }

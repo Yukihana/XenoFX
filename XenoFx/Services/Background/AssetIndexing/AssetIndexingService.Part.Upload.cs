@@ -1,12 +1,12 @@
-﻿using CSX.Common.Data.Events;
-using HeyRed.Mime;
+﻿using CSX.Common.Data.Guids;
+using CSX.Common.Data.Text.Json;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
-using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Environment;
+using XenoFx.Services.Processing.AssetIngestion.DTOs;
 
 namespace XenoFx.Services.Background.AssetIndexing;
 
@@ -17,123 +17,116 @@ public partial class AssetIndexingService
 
     // Indexing
 
-    // Make this obsolete
-    // Upload to cache/uploads with 128bit_uid
-    // Then move to assets/uploaded/128bit_uid/file_original_name.ext
-    // The file tracker will grab that and send it to 'onCreatedAsync'
-    // there can be a separate uploaded table for recording metadata,
-    // if the newly found file doesn't have existing metadata in the assets table,
-    // the indexer will check the 'uploaded' table for metadata and sync it
-    // matching will be done based on the saved path in the table (not hashing)
-    // user can move it as required later
-
     public async Task<bool> IndexUploadEventAsync(
-        FileUploadedEventArgs eventArgs,
+        string uploadMetadataPath,
+        Func<string, CancellationToken, Task>? cleanupCallback,
         CancellationToken ctoken = default)
     {
-        string finalPath = string.Empty;
-
         try
         {
-            finalPath = await PrepareUploadForIndexingAsync(eventArgs, ctoken);
+            // Validate the request, contents and build indexable parameters
+            CachedAssetIndex index = await _assetIngestion.IngestFromUploadMetadataAsync(
+                uploadMetadataPath: uploadMetadataPath,
+                ctoken: ctoken);
 
-            // Bail early if the final upload path falls within indexing exclusions.
-            if (!_pathValidator.TryTruncateAssetPath(finalPath, out string? relativePath))
-                return false;
+            // Integrate with the database
+            var guid = await CreateFromUploadAsync(index, ctoken);
+            _logger.LogInformation("Asset with id {guid} ingress successful.", guid);
 
-            // Apply for indexing
-            await OnCreatedAsync(relativePath, ctoken); // TODO, recieve id on creation
+            // Integration complete. No cancellation beyond this point.
 
-            // TODO use recieved id for further database access, eg
-            // await StoreMetadataAsync(id, eventArgs, ctoken);
+            // Move the cached file to its final location
+            File.Move(
+                index.CacheFilePath,
+                index.FinalFullPath,
+                overwrite: true); // Id is deterministic. Any conflict would be malicious. Overwrite and kill.
 
-            _logger.LogInformation("Indexed upload: {path}", relativePath);
+            // Backup metadata (until the required tables are implemented)
+            await BackupIndexAsync(
+                index: index,
+                ctoken: CancellationToken.None);
 
-            return false; // Assimilation was successful. No need to requeue.
+            // Cleanup
+            if (cleanupCallback is not null)
+                await cleanupCallback(
+                    uploadMetadataPath,
+                    CancellationToken.None);
+
+            return false;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Asset upload faulted at {finalPath} for: {eventArgs}", finalPath, eventArgs);
-            return false;
+            _logger.LogError(ex, "Failed to process upload metadata at {path}", uploadMetadataPath);
+            return true; // Retry
         }
     }
 
-    // TODO align this migrated code.
-    private async Task<string> PrepareUploadForIndexingAsync(FileUploadedEventArgs eventArgs, CancellationToken ctoken = default)
-    {
-        ctoken.ThrowIfCancellationRequested();
-        await Task.Yield();
-
-        string extension = await DetermineExtensionAsync(eventArgs, ctoken);
-
-        string filenameBase = eventArgs.GetAssetBaseName();
-
-        return MoveToFinalPath(eventArgs.TemporaryFileFullPath, filenameBase, extension, ctoken);
-    }
-
-    private string MoveToFinalPath(
-        string tempPath,
-        string basename,
-        string extension,
+    private async Task<Guid> CreateFromUploadAsync(
+        CachedAssetIndex index,
         CancellationToken ctoken = default)
     {
-        ctoken.ThrowIfCancellationRequested();
-
-        bool emptyTitle = string.IsNullOrWhiteSpace(basename);
-        string filename = emptyTitle ? $"{Guid.NewGuid()}" : basename;
-
-        // Try for each possible name until one is available.
         while (true)
         {
-            ctoken.ThrowIfCancellationRequested();
-
-            string selectedPath = Path.Combine(
-                    AssetUploadDirectory,
-                    $"{filename}.{extension}");
-
             try
             {
-                File.Move(tempPath, selectedPath);
-                return selectedPath;
-            }
-            catch (IOException) when (File.Exists(selectedPath))
-            { }
+                ctoken.ThrowIfCancellationRequested();
 
-            // prep new for next iteration
-            string guid = Guid.NewGuid().ToString();
-            filename = emptyTitle ? guid : $"{basename}_{guid}";
+                // Designate a unique id
+                Guid guid = DMC212710Guid.FromUtcNow();
+
+                // Assign ingress location
+                string finalFullPath = Path.Combine(
+                    _configuration.AssetsUploadDirectory,
+                    guid.ToString(),
+                    $"{index.DeterminedFileName}.{index.FileExtension}");
+                string finalPath = Path.GetRelativePath(
+                    relativeTo: _configuration.AssetsDirectory,
+                    path: finalFullPath);
+
+                // Integrate in database here
+                await Task.Yield(); // Simulate DB operation
+
+                // On success assign to index
+                index.AssetId = guid; // Note, if record already exists, use the new guid instead to prevent overwriting the old file
+                index.Location = finalPath;
+                index.FinalFullPath = finalFullPath;
+                return guid;
+            }
+            catch (IOException) // Placeholder for unique constraint
+            { }
         }
     }
 
-    private async static Task<string> DetermineExtensionAsync(
-        FileUploadedEventArgs eventArgs,
+    public async Task BackupIndexAsync(
+        CachedAssetIndex index,
         CancellationToken ctoken = default)
     {
+        // For now serialize the context to a backup directory
+        // Since metadata has parameters for co-relation
+        // can be used until full integration is implemented
         ctoken.ThrowIfCancellationRequested();
 
-        // By original extension
-        var reportedExtension = Path.GetExtension(eventArgs.ReportedFilename)?.ToLowerInvariant();
-        if (!string.IsNullOrWhiteSpace(reportedExtension) &&
-            XenoFxConstants.AllowedAssetExtensions.Contains(reportedExtension, StringComparer.OrdinalIgnoreCase))
+        string writePath = Path.Combine(
+            _configuration.MetadataDirectory,
+            $"{index.AssetId}.index.json");
+
+        await using (FileStream fs = new(
+            path: writePath,
+            mode: FileMode.Create,
+            access: FileAccess.Write,
+            share: FileShare.None,
+            bufferSize: 1024,
+            useAsync: true))
         {
-            return reportedExtension;
+            await JsonSerializer.SerializeAsync(
+                utf8Json: fs,
+                value: index,
+                options: JsonOptionsUtilities.HumanReadableJsonOptions,
+                cancellationToken: ctoken);
         }
 
-        // By mimetype inference
-        var inferredExtension = MimeTypesMap.GetExtension(eventArgs.ReportedMimeType);
-        if (!string.IsNullOrWhiteSpace(inferredExtension))
-        {
-            var dotExtension = "." + inferredExtension.ToLowerInvariant();
-            if (XenoFxConstants.AllowedAssetExtensions.Contains(dotExtension, StringComparer.OrdinalIgnoreCase))
-            {
-                return dotExtension;
-            }
-        }
-
-        // Placeholder for magic bytes detection methods
-        await Task.Yield();
-
-        // Fallback
-        return ".bin";
+        _logger.LogInformation(
+            "Operation metadata was backed up in: {path}",
+            writePath);
     }
 }

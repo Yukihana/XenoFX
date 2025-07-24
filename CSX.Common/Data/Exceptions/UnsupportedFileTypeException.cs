@@ -3,7 +3,7 @@
 namespace CSX.Common.Data.Exceptions;
 
 public class UnsupportedFileTypeException(
-    string message,
+    string? message = null,
     string type = "")
     : Exception(message)
 {

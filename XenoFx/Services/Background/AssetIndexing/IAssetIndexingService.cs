@@ -1,11 +1,13 @@
-﻿using CSX.Common.Data.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace XenoFx.Services.Background.AssetIndexing;
 
+/// <summary>
+/// The indexing orchestrator for assets.
+/// </summary>
 public interface IAssetIndexingService
 {
     // Enumerator
@@ -36,7 +38,8 @@ public interface IAssetIndexingService
     // Uploads
 
     Task<bool> IndexUploadEventAsync(
-        FileUploadedEventArgs eventArgs,
+        string uploadMetadataPath,
+        Func<string, CancellationToken, Task>? cleanupCallback,
         CancellationToken ctoken = default);
 
     // State (Move this to a state service; rework)

@@ -34,9 +34,4 @@
     <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\Auth\" />
-    <Folder Include="Services\Background\AssetIndexing\Models\" />
-  </ItemGroup>
-
 </Project>

@@ -46,7 +46,7 @@ public static partial class Factory
     }
 
     // TODO Documentation: Handles activation after preinitializing has completed
-    public static IServiceProvider Activate(
+    public static IServiceProvider ActivateXenoFx(
         this IServiceProvider provider)
     {
         return provider;

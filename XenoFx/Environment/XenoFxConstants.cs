@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace XenoFx.Environment;
+﻿namespace XenoFx.Environment;
 
 public static partial class XenoFxConstants
 {
@@ -11,6 +9,5 @@ public static partial class XenoFxConstants
 
     // Composite Constants
 
-    public static string[] AllowedAssetExtensions => [
-        ".mp4", ".webm", ".mkv", ".flv", ".avi", ];           // Modern Video Formats
+    // Modern Video Formats
 }

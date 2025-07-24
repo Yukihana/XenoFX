@@ -101,8 +101,9 @@ public partial class AssetQueueService
         if (context is AssetUploadedEventContext uploadContext)
         {
             return await _assetIndexing.IndexUploadEventAsync(
-                eventArgs: uploadContext.EventArgs,
-                ctoken);
+                uploadMetadataPath: uploadContext.UploadMetadataPath,
+                cleanupCallback: uploadContext.CleanupCallback,
+                ctoken: ctoken);
         }
 
         throw new NotImplementedException($"Processing for {context.GetType()} is not implemented.");

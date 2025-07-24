@@ -3,6 +3,16 @@ when an 'Unauthorized' attempt is made to the /auth namespace, add ip to table;
 after 5 wrong attempts, increment retry bar time by (n-5) * 5 min, where n is number of attempts.
 max out at 24 hours. reset on success.
 
+Uploader:
+Move uploads to it's own module
+Strategy:
+first fully store the file and metadata in cache.
+move from cache to uploads/{uid}/file and metadata
+wait on this part until actual database implementation is completed:
+upload scanner service in xenofx will occassionally scan uploads/subdirectories
+if both the file and metadata are found, it'll start processing them.
+
+
 Repurpose presence table:
 it should only serve as a reverse lookup,
 every reverse lookup should be verified with a corresponding forward lookup
@@ -16,7 +26,4 @@ Change DateTime to DateTimeOffset across the board. Especially in the database.
 
 Housekeeping:
 Unify database creation extensions with add-on delegates as required
-Move Auth to a separate project. And use module-data folders. (separate for xenofx and the auth module)
-Modules use need to use their own injectable configuration interface.
-Move profiling system <T> into its own library.
 

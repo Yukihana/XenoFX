@@ -10,5 +10,9 @@ public interface IXenoFxOptions
 
     string AssetsDirectory { get; }
 
+    string UploadsDirectory { get; }
+
+    string MetadataDirectory { get; }
+
     string SharedCacheDirectory { get; }
 }

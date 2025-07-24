@@ -35,12 +35,15 @@ public sealed partial class XenoFxProfile
 
     // Parameters
 
+    public string[] AllowedAssetExtensions { get; set; } = [
+        ".mp4", ".webm", ".mkv", ".flv", ".avi", ];
+
     public PathFilterConfiguration AssetFilterConfig { get; set; } = new()
     {
         Greylist = ["**/*.*"],
         Blacklist = [
-            "**/*.x",                                           // Text Metadata
-            $"**/*{XenoFxConstants.DefaultUploadExtension}"]    // Uploads
+            "**/*.x",        // Text Metadata
+            $"**/*.json"]    // Uploads
     };
 
     public ulong AssetEnumerationIntervalSeconds { get; set; } = 3600;

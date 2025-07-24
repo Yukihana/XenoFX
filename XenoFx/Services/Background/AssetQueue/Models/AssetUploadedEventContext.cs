@@ -1,16 +1,23 @@
-﻿using CSX.Common.Data.Events;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace XenoFx.Services.Background.AssetQueue.Models;
 
 public sealed class AssetUploadedEventContext : AssetQueueEventContextBase
 {
-    public FileUploadedEventArgs EventArgs { get; }
+    // Request
+
+    public string UploadMetadataPath { get; }
+    public Func<string, CancellationToken, Task>? CleanupCallback { get; }
 
     // Lifecycle
 
     public AssetUploadedEventContext(
-        FileUploadedEventArgs eventArgs)
+        string uploadMetadataPath,
+        Func<string, CancellationToken, Task>? cleanupCallback = null)
     {
-        EventArgs = eventArgs;
+        UploadMetadataPath = uploadMetadataPath;
+        CleanupCallback = cleanupCallback;
     }
 }

@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Modules.AuthIpPin\CSX.DotNet.Modules.AuthIpPin.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Modules.FileUploader\CSX.DotNet.Modules.FileUploader.csproj" />
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
   </ItemGroup>
 

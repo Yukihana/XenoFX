@@ -1,4 +1,7 @@
 using CSX.DotNet.Modules.AuthIpPin.Environment;
+using CSX.DotNet.Modules.FileUploader.Environment;
+
+// using CSX.DotNet.Modules.XenoFx.Environment; // TODO
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,8 +13,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Environment;
-using XenoServe.Configuration;
-using XenoServe.Configuration.Modules;
+using XenoServe.Environment;
+using XenoServe.Environment.Modules;
 
 namespace XenoServe;
 
@@ -52,19 +55,23 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Read runtime profile
-        var xsConfig = await builder.Configuration
-            .GetXenoServeConfigAsync(args, ctoken);
-
         // Attach Logger (Apply actual serilog configuration from appsettings.json)
         builder.Host.UseSerilog((context, services, config) => config
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services)
             .Enrich.FromLogContext());
 
+        // Read runtime profile
+        var xsConfig = await builder.Configuration
+            .GetXenoServeConfigAsync(args, ctoken);
+
         // Add services to the container.
-        await builder.Services.AddXenoFxAsync(XenoFxOptions.Create(xsConfig), ctoken);
-        await builder.Services.AddAuthIpPinAsync(AuthIpPinOptions.Create(xsConfig), ctoken);
+        await builder.Services.AddXenoFxAsync(XenoFxOptions.CreateFrom(xsConfig), ctoken);
+        await builder.Services.AddFileUploaderAsync(FileUploaderOptions.CreateFrom(xsConfig), ctoken);
+        await builder.Services.AddAuthIpPinAsync(AuthIpPinOptions.CreateFrom(xsConfig), ctoken);
+
+        // Add orchestrators
+        builder.Services.AddOrchestrators();
 
         // builder.Services.AddControllers(); // Api Only
         builder.Services.AddControllersWithViews(); // Also handles views

@@ -1,6 +1,6 @@
 ﻿using CSX.Common.Data.Exceptions;
 using CSX.Common.IO;
-using Microsoft.AspNetCore.Http;
+using CSX.DotNet.Modules.FileUploader.Services.UploadApi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -8,8 +8,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
-using XenoFx.Services.Api.AssetUpload;
-using XenoFx.Services.Api.AssetUpload.DTOs;
 
 namespace XenoServe.Controllers.Api.Assets;
 
@@ -20,17 +18,15 @@ public class AssetContentController : ControllerBase
     // Infrastructure
 
     private readonly IAssetAbstractionService _assetAbstraction;
-    private readonly IAssetUploadService _assetUpload;
+    private readonly IUploadApiService _assetUpload;
     private readonly ILogger<AssetContentController> _logger;
 
     // Data
 
     public const string ControllerRoute = "api/assets";
     public const string FileRoute = "file";
-    public const string UploadRoute = "upload";
 
     public static string FileApiPath => $"{ControllerRoute}/{FileRoute}";
-    public static string UploadPath => $"{ControllerRoute}/{UploadRoute}";
 
     public static string FileApiTemplate => $"{FileApiPath}?id={{0}}&type={{1}}";
 
@@ -38,7 +34,7 @@ public class AssetContentController : ControllerBase
 
     public AssetContentController(
         IAssetAbstractionService assetAbstraction,
-        IAssetUploadService assetUpload,
+        IUploadApiService assetUpload,
         ILogger<AssetContentController> logger)
     {
         _assetAbstraction = assetAbstraction;
@@ -106,48 +102,6 @@ public class AssetContentController : ControllerBase
             return Problem(
                 detail: "An internal server error has occured.",
                 statusCode: 500);
-        }
-    }
-
-    [HttpPost]
-    [Route(UploadRoute)]
-    public async Task<IActionResult> UploadAsync(
-        IFormFile data,
-        [FromForm] string title = "",
-        [FromForm] string pageUrl = "",
-        [FromForm] string dataUrl = "",
-        [FromForm] string preferredFilename = "",
-        [FromForm] string extraData = "",
-        CancellationToken ctoken = default)
-    {
-        try
-        {
-            if (data is null)
-                return BadRequest("Invalid request: Upload data missing.");
-
-            _logger.LogInformation("Found data file with name: {name}", data.FileName);
-
-            AssetUploadRequest request = new(data.OpenReadStream())
-            {
-                Filename = data.FileName,
-                ContentMimeType = data.ContentType,
-
-                Title = title,
-                PageUrl = pageUrl,
-                DataUrl = dataUrl,
-
-                PreferredFilename = preferredFilename,
-                ExtraDataRaw = extraData,
-            };
-
-            var uploadResult = await _assetUpload.RegisterUploadAsync(request, ctoken);
-
-            return Ok(uploadResult.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Upload failed.");
-            return StatusCode(500, new { message = "Upload failed." }); // TODO add logging reference id system.
         }
     }
 }

@@ -23,7 +23,7 @@ public sealed partial class XenoFxConfiguration
     // Profile; Not needed but keep anyway
 
     public string ProfilePath
-        => XenoFxProfile.GetFilePath(_options.DataDirectory); //
+        => XenoFxProfile.GetFilePath(_options.DataDirectory);
 
     // Assets Database
 
@@ -47,15 +47,14 @@ public sealed partial class XenoFxConfiguration
 
     // Directories
 
-    public string UploadCacheDirectory => Path.Combine(
-        _options.DataDirectory,
-        _profile.UploadCacheDirectory);
-
     public string AssetsUploadDirectory => Path.Combine(
         _options.DataDirectory,
         _profile.AssetsUploadDirectory);
 
     // Parameters
+
+    public string[] AllowedAssetExtensions
+        => _profile.AllowedAssetExtensions;
 
     public PathFilterConfiguration AssetFilterConfig
         => _profile.AssetFilterConfig;
@@ -67,4 +66,13 @@ public sealed partial class XenoFxConfiguration
 
     public string AssetsDirectory
         => _options.AssetsDirectory; // PathExtensions.ResolveCombine(dataDirectory, _configuration.AssetsDirectory);
+
+    public string UploadsDirectory
+        => _options.UploadsDirectory;
+
+    public string MetadataDirectory
+        => _options.MetadataDirectory;
+
+    public string SharedCacheDirectory
+        => _options.SharedCacheDirectory;
 }
