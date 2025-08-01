@@ -1,4 +1,4 @@
-﻿using CSX.Common.IO.Paths;
+﻿using CSX.DotNet.Common.IO.Paths;
 using CSX.DotNet.Modules.FileUploader.Services.Configuration;
 using Microsoft.Extensions.Logging;
 using System;

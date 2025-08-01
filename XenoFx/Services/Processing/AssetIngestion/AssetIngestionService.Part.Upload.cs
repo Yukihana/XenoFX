@@ -1,7 +1,7 @@
-﻿using CSX.Common.Data.Exceptions;
-using CSX.Common.Data.Text.Json;
-using CSX.Common.Security.Integrity;
-using CSX.Common.Security.Net;
+﻿using CSX.DotNet.Common.Data.Exceptions;
+using CSX.DotNet.Common.Data.Text.Json;
+using CSX.DotNet.Common.Security.Integrity;
+using CSX.DotNet.Common.Security.Net;
 using HeyRed.Mime;
 using System;
 using System.IO;

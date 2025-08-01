@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CSX.DotNet.Common.Logging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoServe.Data.Models;
 
 namespace XenoServe.Controllers.Api.Utility;
 

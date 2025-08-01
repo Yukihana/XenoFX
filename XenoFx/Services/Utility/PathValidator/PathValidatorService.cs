@@ -1,5 +1,5 @@
-﻿using CSX.Common.IO;
-using CSX.Common.Platform;
+﻿using CSX.DotNet.Common.IO;
+using CSX.DotNet.Common.Platform;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;

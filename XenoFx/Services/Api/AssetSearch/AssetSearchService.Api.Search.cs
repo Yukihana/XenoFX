@@ -1,5 +1,5 @@
-﻿using CSX.Common.Data.DataGenerators;
-using CSX.Common.Extensions.Collections;
+﻿using CSX.DotNet.Common.Data.DataGenerators;
+using CSX.DotNet.Common.Extensions.Collections;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

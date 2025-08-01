@@ -1,5 +1,5 @@
-﻿using CSX.Common.Data.Exceptions;
-using CSX.Common.Data.Placeholders;
+﻿using CSX.DotNet.Common.Data.Exceptions;
+using CSX.DotNet.Common.Data.Placeholders;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi.Models;
 using Microsoft.AspNetCore.Http;

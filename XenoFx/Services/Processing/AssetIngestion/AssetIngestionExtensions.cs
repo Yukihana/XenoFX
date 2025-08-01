@@ -1,5 +1,5 @@
-﻿using CSX.Common.Data.Guids;
-using CSX.Common.IO.Paths;
+﻿using CSX.DotNet.Common.Data.Guids;
+using CSX.DotNet.Common.IO.Paths;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

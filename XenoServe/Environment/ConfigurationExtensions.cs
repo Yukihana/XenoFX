@@ -1,4 +1,4 @@
-﻿using CSX.Common.Data.Text;
+﻿using CSX.DotNet.Common.Data.Text;
 using CSX.DotNet.Storage.AppProfiles;
 using Microsoft.Extensions.Configuration;
 using System.IO;

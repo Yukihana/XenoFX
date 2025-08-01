@@ -1,5 +1,5 @@
-﻿using CSX.Common.Data.Guids;
-using CSX.Common.Data.Text.Json;
+﻿using CSX.DotNet.Common.Data.Guids;
+using CSX.DotNet.Common.Data.Text.Json;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;

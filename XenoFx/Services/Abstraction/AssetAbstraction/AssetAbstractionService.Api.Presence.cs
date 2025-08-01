@@ -1,4 +1,4 @@
-﻿using CSX.Common.Data.Exceptions;
+﻿using CSX.DotNet.Common.Data.Exceptions;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;

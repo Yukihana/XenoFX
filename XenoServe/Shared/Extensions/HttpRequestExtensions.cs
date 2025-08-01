@@ -1,4 +1,4 @@
-﻿using CSX.Common.Data.Exceptions;
+﻿using CSX.DotNet.Common.Data.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System;
 

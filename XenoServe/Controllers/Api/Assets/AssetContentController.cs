@@ -1,5 +1,5 @@
-﻿using CSX.Common.Data.Exceptions;
-using CSX.Common.IO;
+﻿using CSX.DotNet.Common.Data.Exceptions;
+using CSX.DotNet.Common.IO;
 using CSX.DotNet.Modules.FileUploader.Services.UploadApi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

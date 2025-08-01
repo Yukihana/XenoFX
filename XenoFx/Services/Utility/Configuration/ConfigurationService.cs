@@ -1,4 +1,4 @@
-﻿using CSX.Common.IO;
+﻿using CSX.DotNet.Common.IO;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using XenoFx.Environment.Configuration;

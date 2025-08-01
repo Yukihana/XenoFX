@@ -1,5 +1,5 @@
-﻿using CSX.Common.Data.Text.Json;
-using CSX.Common.IO.Paths;
+﻿using CSX.DotNet.Common.Data.Text.Json;
+using CSX.DotNet.Common.IO.Paths;
 using CSX.DotNet.Modules.FileUploader.Services.Configuration;
 using CSX.DotNet.Modules.FileUploader.Services.UploadApi;
 using Microsoft.Extensions.Logging;

@@ -1,4 +1,4 @@
-﻿using CSX.Common.IO.FileFormats;
+﻿using CSX.DotNet.Common.IO.FileFormats;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.IO;

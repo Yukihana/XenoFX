@@ -1,4 +1,4 @@
-﻿using CSX.Common.Data.Placeholders;
+﻿using CSX.DotNet.Common.Data.Placeholders;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi.Models;
 using System;
 using System.Net;

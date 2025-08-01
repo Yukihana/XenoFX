@@ -1,4 +1,4 @@
-﻿using CSX.Common.Data.DataGenerators;
+﻿using CSX.DotNet.Common.Data.DataGenerators;
 using System;
 using System.Collections.Generic;
 using System.Linq;

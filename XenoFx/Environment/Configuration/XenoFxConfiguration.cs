@@ -1,4 +1,4 @@
-﻿using CSX.Common.IO;
+﻿using CSX.DotNet.Common.IO;
 using System.IO;
 
 namespace XenoFx.Environment.Configuration;

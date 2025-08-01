@@ -1,4 +1,4 @@
-﻿using CSX.Common.Extensions.Collections;
+﻿using CSX.DotNet.Common.Extensions.Collections;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

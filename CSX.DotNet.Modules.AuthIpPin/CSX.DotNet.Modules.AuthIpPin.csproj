@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CSX.Common\CSX.Common.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
     <ProjectReference Include="..\CSX.DotNet.EFC.Common\CSX.DotNet.EFC.Common.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
   </ItemGroup>

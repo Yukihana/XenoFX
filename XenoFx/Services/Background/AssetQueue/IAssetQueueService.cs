@@ -1,4 +1,4 @@
-﻿using CSX.Common.Data.Events;
+﻿using CSX.DotNet.Common.Data.Events;
 using System;
 using System.IO;
 using System.Threading;
