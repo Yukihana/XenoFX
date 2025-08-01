@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.AssetSearch.Contracts;
 
-namespace XenoServe.Controllers.Api.Assets;
+namespace XenoServe.Features.AssetSearch;
 
 [Route("api/assets")]
 [ApiController]

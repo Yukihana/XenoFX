@@ -22,7 +22,7 @@
  */
 
 // Required for url state
-import { updateQueryParam, getQueryParams } from "../js/shared/url-state.js";
+import { updateQueryParam, getQueryParams } from "../shared/js/url-state.js";
 
 export class XenoServeMediaListing {
     // Elements

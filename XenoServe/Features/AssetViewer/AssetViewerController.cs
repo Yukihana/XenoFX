@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Abstraction.AssetAbstraction.DTOs;
-using XenoServe.Controllers.Api.Assets;
 using XenoServe.Data;
+using XenoServe.Features.AssetDelivery;
 using XenoServe.Shared.Extensions;
 
 namespace XenoServe.Features.AssetViewer;
@@ -53,7 +53,7 @@ public class AssetViewerController : Controller
 
             // Prepare the model
             AssetViewerInfo info = await _assetAbstraction.GetAssetViewerInfoAsync(id, ctoken);
-            string sourceUrl = string.Format(AssetContentController.FileApiTemplate, id, info.Extension);
+            string sourceUrl = string.Format(AssetDeliveryController.FileApiTemplate, id, info.Extension);
             AssetViewerViewModel model = new()
             {
                 Title = info.Title,

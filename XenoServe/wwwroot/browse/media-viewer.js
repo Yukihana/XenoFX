@@ -7,7 +7,7 @@
  */
 
 // Required for url state
-import { updateQueryParam, getQueryParams } from "../js/shared/url-state.js";
+import { updateQueryParam, getQueryParams } from "../shared/js/url-state.js";
 
 export class XenoServeMediaViewer {
     // elements
@@ -178,7 +178,7 @@ export class XenoServeMediaViewer {
         const viewer = this.ensureVideoElement();
 
         // set the video
-        viewer.src = `/api/assets/file?id=${id}`;
+        viewer.src = `/api/assets/delivery/file?id=${id}`;
         viewer.load();
         try {
             await viewer.play();

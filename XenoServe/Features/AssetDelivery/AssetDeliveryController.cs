@@ -8,22 +8,23 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
+using XenoServe.Features.AssetDelivery.DTOs;
 
-namespace XenoServe.Controllers.Api.Assets;
+namespace XenoServe.Features.AssetDelivery;
 
 [Route(ControllerRoute)]
 [ApiController]
-public class AssetContentController : ControllerBase
+public class AssetDeliveryController : ControllerBase
 {
     // Infrastructure
 
     private readonly IAssetAbstractionService _assetAbstraction;
     private readonly IUploadApiService _assetUpload;
-    private readonly ILogger<AssetContentController> _logger;
+    private readonly ILogger<AssetDeliveryController> _logger;
 
     // Data
 
-    public const string ControllerRoute = "api/assets";
+    public const string ControllerRoute = "api/assets/delivery";
     public const string FileRoute = "file";
 
     public static string FileApiPath => $"{ControllerRoute}/{FileRoute}";
@@ -32,10 +33,10 @@ public class AssetContentController : ControllerBase
 
     // Lifecycle
 
-    public AssetContentController(
+    public AssetDeliveryController(
         IAssetAbstractionService assetAbstraction,
         IUploadApiService assetUpload,
-        ILogger<AssetContentController> logger)
+        ILogger<AssetDeliveryController> logger)
     {
         _assetAbstraction = assetAbstraction;
         _assetUpload = assetUpload;
@@ -47,8 +48,7 @@ public class AssetContentController : ControllerBase
     [HttpGet]
     [Route(FileRoute)]
     public async Task<IActionResult> FileAsync(
-        [FromQuery] string id,
-        [FromQuery] string? type,
+        [FromQuery] FileDeliveryRequest request,
         CancellationToken ctoken = default)
     {
         try
@@ -58,7 +58,7 @@ public class AssetContentController : ControllerBase
 
             // Placeholder for [ID lookup -> AssetInfo]
             // currently using [searchKey(as id) -> relativePath]
-            string path = await _assetAbstraction.GetFirstMatchingAssetPathAsync(id, ctoken);
+            string path = await _assetAbstraction.GetFirstMatchingAssetPathAsync(request.Id, ctoken);
 
             // Placeholder for cross-checking asset info with presences for the file's current location;
             // returns usable full path;
@@ -70,10 +70,10 @@ public class AssetContentController : ControllerBase
             string contentType = MimeTyping.GetMimeType(extension);
 
             // if expected content type is provided, verify the extension matches (this is a temporary measure)
-            if (!string.IsNullOrEmpty(type) &&
-                !extension.Equals(type.ToLowerInvariant()))
+            if (!string.IsNullOrEmpty(request.Type) &&
+                !extension.Equals(request.Type.ToLowerInvariant()))
             {
-                _logger.LogWarning("The content's specified type:{type} for id:{id} didn't match the file:{fullPath}", type, id, fullPath);
+                _logger.LogWarning("The content's specified type:{type} for id:{id} didn't match the file:{fullPath}", request.Type, request.Id, fullPath);
                 return BadRequest("Content type mismatch. Please refresh.");
             }
 
@@ -92,13 +92,13 @@ public class AssetContentController : ControllerBase
         }
         catch (ResourceNotFoundException ex)
         {
-            _logger.LogWarning(ex, "Resource not found for id: {id}", id);
+            _logger.LogWarning(ex, "Resource not found for id: {id}", request.Id);
             return NotFound(new { message = "Resource not found." }); // TODO: add logging reference id system.
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Unexpected error in {controller}/{route} for id: {id}",
-                ControllerRoute, FileRoute, id);
+                ControllerRoute, FileRoute, request.Id);
             return Problem(
                 detail: "An internal server error has occured.",
                 statusCode: 500);

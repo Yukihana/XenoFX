@@ -42,8 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\dashboard\" />
-    <Folder Include="wwwroot\play\" />
     <Folder Include="wwwroot\shared\stylesheets\" />
   </ItemGroup>
 
