@@ -29,7 +29,7 @@ public sealed partial class XenoFxConfiguration
 
     public string AssetsDatabasePath => Path.Combine(
         _options.DataDirectory,
-        _profile.DatabasesDirectory,
+        _profile.DatabaseDirectory,
         _profile.AssetsDatabasePath);
 
     public string AssetsDatabaseType
@@ -39,7 +39,7 @@ public sealed partial class XenoFxConfiguration
 
     public string CacheDatabasePath => Path.Combine(
         _options.DataDirectory,
-        _profile.DatabasesDirectory,
+        _profile.DatabaseDirectory,
         _profile.CacheDatabasePath);
 
     public string CacheDatabaseType

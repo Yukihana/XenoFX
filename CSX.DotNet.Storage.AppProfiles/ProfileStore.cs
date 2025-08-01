@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using CSX.DotNet.Common.Data.Text.Json;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,7 @@ public static class ProfileStore
             await JsonSerializer.SerializeAsync(
                 utf8Json: fileStream,
                 value: newProfile,
+                options: JsonOptionsUtilities.HumanReadableJsonOptions,
                 cancellationToken: ctoken);
         }
         return newProfile;
