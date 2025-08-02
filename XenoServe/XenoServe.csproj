@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -13,13 +13,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Workspaces\**" />
-    <Content Remove="Workspaces\**" />
-    <EmbeddedResource Remove="Workspaces\**" />
-    <None Remove="Workspaces\**" />
-  </ItemGroup>
+  <!-- SPA Proxy settings ~ Consider removing if it can't be fixed
+  <PropertyGroup>
+    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
+    <SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
+    <SpaProxyDefaultUrl>/</SpaProxyDefaultUrl>
+  </PropertyGroup>
+  -->
 
+  <!--References-->
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
@@ -33,16 +35,78 @@
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+    <!--Needed For React-->
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="9.*-*" />
   </ItemGroup>
 
+  <!--Projects-->
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Modules.AuthIpPin\CSX.DotNet.Modules.AuthIpPin.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Modules.FileUploader\CSX.DotNet.Modules.FileUploader.csproj" />
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
+    <ProjectReference Include="..\xenoserve.frontend\xenoserve.frontend.esproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <!-- Frontend build pipeline - Start -->
+  <PropertyGroup>
+    <SpaRoot>../xenoserve.frontend</SpaRoot>
+    <WwwRoot>$(PublishDir)/wwwroot</WwwRoot>
+    <SpaDist>$(SpaRoot)/dist/</SpaDist>
+  </PropertyGroup>
+
+  <!--
+  Possibly already done by the project reference to xenoserve.frontend.esproj
+
+  <Target Name="NpmInstall" Condition="!Exists('$(SpaRoot)node_modules')" Outputs="$(SpaRoot)node_modules">
+    <Message Text="node_modules not found. Running npm install..." Importance="high" />
+    <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+
+  <Target Name="BuildFrontend"
+          DependsOnTargets="NpmInstall"
+          Inputs="$(SpaRoot)src/**;$(SpaRoot)package.json;$(SpaRoot)vite.config.ts"
+          Outputs="$(SpaDist)**/*"
+          BeforeTargets="Build">
+    <Message Text="Building React frontend because inputs changed..." Importance="high" />
+    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
+  </Target>
+  -->
+
+  <!-- Copy React build artifacts into wwwroot -->
+  <Target Name="CopyFrontendToWwwroot" AfterTargets="Publish">
+
+    <!-- Clean while making allowances for legacy files -->
+    <Message Text="Cleaning publish/wwwroot/... excluding /legacy" Importance="high" />
+    <ItemGroup>
+      <FilesToDelete Include="$(WwwRoot)/**/*.*" Exclude="$(WwwRoot)/legacy/**/*.*" />
+      <DirsToDelete Include="$(WwwRoot)/**/" Exclude="$(WwwRoot)/legacy/" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" />
+    <RemoveDir Directories="@(DirsToDelete)" />
+
+    <!-- Finally copy SPA files to wwwroot -->
+    <Message Text="Copying frontend build files to publish/wwwroot/..." Importance="high" />
+    <ItemGroup>
+      <FrontendFiles Include="$(SpaDist)**/*" />
+    </ItemGroup>
+    <MakeDir Directories="$(WwwRoot)" />
+    <Copy SourceFiles="@(FrontendFiles)"
+          DestinationFolder="$(WwwRoot)/%(RecursiveDir)" />
+  </Target>
+  <!-- Frontend build pipeline - End -->
+
+  <!-- Exclude the data directories created when debugging -->
+  <ItemGroup>
+    <Compile Remove="Workspaces\**" />
+    <Content Remove="Workspaces\**" />
+    <EmbeddedResource Remove="Workspaces\**" />
+    <None Remove="Workspaces\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\shared\stylesheets\" />
+    <Folder Include="wwwroot\legacy\shared\stylesheets\" />
   </ItemGroup>
-
 </Project>

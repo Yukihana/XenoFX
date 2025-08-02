@@ -101,24 +101,24 @@ public class Program
         ctoken.ThrowIfCancellationRequested();
 
         // Redirect the default path to where it's needed
-        app.MapGet("/", () => Results.Redirect("/browse"));
+        app.MapGet("/", () => Results.Redirect("/legacy/browse"));
 
         // Enable IpPinAuthMiddleware
         app.AddXenoFxMiddlewares();
         app.AddAuthIpPinMiddlewares();
 
         // Enable static files
+        app.MapStaticAssets();
         app.UseDefaultFiles(new DefaultFilesOptions()
         {
-            DefaultFileNames = ["default.html"], // Default file to serve
+            DefaultFileNames = ["default.html", "index.html"], // Default file to serve
         });
-        app.UseStaticFiles();
 
         // Initialize service groups
         await app.Services.PreInitializeXenoFxAsync(ctoken);
         await app.Services.PreInitializeAuthIpPinAsync(ctoken);
 
-        // Configure the HTTP request pipeline.
+        // Swagger first, so it’s served directly by ASP.NET Core
         if (app.Environment.IsDevelopment())
         {
             // Enable middleware to serve generated Swagger as a JSON endpoint.
@@ -129,10 +129,23 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
         app.UseAuthorization();
 
+        // Map controllers before the SPA
         app.MapControllers();
+
+        // Enable SPA development server proxy (Assumes Vite frontend is running)
+        /*
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSpa(spa =>
+            {
+                spa.UseProxyToSpaDevelopmentServer("https://localhost:5173"); // Matches Vite dev port
+            });
+        }*/
+
+        // Enable fallback to SPA
+        app.MapFallbackToFile("/index.html");
 
         return app;
     }
