@@ -15,7 +15,7 @@ namespace XenoFx.Database.AssetsDb.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
 
             modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetDescriptor", b =>
                 {
@@ -58,69 +58,48 @@ namespace XenoFx.Database.AssetsDb.Migrations
                     b.ToTable("Description");
                 });
 
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetIndentifier", b =>
+            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetIdentity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<byte[]>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("BINARY(16)");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Location")
+                    b.Property<byte[]>("Blake3")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Metadata");
-                });
-
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetIntegrityData", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("BLOB");
 
                     b.Property<byte[]>("Crumbs")
                         .IsRequired()
                         .HasColumnType("BLOB");
 
-                    b.Property<Guid>("Hamming")
+                    b.Property<DateTimeOffset>("FileCreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<byte[]>("MD5")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
+                    b.Property<DateTimeOffset>("FileModifiedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRecordDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("RecordCreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("RecordDeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("RecordUpdatedAt")
+                        .HasColumnType("TEXT");
 
                     b.Property<byte[]>("SHA256")
                         .IsRequired()
                         .HasColumnType("BLOB");
 
-                    b.Property<Guid>("SolomonReedId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Integrity");
+                    b.ToTable("Identities");
                 });
 
             modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetMediaInfo", b =>

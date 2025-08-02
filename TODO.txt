@@ -1,29 +1,37 @@
 attempts table, for ip tracking middleware:
-when an 'Unauthorized' attempt is made to the /auth namespace, add ip to table;
-after 5 wrong attempts, increment retry bar time by (n-5) * 5 min, where n is number of attempts.
-max out at 24 hours. reset on success.
+	when an 'Unauthorized' attempt is made to the /auth namespace, add ip to table;
+	after 5 wrong attempts, increment retry bar time by (n-5) * 5 min, where n is number of attempts.
+	max out at 24 hours. reset on success.
 
 Uploader:
-Move uploads to it's own module
-Strategy:
-first fully store the file and metadata in cache.
-move from cache to uploads/{uid}/file and metadata
-wait on this part until actual database implementation is completed:
-upload scanner service in xenofx will occassionally scan uploads/subdirectories
-if both the file and metadata are found, it'll start processing them.
+	Have bootup strategy for requeuing uploads caches that weren't cleaned up
+
+Assets Table strategy:
+	- Identity table: Guid, ModifiedUtc, CreatedUtc, FileSize, SHA256, Blake3, Crumbs
+	- LocationForwardTable: Guid -> [paths],
+	- LocationReverseTable: path -> Guid,
+	- MetadataTable: Guid, Extension, MimeType, ExtraData-JsonObject,
+	- VideoTable: Guid, PrimaryVCodec, FrameCount, FrameHeight, FrameWidth, PlaybackInfo,
+	- AudioTable: Guid, Codec, Bitrate, Sampling, PlaybackInfo,
+	- ImageTable: Guid, Height, Width, PlaybackInfo,
+	- DescriptionTable: Guid, Title, Description, Tags, Lazy-Rating, etc.
+
+	Note: For videos,
+	Audio goes in audio table,
+	but playback-info will be used from video table.
 
 
 Repurpose presence table:
-it should only serve as a reverse lookup,
-every reverse lookup should be verified with a corresponding forward lookup
-to ensure the presence entry is not stale.
-check for the actual asset instead of presence to reduce redundancy.
+	it should only serve as a reverse lookup,
+	every reverse lookup should be verified with a corresponding forward lookup
+	to ensure the presence entry is not stale.
+	check for the actual asset instead of presence to reduce redundancy.
 
 Additional:
-Replace DateTime.UtcNow with IClock across the board.
-Use a switch from server configuration to enable/disable the middleware auth
-Change DateTime to DateTimeOffset across the board. Especially in the database.
+	- Replace DateTime.UtcNow with IClock across the board.
+	- Use a switch from server configuration to enable/disable the middleware auth
+	- Change DateTime to DateTimeOffset across the board. Especially in the database.
 
 Housekeeping:
-Unify database creation extensions with add-on delegates as required
+	- Unify database creation extensions with add-on delegates as required
 

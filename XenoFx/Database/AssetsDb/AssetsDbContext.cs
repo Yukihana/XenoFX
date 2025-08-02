@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CSX.DotNet.EFC.Common.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using XenoFx.Database.AssetsDb.Models;
 
 namespace XenoFx.Database.AssetsDb;
@@ -7,13 +8,10 @@ namespace XenoFx.Database.AssetsDb;
 /// Database storage model for integrity and recovery metadata of a file repository.
 /// </summary>
 /// <param name="options">Database Connection and Runtime Options</param>
-public class AssetsDbContext : DbContext
+public class AssetsDbContext : BaseDbContext
 {
-    // Size, Location, Created, Modified, etc.
-    public DbSet<AssetIndentifier> Metadata { get; set; }
-
-    // Hash, Recovery, etc.
-    public DbSet<AssetIntegrityData> Integrity { get; set; }
+    // Identity hashes and metadata
+    public DbSet<AssetIdentity> Identities { get; set; }
 
     // Media type, length, resolution, codec, etc.
     public DbSet<AssetMediaInfo> Media { get; set; }
@@ -36,7 +34,13 @@ public class AssetsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.SpecifyAssetIdentity();
+
         // Conversion: UInt128 ←→ byte[16]
+
+        // Register primary keys
 
         // Register unique columns
 
