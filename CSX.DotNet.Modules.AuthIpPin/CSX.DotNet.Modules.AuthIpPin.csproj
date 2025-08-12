@@ -18,8 +18,4 @@
     <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\Configuration\" />
-  </ItemGroup>
-
 </Project>

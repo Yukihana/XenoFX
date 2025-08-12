@@ -1,4 +1,5 @@
 ﻿using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi;
+using CSX.DotNet.Modules.AuthIpPin.Services.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -10,15 +11,18 @@ public partial class AuthIpPinMiddleware : IMiddleware
     // Infrastructure
 
     private readonly IAuthApiService _authService;
+    private readonly IConfigurationService _configuration;
     private readonly ILogger<AuthIpPinMiddleware> _logger;
 
     // Lifecycle
 
     public AuthIpPinMiddleware(
         IAuthApiService authService,
+        IConfigurationService configuration,
         ILogger<AuthIpPinMiddleware> logger)
     {
         _authService = authService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -28,9 +32,15 @@ public partial class AuthIpPinMiddleware : IMiddleware
         HttpContext context,
         RequestDelegate next)
     {
-        var path = context.Request.Path;
+        // Master bypass
+        if (_configuration.NoAuth)
+        {
+            await next(context);
+            return;
+        }
 
         // Only act on /api/* routes (TODO, make it a part of configuration)
+        var path = context.Request.Path;
         if (path.StartsWithSegments("/api"))
         {
             var ip = context.Connection.RemoteIpAddress;

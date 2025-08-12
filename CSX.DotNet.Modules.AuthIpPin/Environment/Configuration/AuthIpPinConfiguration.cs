@@ -44,4 +44,9 @@ public class AuthIpPinConfiguration
 
     public string AuthDatabaseType
         => _profile.AuthDatabaseType;
+
+    // Parameters
+
+    public bool NoAuth
+        => _profile.NoAuth;
 }

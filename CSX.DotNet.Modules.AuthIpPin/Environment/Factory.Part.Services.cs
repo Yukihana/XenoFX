@@ -2,6 +2,7 @@
 using CSX.DotNet.Modules.AuthIpPin.Middlewares;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthApi;
 using CSX.DotNet.Modules.AuthIpPin.Services.AuthDatabase;
+using CSX.DotNet.Modules.AuthIpPin.Services.Configuration;
 using CSX.DotNet.Modules.AuthIpPin.Storage.AuthDb;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
@@ -31,6 +32,7 @@ public static partial class Factory
         ctoken.ThrowIfCancellationRequested();
 
         // Configuration
+        services.AddAuthIpPinConfigurationService(config);
 
         // Storage
         services.AddSingleton<IAuthDbWorkerService, AuthDbWorkerService>();

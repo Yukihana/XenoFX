@@ -15,9 +15,10 @@ public class AuthIpPinProfile
     // Module specific : Database
 
     public string DatabaseDirectoryName { get; set; } = "Database";
-
     public string AuthDatabasePath { get; set; } = "Auth.sqlite";
+    public string AuthDatabaseType { get; set; } = "sqlite"; // Required for db type specific actions
 
-    // Required for db type specific actions
-    public string AuthDatabaseType { get; set; } = "sqlite"; // Make this an enum
+    // Module specific : Parameters
+
+    public bool NoAuth { get; set; } = false;
 }
