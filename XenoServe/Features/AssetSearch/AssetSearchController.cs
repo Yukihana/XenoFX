@@ -3,8 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Api.AssetSearch;
-using XenoFx.Services.Api.AssetSearch.Contracts;
+using XenoServe.Features.AssetSearch.DTOs;
 
 namespace XenoServe.Features.AssetSearch;
 
@@ -12,15 +11,14 @@ namespace XenoServe.Features.AssetSearch;
 [ApiController]
 public sealed partial class AssetSearchController : ControllerBase
 {
-    private readonly IAssetSearchService _assetSearch;
-
+    private readonly IAssetSearchOrchestrator _orchestrator;
     private readonly ILogger<AssetSearchController> _logger;
 
     public AssetSearchController(
-        IAssetSearchService assetSearch,
+        IAssetSearchOrchestrator orchestrator,
         ILogger<AssetSearchController> logger)
     {
-        _assetSearch = assetSearch;
+        _orchestrator = orchestrator;
         _logger = logger;
     }
 
@@ -29,22 +27,22 @@ public sealed partial class AssetSearchController : ControllerBase
     [HttpGet]
     [Route("search")]
     public async Task<IActionResult> SearchAsync(
-        [FromQuery] AssetSearchQuery query,
+        [FromQuery] AssetSearchQueryParams queryParams,
         CancellationToken ctoken = default)
     {
         try
         {
-            var partialSeed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
-            var response = await _assetSearch.SearchAsync(query, partialSeed, ctoken);
-            var start = response.Page * response.PageSize;
-            var end = start + response.Count;
+            var response = await _orchestrator.SearchAsync(
+                queryParams: queryParams,
+                ipAddress: HttpContext.Connection.RemoteIpAddress,
+                ctoken: ctoken);
 
             _logger.LogInformation(
                 "Returning {page}:{count} of {total} for the query '{query}' generated in {elapsed}. Results: {@list}",
                 response.Page,              // Page
                 response.Count,             // Count
                 response.Total,             // Total
-                query.Keywords,             // Query
+                response.Keywords,          // Query
                 $"[{response.Duration}]",   // Duration
                 response.Results);
 
@@ -53,7 +51,7 @@ public sealed partial class AssetSearchController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while searching for assets with query '{query}'", query);
+            _logger.LogError(ex, "Error occurred while searching for assets with query '{query}'", queryParams);
             return StatusCode(500, "An error occurred while processing your request.");
         }
     }
@@ -62,13 +60,15 @@ public sealed partial class AssetSearchController : ControllerBase
     [HttpGet]
     [Route("nextplore")]
     public async Task<IActionResult> NextploreAsync(
-        [FromQuery] AssetNextploreQuery query,
+        [FromQuery] AssetNextploreQueryParams queryParams,
         CancellationToken ctoken = default)
     {
         try
         {
-            var partialSeed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
-            var response = await _assetSearch.NextploreAsync(query, partialSeed, ctoken);
+            var response = await _orchestrator.NextploreAsync(
+                queryParams: queryParams,
+                ipAddress: HttpContext.Connection.RemoteIpAddress,
+                ctoken: ctoken);
 
             return response == null
                 ? NoContent() // Only on db row count = 0, since results loop.
@@ -76,21 +76,36 @@ public sealed partial class AssetSearchController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while searching for assets with query '{query}'", query);
+            _logger.LogError(ex, "Error occurred while searching for assets with query '{query}'", queryParams);
             return StatusCode(500, "An error occurred while processing your request.");
         }
     }
-
-    // PreviousItem
 
     // Cache (aka Get Have; To be removed when ids are implemented)
 
     [HttpGet]
     [Route("matches")]
-    public async Task<IActionResult> GetHaveAsync([FromQuery] string query, CancellationToken ctoken = default)
+    public async Task<IActionResult> GetHaveAsync(
+        [FromQuery] string query,
+        CancellationToken ctoken = default)
     {
-        var result = await _assetSearch.GetHaveAsync(query, ctoken);
-        _logger.LogInformation("Found {count} results for query '{query}': {list}", result.Length, query, result);
-        return Ok(result);
+        try
+        {
+            var result = await _orchestrator.GetHaveAsync(
+                query: query,
+                ctoken: ctoken);
+
+            _logger.LogInformation(
+                "Found {count} results for query '{query}': {list}",
+                result.Length,
+                query, result);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking assets catalogue with query '{query}'", query);
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
     }
 }

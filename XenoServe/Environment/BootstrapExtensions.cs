@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using XenoServe.Features.AssetSearch;
 using XenoServe.Features.AssetUpload;
 
 namespace XenoServe.Environment;
@@ -11,6 +12,7 @@ public static class BootstrapExtensions
         this IServiceCollection services)
     {
         services.AddSingleton<IAssetUploadOrchestrator, AssetUploadOrchestrator>();
+        services.AddSingleton<IAssetSearchOrchestrator, AssetSearchOrchestrator>();
 
         return services;
     }

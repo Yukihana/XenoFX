@@ -68,10 +68,10 @@ public static partial class FactoryExtensions
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
 
         // API layer : Scoped (Avoid unless using a state is fundamental)
-        services.AddScoped<IAssetSearchService, AssetSearchService>();
-        services.AddSingleton<IAssetIngressService, AssetIngressService>();
 
         // API layer : Singleton (stateless, thread-safe)
+        services.AddSingleton<IAssetSearchService, AssetSearchService>();
+        services.AddSingleton<IAssetIngressService, AssetIngressService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();
 
         // Control layer

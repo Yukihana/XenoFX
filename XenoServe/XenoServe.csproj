@@ -45,7 +45,7 @@
     <ProjectReference Include="..\CSX.DotNet.Modules.AuthIpPin\CSX.DotNet.Modules.AuthIpPin.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Modules.FileUploader\CSX.DotNet.Modules.FileUploader.csproj" />
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
-    <ProjectReference Include="..\xenoserve.frontend\xenoserve.frontend.esproj">
+    <ProjectReference Include="..\xenoserve.frontend\xenoserve.frontend.esproj" Condition="'$(IsPublish)' == 'true'">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
@@ -56,24 +56,6 @@
     <WwwRoot>$(PublishDir)/wwwroot</WwwRoot>
     <SpaDist>$(SpaRoot)/dist/</SpaDist>
   </PropertyGroup>
-
-  <!--
-  Possibly already done by the project reference to xenoserve.frontend.esproj
-
-  <Target Name="NpmInstall" Condition="!Exists('$(SpaRoot)node_modules')" Outputs="$(SpaRoot)node_modules">
-    <Message Text="node_modules not found. Running npm install..." Importance="high" />
-    <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
-  </Target>
-
-  <Target Name="BuildFrontend"
-          DependsOnTargets="NpmInstall"
-          Inputs="$(SpaRoot)src/**;$(SpaRoot)package.json;$(SpaRoot)vite.config.ts"
-          Outputs="$(SpaDist)**/*"
-          BeforeTargets="Build">
-    <Message Text="Building React frontend because inputs changed..." Importance="high" />
-    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
-  </Target>
-  -->
 
   <!-- Copy React build artifacts into wwwroot -->
   <Target Name="CopyFrontendToWwwroot" AfterTargets="Publish">
@@ -93,8 +75,7 @@
       <FrontendFiles Include="$(SpaDist)**/*" />
     </ItemGroup>
     <MakeDir Directories="$(WwwRoot)" />
-    <Copy SourceFiles="@(FrontendFiles)"
-          DestinationFolder="$(WwwRoot)/%(RecursiveDir)" />
+    <Copy SourceFiles="@(FrontendFiles)" DestinationFolder="$(WwwRoot)/%(RecursiveDir)" />
   </Target>
   <!-- Frontend build pipeline - End -->
 
@@ -104,9 +85,5 @@
     <Content Remove="Workspaces\**" />
     <EmbeddedResource Remove="Workspaces\**" />
     <None Remove="Workspaces\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\legacy\shared\stylesheets\" />
   </ItemGroup>
 </Project>

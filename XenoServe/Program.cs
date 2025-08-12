@@ -90,8 +90,20 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        // If debugging for non-loopback addresses, uncomment line below
-        if (builder.Environment.IsDevelopment()) { builder.WebHost.ConfigureKestrel(o => o.ListenAnyIP(9600)); }
+        // Add policy: Allow all origins for development, embeds and global api calls
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAllOrigins", builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+        });
+
+        if (builder.Environment.IsDevelopment())
+        {
+            // If debugging for non-loopback addresses, uncomment line below
+            builder.WebHost.ConfigureKestrel(o => o.ListenAnyIP(9600));
+        }
 
         return builder;
     }
@@ -118,14 +130,16 @@ public class Program
         await app.Services.PreInitializeXenoFxAsync(ctoken);
         await app.Services.PreInitializeAuthIpPinAsync(ctoken);
 
-        // Swagger first, so it’s served directly by ASP.NET Core
+        // Enable middleware to serve generated Swagger directly by ASP.NET Core as a JSON endpoint
         if (app.Environment.IsDevelopment())
         {
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
             app.UseSwaggerUI();
 
             app.MapOpenApi();
+
+            // During development, allow all origins for CORS
+            app.UseCors("AllowAllOrigins");
         }
 
         app.UseHttpsRedirection();
