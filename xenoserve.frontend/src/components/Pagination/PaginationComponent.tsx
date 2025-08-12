@@ -1,15 +1,26 @@
+import styles from './PaginationComponent.module.css';
+
 export default function PaginationComponent() {
     return (
-        <div className="pagination">
-            <button>First</button>
-            <button>Previous</button>
-            {/*Maybe show a list of pages here, conditionally disabling the current page*/}
-            {/*Or make current page a text box to allow free navigation*/}
-            <div className="current-page">
-                <span>0</span> {/*current-page-placeholder*/}
+        <div className={styles.pagination}>
+            <button className={`${styles.capsule} ${styles.first}`}>{"<<"}</button>
+
+            <div className={`${styles.capsule} ${styles.middle}`}>
+                <button className={styles['nav-btn']}>&lt;</button>
+
+                <div className={styles['page-selector']}>
+                    <select className={styles['page-dropdown']} defaultValue="1">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                    <input type="text" className={styles['page-input']} defaultValue="1" />
+                </div>
+
+                <button className={styles['nav-btn']}>&gt;</button>
             </div>
-            <button>Next</button>
-            <button>Last</button>
+
+            <button className={`${styles.capsule} ${styles.last}`}>{">>"}</button>
         </div>
-    )
+    );
 }

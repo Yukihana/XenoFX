@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
+import type { ViteDevServer } from 'vite';
 import plugin from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
@@ -33,15 +34,58 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     }
 }
 
-const target = env.ASPNETCORE_HTTPS_PORT
-    ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`
-    : env.ASPNETCORE_URLS
-        ? env.ASPNETCORE_URLS.split(';')[0]
-        : 'https://localhost:7142';
+function getBackendTarget(env: Record<string, string | undefined>): string {
+    if (process.env.NODE_ENV === 'development') {
+        return 'http://localhost:9600';
+    }
+
+    if (env.ASPNETCORE_HTTPS_PORT) {
+        return `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`;
+    }
+
+    if (env.ASPNETCORE_URLS) {
+        return env.ASPNETCORE_URLS.split(';')[0];
+    }
+
+    return 'http://localhost:9600'; // fallback
+}
+
+function defaultHtmlMiddleware() {
+    return {
+        name: 'vite-plugin-default-html',
+        configureServer(server: ViteDevServer) {
+            server.middlewares.use((req, res, next) => {
+                void res;
+                try {
+                    // Skip if URL has extension
+                    if (!req.url || path.extname(req.url)) {
+                        return next();
+                    }
+
+                    const publicDir = server.config.publicDir;
+                    const targetDir = path.join(publicDir, req.url);
+
+                    if (fs.existsSync(targetDir) && fs.statSync(targetDir).isDirectory()) {
+                        const defaultFilePath = path.join(targetDir, 'default.html');
+                        if (fs.existsSync(defaultFilePath)) {
+                            req.url = path.posix.join(req.url, 'default.html');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Default.html middleware error:', err);
+                }
+                next();
+            });
+        }
+    };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
+    plugins: [
+        plugin(),
+        process.env.NODE_ENV === 'development' && defaultHtmlMiddleware(),
+    ].filter(Boolean),
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -50,7 +94,8 @@ export default defineConfig({
     server: {
         proxy: {
             '^/api': {
-                target,
+                target: getBackendTarget(process.env),
+                changeOrigin: true,
                 secure: false
             }
         },
@@ -66,5 +111,5 @@ export default defineConfig({
             }
             : {} // No HTTPS in production
         ),
-    }
+    },
 })

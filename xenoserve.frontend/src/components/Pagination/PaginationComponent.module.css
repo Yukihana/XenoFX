@@ -1,0 +1,92 @@
+.pagination {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-family: Arial, sans-serif;
+}
+
+.capsule {
+    border: 1px solid #333;
+    background-color: #f0f0f0;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.first, .last {
+    width: 50px;
+    text-align: center;
+}
+
+.middle {
+    display: flex;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #333;
+    background-color: #f0f0f0;
+    height: 36px;
+}
+
+    /* Buttons inside middle capsule */
+    .middle .nav-btn {
+        border: none;
+        background: none;
+        padding: 0 12px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        transition: background-color 0.2s;
+    }
+
+        .middle .nav-btn:hover {
+            background-color: #ddd;
+        }
+
+        /* Vertical separator lines between nav-btn and page selector */
+        .middle .nav-btn:first-child {
+            border-right: 1px solid #ccc;
+        }
+
+        .middle .nav-btn:last-child {
+            border-left: 1px solid #ccc;
+        }
+
+.page-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    background-color: white;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    height: 100%;
+}
+
+/* Dropdown and input styles */
+.page-dropdown {
+    height: 24px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.page-input {
+    width: 40px;
+    height: 24px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}

@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-// import { useParams } from 'react-router-dom';
 import DefaultLayout from './layouts/Default/DefaultLayout';
 import SidebarlessLayout from './layouts/Sidebarless/SidebarlessLayout';
 import HomePage from './pages/Home/HomePage';
@@ -17,6 +16,7 @@ export default function App() {
 
                 <Route element={<SidebarlessLayout />}>
                     <Route path="/test" element={<DummyPage />} />
+                    <Route path="/account" element={<DummyPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
