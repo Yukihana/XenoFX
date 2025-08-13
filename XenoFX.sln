@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSX.DotNet.Modules.FileUplo
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "xenoserve.frontend", "xenoserve.frontend\xenoserve.frontend.esproj", "{2292068F-A1DA-FD81-00C2-01B6D350E3DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSX.DotNet.Common.FileCompression", "CSX.DotNet.Common.FileCompression\CSX.DotNet.Common.FileCompression.csproj", "{32498C8C-62FB-49E4-A56B-4D82E18D3837}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{2292068F-A1DA-FD81-00C2-01B6D350E3DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2292068F-A1DA-FD81-00C2-01B6D350E3DB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2292068F-A1DA-FD81-00C2-01B6D350E3DB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{32498C8C-62FB-49E4-A56B-4D82E18D3837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32498C8C-62FB-49E4-A56B-4D82E18D3837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32498C8C-62FB-49E4-A56B-4D82E18D3837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32498C8C-62FB-49E4-A56B-4D82E18D3837}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
