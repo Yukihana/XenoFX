@@ -15,7 +15,7 @@ const apiBase = isDev
 export const ApiPaths = {
     assets: {
         search: '/api/assets/search',
-        thumb: '/api/assets/thumb',
+        thumb: '/api/assets/thumbs/static',
         details: '/api/assets/details',
     },
 }

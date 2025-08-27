@@ -28,8 +28,8 @@ const getStyle = (
 export default function MediaCardComponent(
     props: MediaCardProps
 ) {
-    const linkTo = `/view?id=${props.id}`; // TODO Build using a centralized api service
-    const thumbUrl: string = getThumbUrl(props.id);
+    const linkTo = `/view?id=${props.source}`; // TODO Build using a centralized api service
+    const thumbUrl: string = getThumbUrl(props.source);
 
     const { deviceType, orientation } = useResponsive();
 

@@ -4,10 +4,11 @@ using XenoFx.Environment.Configuration;
 
 namespace XenoFx.Services.Utility.Configuration;
 
-public static partial class ConfigurationServiceExtensions
+public static partial class ConfigurationExtensions
 {
-    // DI registration preset
-    public static IServiceCollection AddXenoFxConfigurationService(this IServiceCollection services, XenoFxConfiguration configuration)
+    internal static IServiceCollection AddConfigurationService(
+        this IServiceCollection services,
+        XenoFxConfiguration configuration)
     {
         return services.AddSingleton<IConfigurationService, ConfigurationService>(serviceProvider => new(
             configuration: configuration,

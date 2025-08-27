@@ -1,4 +1,5 @@
 using CSX.DotNet.Modules.AuthIpPin.Environment;
+using CSX.DotNet.Modules.FFMpeg.Provisioning.Environment;
 using CSX.DotNet.Modules.FileUploader.Environment;
 
 // using CSX.DotNet.Modules.XenoFx.Environment; // TODO
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -66,6 +68,7 @@ public class Program
             .GetXenoServeConfigAsync(args, ctoken);
 
         // Add services to the container.
+        await builder.Services.AddFFMpegProvisioningAsync(FFMpegProvisioningOptions.CreateFrom(xsConfig), ctoken);
         await builder.Services.AddXenoFxAsync(XenoFxOptions.CreateFrom(xsConfig), ctoken);
         await builder.Services.AddFileUploaderAsync(FileUploaderOptions.CreateFrom(xsConfig), ctoken);
         await builder.Services.AddAuthIpPinAsync(AuthIpPinOptions.CreateFrom(xsConfig), ctoken);
@@ -116,10 +119,15 @@ public class Program
         app.MapGet("/", () => Results.Redirect("/legacy/browse"));
 
         // Enable IpPinAuthMiddleware
-        app.AddXenoFxMiddlewares();
         app.AddAuthIpPinMiddlewares();
 
         // Enable static files
+        var provider = new FileExtensionContentTypeProvider();
+        provider.Mappings[".js"] = "application/javascript";
+        provider.Mappings[".mjs"] = "application/javascript"; // if needed
+        provider.Mappings[".css"] = "text/css";
+
+        app.UseStaticFiles();
         app.MapStaticAssets();
         app.UseDefaultFiles(new DefaultFilesOptions()
         {
@@ -127,6 +135,7 @@ public class Program
         });
 
         // Initialize service groups
+        await app.Services.PreInitializeFFMpegProvisioningAsync(ctoken);
         await app.Services.PreInitializeXenoFxAsync(ctoken);
         await app.Services.PreInitializeAuthIpPinAsync(ctoken);
 

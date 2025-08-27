@@ -10,20 +10,21 @@ public interface IConfigurationService
 
     RuntimeContext RuntimeContext { get; }
 
-    // Core
+    // Shared
 
-    PathFilterConfiguration AssetPathFilterConfiguration { get; }
+    string AssetsDirectory { get; }
+    string UploadsDirectory { get; }
+    string MetadataDirectory { get; }
+    string SharedCacheDirectory { get; }
 
     // Directories
 
-    string AssetsDirectory { get; }
+    string ThumbsDirectory { get; }
     string AssetsUploadDirectory { get; }
-
-    string MetadataDirectory { get; }
-    string UploadsDirectory { get; }
 
     // Parameters
 
+    PathFilterConfiguration AssetPathFilterConfiguration { get; }
     ImmutableArray<string> AllowedAssetExtensions { get; }
     ulong AssetEnumerationIntervalSeconds { get; }
 }

@@ -1,6 +1,6 @@
 ﻿namespace CSX.DotNet.Common.FileCompression;
 
-public enum OverwriteMode
+public enum ExtractionOverwriteMode
 {
     Abort,
     Always,

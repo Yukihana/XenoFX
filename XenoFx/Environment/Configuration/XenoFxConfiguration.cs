@@ -23,7 +23,8 @@ public sealed partial class XenoFxConfiguration
     // Profile; Not needed but keep anyway
 
     public string ProfilePath
-        => XenoFxProfile.GetFilePath(_options.DataDirectory);
+        => XenoFxProfile.GetFilePath(
+            _options.DataDirectory);
 
     // Assets Database
 
@@ -46,6 +47,10 @@ public sealed partial class XenoFxConfiguration
         => _profile.CacheDatabaseType;
 
     // Directories
+
+    public string ThumbsDirectory => Path.Combine(
+        _options.DataDirectory,
+        _profile.ThumbsDirectory);
 
     public string AssetsUploadDirectory => Path.Combine(
         _options.DataDirectory,

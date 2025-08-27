@@ -5,7 +5,7 @@ public static partial class FileDecompressor
     public static async Task<string> DecompressAsync(
         string archiveFilePath,
         string decompressionPath,
-        OverwriteMode overwriteMode = OverwriteMode.Abort,
+        ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort,
         bool deleteArchiveAfterUse = false,
         CancellationToken ctoken = default)
     {

@@ -7,7 +7,7 @@ public abstract class ArchiveUtilityBase
     public async Task<string> ExtractAsync(
         string archivePath,
         string decompressionPath,
-        OverwriteMode overwriteMode = OverwriteMode.Abort,
+        ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort,
         bool deleteArchiveAfterUse = false,
         CancellationToken ctoken = default)
     {
@@ -45,6 +45,6 @@ public abstract class ArchiveUtilityBase
     protected abstract Task ExtractInternalAsync(
         string archivePath,
         string decompressionPath,
-        OverwriteMode overwriteMode = OverwriteMode.Abort,
+        ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort,
         CancellationToken ctoken = default);
 }

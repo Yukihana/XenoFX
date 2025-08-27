@@ -21,10 +21,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
   </ItemGroup>
 
@@ -32,6 +33,10 @@
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
     <ProjectReference Include="..\CSX.DotNet.EFC.Common\CSX.DotNet.EFC.Common.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\Processing\AssetMotionThumbnail\" />
   </ItemGroup>
 
 </Project>

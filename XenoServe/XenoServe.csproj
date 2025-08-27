@@ -43,6 +43,7 @@
   <!--Projects-->
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Modules.AuthIpPin\CSX.DotNet.Modules.AuthIpPin.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Modules.FFMpeg.Provisioning\CSX.DotNet.Modules.FFMpeg.Provisioning.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Modules.FileUploader\CSX.DotNet.Modules.FileUploader.csproj" />
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
     <ProjectReference Include="..\xenoserve.frontend\xenoserve.frontend.esproj" Condition="'$(IsPublish)' == 'true'">
@@ -57,27 +58,22 @@
     <SpaDist>$(SpaRoot)/dist/</SpaDist>
   </PropertyGroup>
 
-  <!-- Copy React build artifacts into wwwroot -->
-  <Target Name="CopyFrontendToWwwroot" AfterTargets="Publish">
+  <!-- Clean wwwroot before publish starts -->
+  <Target Name="CleanWwwroot" BeforeTargets="PrepareForPublish">
+    <Message Text="Cleaning $(WwwRoot) before publish..." Importance="high" />
+    <RemoveDir Directories="$(WwwRoot)" />
+    <MakeDir Directories="$(WwwRoot)" />
+  </Target>
 
-    <!-- Clean while making allowances for legacy files -->
-    <Message Text="Cleaning publish/wwwroot/... excluding /legacy" Importance="high" />
-    <ItemGroup>
-      <FilesToDelete Include="$(WwwRoot)/**/*.*" Exclude="$(WwwRoot)/legacy/**/*.*" />
-      <DirsToDelete Include="$(WwwRoot)/**/" Exclude="$(WwwRoot)/legacy/" />
-    </ItemGroup>
-    <Delete Files="@(FilesToDelete)" />
-    <RemoveDir Directories="@(DirsToDelete)" />
-
-    <!-- Finally copy SPA files to wwwroot -->
-    <Message Text="Copying frontend build files to publish/wwwroot/..." Importance="high" />
+  <!-- Copy frontend build artifacts after publish completes -->
+  <Target Name="CopyFrontendAfterPublish" AfterTargets="Publish">
+    <Message Text="Copying frontend build files from $(SpaDist) to $(PublishDir)wwwroot..." Importance="high" />
     <ItemGroup>
       <FrontendFiles Include="$(SpaDist)**/*" />
     </ItemGroup>
-    <MakeDir Directories="$(WwwRoot)" />
-    <Copy SourceFiles="@(FrontendFiles)" DestinationFolder="$(WwwRoot)/%(RecursiveDir)" />
+    <MakeDir Directories="$(PublishDir)wwwroot" />
+    <Copy SourceFiles="@(FrontendFiles)" DestinationFolder="$(PublishDir)wwwroot\%(RecursiveDir)" />
   </Target>
-  <!-- Frontend build pipeline - End -->
 
   <!-- Exclude the data directories created when debugging -->
   <ItemGroup>

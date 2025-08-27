@@ -10,7 +10,7 @@ public sealed class ZipUtility : ArchiveUtilityBase
     protected override async Task ExtractInternalAsync(
         string archivePath,
         string decompressionPath,
-        OverwriteMode overwriteMode = OverwriteMode.Abort,
+        ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort,
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
@@ -27,7 +27,7 @@ public sealed class ZipUtility : ArchiveUtilityBase
     private static void ExtractInternal(
         string archivePath,
         string decompressionPath,
-        OverwriteMode overwriteMode)
+        ExtractionOverwriteMode overwriteMode)
     {
         using var zip = ZipFile.OpenRead(archivePath);
 
@@ -62,8 +62,8 @@ public sealed class ZipUtility : ArchiveUtilityBase
 
             // Safety-net in case TryGetExtractionPath fails to respect the overwrite policy
             bool overwrite =
-                overwriteMode == OverwriteMode.Always ||
-                overwriteMode == OverwriteMode.IfNewer;
+                overwriteMode == ExtractionOverwriteMode.Always ||
+                overwriteMode == ExtractionOverwriteMode.IfNewer;
 
             // Perform the actual extraction
             entry.ExtractToFile(

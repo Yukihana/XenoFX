@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading;
 using XenoFx.Database.AssetsDb;
 using XenoFx.Database.CacheDb;
@@ -11,6 +12,7 @@ using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Hosted.AssetTracking;
 using XenoFx.Services.Processing.AssetIngestion;
+using XenoFx.Services.Processing.AssetStaticThumbnail;
 using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
@@ -19,6 +21,14 @@ namespace XenoFx.Environment;
 
 public static partial class FactoryExtensions
 {
+    [Obsolete("Not Implemented")]
+    public static IServiceCollection AddXenoFxDependencies(
+        this IServiceCollection services,
+        CancellationToken ctoken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     // TODO Documentation: Registers the database contexts with the provided IServiceCollection.
     public static IServiceCollection AddXenoFxDatabases(
         this IServiceCollection services,
@@ -42,7 +52,8 @@ public static partial class FactoryExtensions
         ctoken.ThrowIfCancellationRequested();
 
         // Utility
-        services.AddXenoFxConfigurationService(config);
+        services.AddConfigurationService(config);
+
         services.AddSingleton<IPathValidatorService, PathValidatorService>();
 
         // Storage layer : Unscoped
@@ -66,6 +77,7 @@ public static partial class FactoryExtensions
 
         // Abstraction layer (reader and queue notifier; no write tasks)
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
+        services.AddSingleton<IAssetStaticThumbnailService, AssetStaticThumbnailService>();
 
         // API layer : Scoped (Avoid unless using a state is fundamental)
 
@@ -76,9 +88,7 @@ public static partial class FactoryExtensions
 
         // Control layer
 
-        // Middlewares
-        // Note: They must also be registered with the app
-        // e.g. app.UseMiddleware<Middleware>(), where Middleware : IMiddleware
+        // Middlewares as services
 
         // Finish
         return services;

@@ -32,13 +32,17 @@ public sealed partial class ConfigurationService : IConfigurationService
         // Snapshot and Cache ----
         // Note: Resolve in configuration. Only cache here.
 
+        // Shared
         AssetsDirectory = _configuration.AssetsDirectory;
-        UploadsDirectory = _configuration.UploadsDirectory;             // PathExtensions.ResolveCombine(_configuration.DataDirectory, _configuration.UploadCacheDirectory);
+        UploadsDirectory = _configuration.UploadsDirectory;
         MetadataDirectory = _configuration.MetadataDirectory;
         SharedCacheDirectory = _configuration.SharedCacheDirectory;
 
-        AssetsUploadDirectory = _configuration.AssetsUploadDirectory;   // PathExtensions.ResolveCombine(AssetsDirectory, _configuration.FinalUploadDirectory);
+        // Directories
+        ThumbsDirectory = _configuration.ThumbsDirectory;
+        AssetsUploadDirectory = _configuration.AssetsUploadDirectory;
 
+        // Parameters
         AllowedAssetExtensions = ImmutableArray.Create(_configuration.AllowedAssetExtensions);
         AssetPathFilterConfiguration = _configuration.AssetFilterConfig.Copy(); // Ensure full decoupling
         AssetEnumerationIntervalSeconds = _configuration.AssetEnumerationIntervalSeconds;
@@ -53,6 +57,7 @@ public sealed partial class ConfigurationService : IConfigurationService
 
     // Directories
 
+    public string ThumbsDirectory { get; }
     public string AssetsUploadDirectory { get; }
 
     // Parameters

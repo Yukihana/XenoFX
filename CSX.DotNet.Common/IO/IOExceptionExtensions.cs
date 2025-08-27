@@ -7,7 +7,7 @@ public static class IOExceptionExtensions
     public const int ERROR_FILE_EXISTS = 0x50;           // 80
     public const int ERROR_ALREADY_EXISTS = 0xB7;         // 183
 
-    public static bool IsFileAlreadyExists(
+    public static bool IsFileAlreadyExistsError(
         this IOException ex)
     {
         // Get Win32 error code

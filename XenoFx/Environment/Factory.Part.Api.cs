@@ -21,6 +21,7 @@ public static partial class Factory
 
         var config = await options.GetConfigAsync(ctoken: ctoken);
 
+        // services.AddXenoFxDependencies(ctoken); // Not Implemented
         services.AddXenoFxDatabases(config, ctoken);
         services.AddXenoFxServices(config, ctoken);
 
@@ -30,7 +31,7 @@ public static partial class Factory
     // Attach middlewares to the pipeline
     public static IApplicationBuilder AddXenoFxMiddlewares(this IApplicationBuilder app)
     {
-        return app;
+        throw new NotImplementedException();
     }
 
     // TODO Documentation: Handles pre-initialization for the framework before consumption.
@@ -46,9 +47,10 @@ public static partial class Factory
     }
 
     // TODO Documentation: Handles activation after preinitializing has completed
+    [Obsolete("Not Implemented")]
     public static IServiceProvider ActivateXenoFx(
         this IServiceProvider provider)
     {
-        return provider;
+        throw new NotImplementedException();
     }
 }

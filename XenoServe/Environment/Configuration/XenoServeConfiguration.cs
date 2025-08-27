@@ -42,6 +42,10 @@ public class XenoServeConfiguration
 
     // Shared
 
+    public string BinariesDirectory => Path.Combine(
+        ProfileDirectoryFullPath,
+        _profile.BinariesDirectory);
+
     public string AssetsDirectory => Path.Combine(
         ProfileDirectoryFullPath,
         _profile.AssetsDirectory);

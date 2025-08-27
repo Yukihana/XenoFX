@@ -168,6 +168,10 @@ export class XenoServeMediaListing {
         thumb.className = "media-card-thumb";
         card.appendChild(thumb);
 
+        const thumbImg = document.createElement('img');
+        thumbImg.src = "/api/assets/thumbs/static?id=" + result.source;
+        thumb.appendChild(thumbImg);
+
         const detail = document.createElement('div');
         detail.className = "media-card-details";
         card.appendChild(detail);

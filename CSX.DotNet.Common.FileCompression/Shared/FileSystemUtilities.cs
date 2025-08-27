@@ -6,7 +6,7 @@ public static partial class FileSystemUtilities
 {
     public static string DetermineDecompressDirectory(
         string archivePath,
-        OverwriteMode overwriteMode = OverwriteMode.Abort)
+        ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort)
     {
         if (string.IsNullOrWhiteSpace(archivePath))
             throw new ArgumentException("Archive path cannot be null or empty.", nameof(archivePath));
@@ -36,18 +36,18 @@ public static partial class FileSystemUtilities
 
         switch (overwriteMode)
         {
-            case OverwriteMode.Abort:
+            case ExtractionOverwriteMode.Abort:
                 if (dirExists)
                     throw new IOException($"Decompression directory already exists: {decompressPath}");
                 break;
 
-            case OverwriteMode.Always:
-            case OverwriteMode.IfNewer:
-            case OverwriteMode.SkipExisting:
+            case ExtractionOverwriteMode.Always:
+            case ExtractionOverwriteMode.IfNewer:
+            case ExtractionOverwriteMode.SkipExisting:
                 // Just use the existing directory if present
                 break;
 
-            case OverwriteMode.RenameIfExists:
+            case ExtractionOverwriteMode.RenameIfExists:
                 do
                 {
                     decompressPath = Path.Combine(
@@ -98,7 +98,7 @@ public static partial class FileSystemUtilities
 
     public static bool TryGetExtractionPath(
         string originalExtractionPath,
-        OverwriteMode overwriteMode,
+        ExtractionOverwriteMode overwriteMode,
         DateTime? sourceLastWriteTime,
         out string extractionPath)
     {
@@ -108,24 +108,24 @@ public static partial class FileSystemUtilities
         extractionPath = originalExtractionPath;
 
         // Early resolve: If file doesn't exist or Always mode, just overwrite
-        if (!File.Exists(originalExtractionPath) || overwriteMode == OverwriteMode.Always)
+        if (!File.Exists(originalExtractionPath) || overwriteMode == ExtractionOverwriteMode.Always)
             return true;
 
         // Route by mode
         switch (overwriteMode)
         {
-            case OverwriteMode.Abort:
+            case ExtractionOverwriteMode.Abort:
                 throw new IOException($"File already exists: {originalExtractionPath}");
 
-            case OverwriteMode.SkipExisting:
+            case ExtractionOverwriteMode.SkipExisting:
                 return false; // skip
 
-            case OverwriteMode.IfNewer:
+            case ExtractionOverwriteMode.IfNewer:
                 var existingLastWrite = File.GetLastWriteTimeUtc(originalExtractionPath);
                 // Overwrite only if timestamp exists and is newer
                 return sourceLastWriteTime.HasValue && sourceLastWriteTime > existingLastWrite;
 
-            case OverwriteMode.RenameIfExists:
+            case ExtractionOverwriteMode.RenameIfExists:
                 string directory = Path.GetDirectoryName(originalExtractionPath)!;
                 string nameWithoutExt = Path.GetFileNameWithoutExtension(originalExtractionPath);
                 string ext = Path.GetExtension(originalExtractionPath);

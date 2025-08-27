@@ -25,6 +25,8 @@ public partial class XenoServeProfile
 
     // Shared directories
 
+    public string BinariesDirectory { get; set; } = "Binaries";
+
     public string AssetsDirectory { get; set; } = "Assets";
 
     public string UploadsDirectory { get; set; } = "Uploads";

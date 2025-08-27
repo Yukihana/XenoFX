@@ -16,12 +16,8 @@ public sealed partial class XenoFxProfile
     // Directories
 
     public string DatabaseDirectory { get; set; } = "Database";
-    public string ThumbsDirectory { get; set; } = "Thumbs";
-
-    // Uploads
-
-    public string UploadCacheDirectory { get; set; } = "UploadCache";
     public string AssetsUploadDirectory { get; set; } = "Uploaded";
+    public string ThumbsDirectory { get; set; } = "Thumbs";
 
     // Assets database
 

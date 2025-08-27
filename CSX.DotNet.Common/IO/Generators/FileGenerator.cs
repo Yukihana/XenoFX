@@ -29,7 +29,7 @@ public static class FileGenerator
 
                 return new StreamWrapper<FileStream, string>(stream, path);
             }
-            catch (IOException ex) when (ex.IsFileAlreadyExists())
+            catch (IOException ex) when (ex.IsFileAlreadyExistsError())
             { } // Retry
         }
     }

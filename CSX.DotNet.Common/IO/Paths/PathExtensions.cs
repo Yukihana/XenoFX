@@ -6,7 +6,13 @@ namespace CSX.DotNet.Common.IO.Paths;
 
 public static partial class PathExtensions
 {
-    public static string ResolveCombine(
+    public const string UnknownDirectoryMessage = "Unable to determine directory.";
+
+    public static string GetDirectoryOrThrow(string path)
+        => Path.GetDirectoryName(path)
+        ?? throw new InvalidDataException(UnknownDirectoryMessage);
+
+    public static string Resolve(
         string basePath,
         string path)
     {

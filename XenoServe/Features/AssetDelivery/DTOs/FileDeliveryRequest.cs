@@ -8,4 +8,6 @@ public class FileDeliveryRequest
     public string Id { get; set; } = string.Empty;
 
     public string? Type { get; set; } = null;
+
+    public TranscodeOption Transcode { get; set; } = TranscodeOption.Universal;
 }
