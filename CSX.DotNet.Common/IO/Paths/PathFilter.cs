@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.FileSystemGlobbing;
 using System.Collections.Generic;
 
-namespace CSX.DotNet.Common.IO;
+namespace CSX.DotNet.Common.IO.Paths;
 
 public sealed partial class PathFilter
 {

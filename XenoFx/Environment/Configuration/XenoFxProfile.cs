@@ -1,5 +1,6 @@
-﻿using CSX.DotNet.Common.IO;
+﻿using CSX.DotNet.Common.IO.Paths;
 using System.IO;
+using System.Linq;
 
 namespace XenoFx.Environment.Configuration;
 
@@ -31,15 +32,24 @@ public sealed partial class XenoFxProfile
 
     // Parameters
 
-    public string[] AllowedAssetExtensions { get; set; } = [
+    public string[] AllowedAssetUploadExtensions { get; set; } = [
         ".mp4", ".webm", ".mkv", ".flv", ".avi", ];
 
     public PathFilterConfiguration AssetFilterConfig { get; set; } = new()
     {
-        Greylist = ["**/*.*"],
-        Blacklist = [
-            "**/*.x",        // Text Metadata
-            $"**/*.json"]    // Uploads
+        // Using whitelist style
+        // so un-accounted extensions don't slip through
+        Greylist = [
+            // by extensions: video
+            "**/*.mp4", "**/*.webm", "**/*.mkv", "**/*.avi",    // Modern
+            "**/*.flv", "**/*.3gp"                              // Legacy
+        ]
+
+        // Legacy
+        //Greylist = ["**/*.*"],
+        //Blacklist = [
+        //    "**/*.x",        // Text Metadata
+        //    $"**/*.json"]    // Uploads
     };
 
     public ulong AssetEnumerationIntervalSeconds { get; set; } = 3600;

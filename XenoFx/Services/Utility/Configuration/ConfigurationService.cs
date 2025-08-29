@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.Common.IO;
+﻿using CSX.DotNet.Common.IO.Paths;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using XenoFx.Environment.Configuration;
@@ -43,7 +43,7 @@ public sealed partial class ConfigurationService : IConfigurationService
         AssetsUploadDirectory = _configuration.AssetsUploadDirectory;
 
         // Parameters
-        AllowedAssetExtensions = ImmutableArray.Create(_configuration.AllowedAssetExtensions);
+        AllowedAssetUploadExtensions = ImmutableArray.Create(_configuration.AllowedAssetUploadExtensions);
         AssetPathFilterConfiguration = _configuration.AssetFilterConfig.Copy(); // Ensure full decoupling
         AssetEnumerationIntervalSeconds = _configuration.AssetEnumerationIntervalSeconds;
     }
@@ -62,7 +62,7 @@ public sealed partial class ConfigurationService : IConfigurationService
 
     // Parameters
 
-    public ImmutableArray<string> AllowedAssetExtensions { get; }
+    public ImmutableArray<string> AllowedAssetUploadExtensions { get; }
     public PathFilterConfiguration AssetPathFilterConfiguration { get; } // Make this immutable too? (wrap into a new class with immutable members perhaps)
     public ulong AssetEnumerationIntervalSeconds { get; }
 

@@ -1,4 +1,4 @@
-﻿namespace CSX.DotNet.Common.IO;
+﻿namespace CSX.DotNet.Common.IO.Paths;
 
 public static partial class PathFilterConfigurationExtensions
 {

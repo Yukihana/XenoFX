@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.Common.IO;
+﻿using CSX.DotNet.Common.IO.Paths;
 using CSX.DotNet.Common.Platform;
 using System;
 using System.Diagnostics.CodeAnalysis;

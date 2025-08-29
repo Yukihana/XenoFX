@@ -25,8 +25,8 @@ public partial class AssetIngestionService : IAssetIngestionService
 
     // Parameters
 
-    public ImmutableArray<string> AllowedAssetExtensions
-        => _configuration.AllowedAssetExtensions;
+    public ImmutableArray<string> AllowedAssetUploadExtensions
+        => _configuration.AllowedAssetUploadExtensions;
 
     // Shared Internal
 
@@ -34,7 +34,7 @@ public partial class AssetIngestionService : IAssetIngestionService
         Stream stream)
     {
         // Magic bytes scan against allowed types
-        foreach (string ext in _configuration.AllowedAssetExtensions)
+        foreach (string ext in AllowedAssetUploadExtensions)
         {
             if (VideoFormatDetectorSlim.IsFormat(stream, ext))
                 return ext;

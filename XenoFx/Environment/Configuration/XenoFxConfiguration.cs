@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.Common.IO;
+﻿using CSX.DotNet.Common.IO.Paths;
 using System.IO;
 
 namespace XenoFx.Environment.Configuration;
@@ -58,8 +58,8 @@ public sealed partial class XenoFxConfiguration
 
     // Parameters
 
-    public string[] AllowedAssetExtensions
-        => _profile.AllowedAssetExtensions;
+    public string[] AllowedAssetUploadExtensions
+        => _profile.AllowedAssetUploadExtensions;
 
     public PathFilterConfiguration AssetFilterConfig
         => _profile.AssetFilterConfig;

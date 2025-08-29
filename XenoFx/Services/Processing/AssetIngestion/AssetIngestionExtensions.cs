@@ -1,5 +1,5 @@
 ﻿using CSX.DotNet.Common.Data.Guids;
-using CSX.DotNet.Common.IO.Paths;
+using CSX.DotNet.Common.Data.Text.Sanitization;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,16 +24,16 @@ public static partial class AssetIngestionExtensions
     public static IEnumerable<string> GetFilenameCandidates(
         this DTOs.AssetUploadMetadata metadata)
     {
-        yield return FilenameKebabizer.Sanitize(
+        yield return FileNameSanitizer.Sanitize(
             Path.GetFileNameWithoutExtension(metadata.PreferredFilename));
-        yield return FilenameKebabizer.Sanitize(
+        yield return FileNameSanitizer.Sanitize(
             Path.GetFileNameWithoutExtension(metadata.DeclaredFilename));
 
-        yield return FilenameKebabizer.FromTitle(metadata.Title);
-        yield return FilenameKebabizer.FromUrl(metadata.DataUrl);
-        yield return FilenameKebabizer.FromUrl(metadata.PageUrl);
+        yield return FileNameSanitizer.FromTitle(metadata.Title);
+        yield return FileNameSanitizer.FromUrl(metadata.DataUrl);
+        yield return FileNameSanitizer.FromUrl(metadata.PageUrl);
 
-        yield return FilenameKebabizer.Sanitize(
+        yield return FileNameSanitizer.Sanitize(
             Path.GetFileNameWithoutExtension(metadata.CachedFilename));
     }
 }

@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSX.DotNet.Common.FileCompr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSX.DotNet.Modules.FFMpeg.Provisioning", "CSX.DotNet.Modules.FFMpeg.Provisioning\CSX.DotNet.Modules.FFMpeg.Provisioning.csproj", "{BE42C5DC-5E97-9FF0-38EB-70343E794D0D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XenoFxTests", "XenoFxTests\XenoFxTests.csproj", "{5A67680E-7AC5-4E71-B6AB-05C480CC1A5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{BE42C5DC-5E97-9FF0-38EB-70343E794D0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE42C5DC-5E97-9FF0-38EB-70343E794D0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE42C5DC-5E97-9FF0-38EB-70343E794D0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A67680E-7AC5-4E71-B6AB-05C480CC1A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A67680E-7AC5-4E71-B6AB-05C480CC1A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A67680E-7AC5-4E71-B6AB-05C480CC1A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A67680E-7AC5-4E71-B6AB-05C480CC1A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

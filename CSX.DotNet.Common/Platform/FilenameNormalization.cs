@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO.Enumeration;
 
 namespace CSX.DotNet.Common.Platform;
 
@@ -31,7 +30,4 @@ public static class FilenameNormalization
 
     public static StringComparer FilenameComparer
         => _filenameComparer;
-
-    public static bool MatchFilenameByPattern(this ReadOnlySpan<char> name, ReadOnlySpan<char> expression)
-        => FileSystemName.MatchesWin32Expression(expression, name, ignoreCase: !_platformIsCaseSensitive);
 }
