@@ -30,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CSX.DotNet.Common.EFC\CSX.DotNet.Common.EFC.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
-    <ProjectReference Include="..\CSX.DotNet.EFC.Common\CSX.DotNet.EFC.Common.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
   </ItemGroup>
 

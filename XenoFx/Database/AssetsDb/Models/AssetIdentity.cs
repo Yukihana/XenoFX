@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.EFC.Common.Abstractions;
+﻿using CSX.DotNet.Common.EFC.Abstractions;
 using System;
 
 namespace XenoFx.Database.AssetsDb.Models;

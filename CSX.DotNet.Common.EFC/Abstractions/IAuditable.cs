@@ -1,4 +1,4 @@
-﻿namespace CSX.DotNet.EFC.Common.Abstractions;
+﻿namespace CSX.DotNet.Common.EFC.Abstractions;
 
 public interface IAuditable : ITimeStamped, ISoftDeletable
 { }

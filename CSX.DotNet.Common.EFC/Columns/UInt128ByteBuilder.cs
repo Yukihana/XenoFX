@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 
-namespace CSX.DotNet.EFC.Common.Columns;
+namespace CSX.DotNet.Common.EFC.Columns;
 
 public static partial class UInt128ByteBuilder
 {

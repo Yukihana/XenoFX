@@ -1,7 +1,7 @@
-﻿using CSX.DotNet.EFC.Common.Abstractions;
+﻿using CSX.DotNet.Common.EFC.Abstractions;
 using System;
 
-namespace CSX.DotNet.EFC.Common.Services;
+namespace CSX.DotNet.Common.EFC.Services;
 
 public class UtcClockService : IClock
 {

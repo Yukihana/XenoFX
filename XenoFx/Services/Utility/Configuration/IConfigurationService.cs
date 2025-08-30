@@ -20,6 +20,7 @@ public interface IConfigurationService
     // Directories
 
     string ThumbsDirectory { get; }
+    string TranscodeDirectory { get; }
     string AssetsUploadDirectory { get; }
 
     // Parameters

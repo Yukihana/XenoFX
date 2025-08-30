@@ -1,4 +1,6 @@
-﻿using CSX.DotNet.Modules.FileUploader.Services.UploadApi;
+﻿using CSX.DotNet.Common.DI;
+using CSX.DotNet.Modules.FileUploader.Services.UploadApi;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading;
@@ -9,6 +11,7 @@ using XenoServe.Features.AssetUpload.DTOs;
 
 namespace XenoServe.Features.AssetUpload;
 
+[DependencyLifetime(ServiceLifetime.Singleton)]
 public class AssetUploadOrchestrator : IAssetUploadOrchestrator
 {
     // Infrastructure

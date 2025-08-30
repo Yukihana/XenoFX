@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.EFC.Common.Extensions;
+﻿using CSX.DotNet.Common.EFC.Extensions;
 using CSX.DotNet.Modules.AuthIpPin.Environment.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,12 +2,12 @@
 
 namespace XenoServe.Features.AssetDelivery.DTOs;
 
-public class FileDeliveryRequest
+public class AssetDeliveryRequest
 {
     [Required]
     public string Id { get; set; } = string.Empty;
 
     public string? Type { get; set; } = null;
 
-    public TranscodeOption Transcode { get; set; } = TranscodeOption.Universal;
+    public string? TranscodeType { get; set; } = null;
 }

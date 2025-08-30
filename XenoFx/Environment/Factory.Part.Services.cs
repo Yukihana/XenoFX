@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading;
+using XenoFx.Api.AssetDelivery;
 using XenoFx.Database.AssetsDb;
 using XenoFx.Database.CacheDb;
 using XenoFx.Environment.Configuration;
 using XenoFx.Services.Abstraction.AssetAbstraction;
+using XenoFx.Services.Abstraction.AssetMedia;
 using XenoFx.Services.Api.AssetIngress;
 using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.StateMonitor;
@@ -78,12 +80,14 @@ public static partial class FactoryExtensions
         // Abstraction layer (reader and queue notifier; no write tasks)
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
         services.AddSingleton<IAssetStaticThumbnailService, AssetStaticThumbnailService>();
+        services.AddSingleton<IAssetMediaService, AssetMediaService>();
 
         // API layer : Scoped (Avoid unless using a state is fundamental)
 
         // API layer : Singleton (stateless, thread-safe)
         services.AddSingleton<IAssetSearchService, AssetSearchService>();
         services.AddSingleton<IAssetIngressService, AssetIngressService>();
+        services.AddSingleton<IAssetDeliveryService, AssetDeliveryService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();
 
         // Control layer

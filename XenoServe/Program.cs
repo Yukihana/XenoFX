@@ -1,3 +1,4 @@
+using CSX.DotNet.Common.DI.Orchestrators;
 using CSX.DotNet.Modules.AuthIpPin.Environment;
 using CSX.DotNet.Modules.FFMpeg.Provisioning.Environment;
 using CSX.DotNet.Modules.FileUploader.Environment;
@@ -74,7 +75,7 @@ public class Program
         await builder.Services.AddAuthIpPinAsync(AuthIpPinOptions.CreateFrom(xsConfig), ctoken);
 
         // Add orchestrators
-        builder.Services.AddOrchestrators();
+        builder.Services.AddOrchestrators(typeof(Program).Assembly);
 
         // builder.Services.AddControllers(); // Api Only
         builder.Services.AddControllersWithViews(); // Also handles views

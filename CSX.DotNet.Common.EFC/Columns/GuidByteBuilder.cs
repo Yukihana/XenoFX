@@ -3,7 +3,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 
-namespace CSX.DotNet.EFC.Common.Columns;
+namespace CSX.DotNet.Common.EFC.Columns;
 
 public static class GuidByteBuilder
 {

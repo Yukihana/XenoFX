@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace CSX.DotNet.EFC.Common.Extensions;
+namespace CSX.DotNet.Common.EFC.Extensions;
 
 public static class MigrateExtensions
 {

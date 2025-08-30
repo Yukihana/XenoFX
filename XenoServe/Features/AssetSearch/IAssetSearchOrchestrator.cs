@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using CSX.DotNet.Common.DI.Orchestrators;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Api.AssetSearch.Contracts;
@@ -6,7 +7,7 @@ using XenoServe.Features.AssetSearch.DTOs;
 
 namespace XenoServe.Features.AssetSearch;
 
-public interface IAssetSearchOrchestrator
+public interface IAssetSearchOrchestrator : IOrchestrator
 {
     Task<AssetSearchResult> SearchAsync(
         AssetSearchQueryParams queryParams,

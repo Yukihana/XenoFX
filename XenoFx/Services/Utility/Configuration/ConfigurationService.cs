@@ -40,6 +40,7 @@ public sealed partial class ConfigurationService : IConfigurationService
 
         // Directories
         ThumbsDirectory = _configuration.ThumbsDirectory;
+        TranscodeDirectory = _configuration.TranscodeDirectory;
         AssetsUploadDirectory = _configuration.AssetsUploadDirectory;
 
         // Parameters
@@ -58,6 +59,7 @@ public sealed partial class ConfigurationService : IConfigurationService
     // Directories
 
     public string ThumbsDirectory { get; }
+    public string TranscodeDirectory { get; }
     public string AssetsUploadDirectory { get; }
 
     // Parameters

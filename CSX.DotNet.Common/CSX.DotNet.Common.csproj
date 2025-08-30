@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blake3" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.7" />
     <PackageReference Include="Mime-Detective" Version="25.4.25" />
     <PackageReference Include="Mime-Detective.Definitions.Exhaustive" Version="25.4.25" />

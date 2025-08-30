@@ -52,6 +52,10 @@ public sealed partial class XenoFxConfiguration
         _options.DataDirectory,
         _profile.ThumbsDirectory);
 
+    public string TranscodeDirectory => Path.Combine(
+        _options.DataDirectory,
+        _profile.TranscodeDirectory);
+
     public string AssetsUploadDirectory => Path.Combine(
         _options.DataDirectory,
         _profile.AssetsUploadDirectory);

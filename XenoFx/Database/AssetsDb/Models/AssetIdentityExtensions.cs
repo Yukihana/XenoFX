@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.EFC.Common.Columns;
+﻿using CSX.DotNet.Common.EFC.Columns;
 using Microsoft.EntityFrameworkCore;
 
 namespace XenoFx.Database.AssetsDb.Models;

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CSX.DotNet.Common.DI;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using XenoServe.Features.AssetSearch.DTOs;
 
 namespace XenoServe.Features.AssetSearch;
 
+[DependencyLifetime(ServiceLifetime.Singleton)]
 public class AssetSearchOrchestrator : IAssetSearchOrchestrator
 {
     private readonly IAssetSearchService _assetSearch;

@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CSX.DotNet.EFC.Common.Abstractions;
+namespace CSX.DotNet.Common.EFC.Abstractions;
 
 public abstract partial class BaseDbContext : DbContext
 {
