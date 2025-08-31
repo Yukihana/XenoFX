@@ -15,6 +15,7 @@ using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Hosted.AssetTracking;
 using XenoFx.Services.Processing.AssetIngestion;
 using XenoFx.Services.Processing.AssetStaticThumbnail;
+using XenoFx.Services.Processing.VideoTranscode;
 using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
 using XenoFx.Services.Utility.PathValidator;
@@ -65,6 +66,7 @@ public static partial class FactoryExtensions
 
         // Data layer (processing)
         services.AddSingleton<IAssetIngestionService, AssetIngestionService>();
+        services.AddVideoTranscode();
 
         // Data layer (processing router)
         services.AddSingleton<IAssetIndexingService, AssetIndexingService>();

@@ -1,4 +1,5 @@
 ﻿using CSX.DotNet.Common.Abstractions;
+using CSX.DotNet.Common.Platform.Processes;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -75,48 +76,12 @@ public partial class AssetStaticThumbnailService : IAssetStaticThumbnailService
         string arguments = $"-ss 00:00:05 -i \"{sourceFile}\" -vframes 1 \"{thumbPath}\" -y";
 
         // Run FFmpeg
-        await RunProcessAsync(ffmpegPath, arguments, ctoken);
+        await ProcessExecution.RunProcessAsync(ffmpegPath, arguments, ctoken);
 
         // Verify thumbnail was created
         if (!File.Exists(thumbPath))
             throw new Exception($"Thumbnail generation failed for file: {sourceFile}");
 
         return thumbPath;
-    }
-
-    private static async Task RunProcessAsync(
-        string binaryPath,
-        string arguments,
-        CancellationToken ctoken = default)
-    {
-        using var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = binaryPath,
-                Arguments = arguments,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            },
-            EnableRaisingEvents = true
-        };
-
-        process.Start();
-
-        try
-        {
-            await process.WaitForExitAsync(ctoken);
-        }
-        catch (OperationCanceledException)
-        {
-            if (!process.HasExited)
-            {
-                try { process.Kill(true); } catch { }
-            }
-            throw;
-        }
-
-        if (process.ExitCode != 0)
-            throw new Exception($"Process exited with code {process.ExitCode}");
     }
 }

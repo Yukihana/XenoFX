@@ -35,3 +35,10 @@ Additional:
 Housekeeping:
 	- Unify database creation extensions with add-on delegates as required
 
+
+
+
+ShallowIdentity: ID, Location, LastModified, Length
+DeepIdentity:  ID, SHA256, Blake3, Crumbs
+EnsureIdentity (runs check if file exists, if not creates identities. Can force deep check in non-resync)
+Resync just checks if the deep identity exists once shallow identity matches on all columns.

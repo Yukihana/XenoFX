@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Abstraction.AssetMedia.DTOs;
+using XenoFx.Services.Processing.MediaDetector;
+using XenoFx.Services.Processing.VideoTranscode;
 using XenoFx.Services.Utility.Configuration;
 
 namespace XenoFx.Services.Abstraction.AssetMedia;
@@ -18,6 +20,8 @@ public class AssetMediaService : IAssetMediaService
     // Infrastructure
 
     private readonly IAssetAbstractionService _assetAbstraction;
+    private readonly IMediaDetectorService _mediaDetector;
+    private readonly IVideoTranscodeService _videoTranscode;
     private readonly IConfigurationService _configuration;
     private readonly ILogger<AssetMediaService> _logger;
 
@@ -25,10 +29,14 @@ public class AssetMediaService : IAssetMediaService
 
     public AssetMediaService(
         IAssetAbstractionService assetAbstraction,
+        IMediaDetectorService mediaDetector,
+        IVideoTranscodeService videoTranscode,
         IConfigurationService configuration,
         ILogger<AssetMediaService> logger)
     {
         _assetAbstraction = assetAbstraction;
+        _mediaDetector = mediaDetector;
+        _videoTranscode = videoTranscode;
         _configuration = configuration;
         _logger = logger;
     }
@@ -57,6 +65,7 @@ public class AssetMediaService : IAssetMediaService
         string fullPath = await _assetAbstraction.GetAssetFilePathAsync(path, ctoken);
 
         // Transcode if applicable
+        // Later just use a isWebSafe flag to skip this (intermediate: TranscodeForWeb: Unknown, Conformant, Transcoded)
         string finalPath = options.TranscodeFormat == TranscodeFormat.Original
             ? fullPath
             : await TranscodeAsync(id, fullPath, options.TranscodeFormat, ctoken);
@@ -73,6 +82,8 @@ public class AssetMediaService : IAssetMediaService
         };
     }
 
+    // Internal
+
     private async Task<string> TranscodeAsync(
         string id,
         string sourcePath,
@@ -85,12 +96,34 @@ public class AssetMediaService : IAssetMediaService
             throw new NotSupportedException("Original → Original transcode is not supported.");
 
         // Placeholder for actual operation
-        _ = _configuration.TranscodeDirectory;
-        string writePath = Path.Combine(_configuration.TranscodeDirectory, id);
-        _ = writePath;
-        await Task.Yield();
+        var type = await _mediaDetector.DetectMediaTypeAsync(
+            sourcePath, ctoken);
 
-        // Temporary
-        return sourcePath;
+        // Transcode Router
+        return type switch
+        {
+            MediaTypes.Video => await TranscodeVideoAsync(id, sourcePath, format, ctoken),
+            _ => throw new InvalidOperationException("Unsupported media type for transcode")
+        };
+    }
+
+    private async Task<string> TranscodeVideoAsync(
+        string id,
+        string sourcePath,
+        TranscodeFormat format,
+        CancellationToken ctoken = default)
+    {
+        switch (format)
+        {
+            case TranscodeFormat.Universal:
+                bool isConformant = await _videoTranscode.ValidateForWebAsync(sourcePath, ctoken);
+                if (isConformant)
+                    return sourcePath;
+
+                return await _videoTranscode.TranscodeForWebAsync(sourcePath, id, ctoken);
+
+            default:
+                throw new InvalidOperationException($"Unsupported transcode format: {format}");
+        }
     }
 }
