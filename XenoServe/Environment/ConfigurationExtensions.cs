@@ -1,5 +1,5 @@
 ﻿using CSX.DotNet.Common.Data.Text;
-using CSX.DotNet.Storage.AppProfiles;
+using CSX.DotNet.Common.IO.Storage.AppProfiles;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Threading;
@@ -27,7 +27,7 @@ public static class ConfigurationExtensions
             args: args,
             defaultPath: XenoServeProfile.DefaultPath);
         string fullProfilePath = Path.GetFullPath(profilePath);
-        var profile = await ProfileStore.ReadOrCreateAsync<XenoServeProfile>(fullProfilePath, ctoken);
+        var profile = await ProfileStore.ReadOrCreateAsync<XenoServeProfile>(fullProfilePath, ctoken: ctoken);
 
         // Create the scaffold and set the profile path
         XenoServeConfiguration xsConfig = new(

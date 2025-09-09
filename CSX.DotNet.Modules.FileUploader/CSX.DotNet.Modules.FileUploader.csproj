@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
-    <ProjectReference Include="..\CSX.DotNet.Storage.AppProfiles\CSX.DotNet.Storage.AppProfiles.csproj" />
   </ItemGroup>
 
 </Project>

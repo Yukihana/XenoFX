@@ -1,5 +1,5 @@
-﻿using CSX.DotNet.Modules.FFMpeg.Provisioning.Environment.Configuration;
-using CSX.DotNet.Storage.AppProfiles;
+﻿using CSX.DotNet.Common.IO.Storage.AppProfiles;
+using CSX.DotNet.Modules.FFMpeg.Provisioning.Environment.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +14,7 @@ public static partial class Factory
         ctoken.ThrowIfCancellationRequested();
 
         var profilePath = ModuleProfile.GetFilePath(options.DataDirectory);
-        var profile = await ProfileStore.ReadOrCreateAsync<ModuleProfile>(profilePath, ctoken);
+        var profile = await ProfileStore.ReadOrCreateAsync<ModuleProfile>(profilePath, ctoken: ctoken);
 
         return new(profile, options);
     }
