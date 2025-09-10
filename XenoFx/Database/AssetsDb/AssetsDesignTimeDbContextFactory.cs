@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace XenoFx.Database.AssetsDb;
 
@@ -10,6 +11,9 @@ public class AssetsDesignTimeDbContextFactory : IDesignTimeDbContextFactory<Asse
     {
         var optionsBuilder = new DbContextOptionsBuilder<AssetsDbContext>();
         optionsBuilder.UseSqlite("Data Source=Assets.db");
-        return new AssetsDbContext(optionsBuilder.Options);
+
+        return new AssetsDbContext(
+            optionsBuilder.Options,
+            NullLogger<AssetsDbContext>.Instance);
     }
 }

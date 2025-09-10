@@ -1,15 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CSX.DotNet.Common.EFC.Abstractions;
 
-public abstract partial class BaseDbContext : DbContext
+public abstract partial class BaseDbContext<T> : DbContext
 {
-    public BaseDbContext(DbContextOptions options) : base(options)
-    { }
+    // Infrastructure
+
+    protected readonly ILogger<T>? _logger = null;
+
+    // Lifecycle
+
+    public BaseDbContext(
+        DbContextOptions options,
+        ILogger<T> logger)
+        : base(options)
+    {
+        _logger = logger;
+    }
 
     // Save
 
@@ -28,32 +41,81 @@ public abstract partial class BaseDbContext : DbContext
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
+    // Rules
+
     private void ApplyAuditRules()
     {
         var now = DateTimeOffset.UtcNow;
+        string user = string.Empty; // Users to be implemented later
+        HashSet<string> nonAuditableTypes = [];
 
-        foreach (var entry in ChangeTracker.Entries<IAuditable>())
+        foreach (var entry in ChangeTracker.Entries())
         {
-            if (entry.State == EntityState.Added)
+            if (entry.Entity is not IAuditable auditable)
             {
-                entry.Entity.RecordCreatedAt = now;
-                entry.Entity.RecordUpdatedAt = now;
-                entry.Entity.IsRecordDeleted = false; // Ensure consistency
+                _ = nonAuditableTypes.Add(entry.Entity.GetType().Name);
+                continue;
             }
-            else if (entry.State == EntityState.Modified)
+
+            switch (entry.State)
             {
-                entry.Entity.RecordUpdatedAt = now;
-            }
-            else if (entry.State == EntityState.Deleted)
-            {
-                // Soft delete logic
-                entry.State = EntityState.Modified;
-                entry.Entity.IsRecordDeleted = true;
-                entry.Entity.RecordDeletedAt = now;
-                entry.Entity.RecordUpdatedAt = now;
+                case EntityState.Added:
+                    auditable.RecordCreatedAt = now;
+                    auditable.RecordCreatedBy = user;
+
+                    auditable.IsRecordDeleted = false; // Ensure consistency
+                    break;
+
+                case EntityState.Modified:
+                    auditable.RecordUpdatedAt = now;
+                    auditable.RecordUpdatedBy = user;
+
+                    // Log inconsistency
+                    if (!string.IsNullOrEmpty(auditable.RecordCreatedBy) &&
+                        auditable.RecordCreatedBy != user &&
+                        _logger != null)
+                    {
+                        _logger.LogWarning(
+                            "Entity {Entity} created by {CreatedBy} is being updated by {UpdatedBy} at {Time}",
+                            entry.Entity.GetType().Name,
+                            auditable.RecordCreatedBy,
+                            user,
+                            now
+                        );
+                    }
+                    break;
+
+                case EntityState.Deleted:
+                    entry.State = EntityState.Modified; // Bypass actual deletion
+                    auditable.IsRecordDeleted = true;   // Soft delete
+
+                    auditable.RecordDeletedAt = now;
+                    auditable.RecordDeletedBy = user;
+
+                    // Log inconsistency
+                    if (!string.IsNullOrEmpty(auditable.RecordCreatedBy) &&
+                        auditable.RecordCreatedBy != user &&
+                        _logger != null)
+                    {
+                        _logger.LogWarning(
+                            "Entity {Entity} created by {CreatedBy} is being deleted by {DeletedBy} at {Time}",
+                            entry.Entity.GetType().Name,
+                            auditable.RecordCreatedBy,
+                            user,
+                            now
+                        );
+                    }
+
+                    break;
             }
         }
+
+        if (nonAuditableTypes.Count != 0 &&
+            _logger != null)
+            _logger.LogWarning("Non-auditable types detected: {@types}", nonAuditableTypes);
     }
+
+    // Load and Filter
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)

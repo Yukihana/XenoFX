@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSX.DotNet.Common.EFC\CSX.DotNet.Common.EFC.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
+  </ItemGroup>
+
+</Project>

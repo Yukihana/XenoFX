@@ -1,5 +1,6 @@
 ﻿using CSX.DotNet.Common.EFC.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using XenoFx.Database.AssetsDb.Models;
 
 namespace XenoFx.Database.AssetsDb;
@@ -8,7 +9,7 @@ namespace XenoFx.Database.AssetsDb;
 /// Database storage model for integrity and recovery metadata of a file repository.
 /// </summary>
 /// <param name="options">Database Connection and Runtime Options</param>
-public class AssetsDbContext : BaseDbContext
+public class AssetsDbContext : BaseDbContext<AssetsDbContext>
 {
     // Identity hashes and metadata
     public DbSet<AssetIdentity> Identities { get; set; }
@@ -27,7 +28,10 @@ public class AssetsDbContext : BaseDbContext
 
     // Lifetime
 
-    public AssetsDbContext(DbContextOptions<AssetsDbContext> options) : base(options)
+    public AssetsDbContext(
+        DbContextOptions<AssetsDbContext> options,
+        ILogger<AssetsDbContext> logger)
+        : base(options, logger)
     { }
 
     // Encoding/Decoding setup
