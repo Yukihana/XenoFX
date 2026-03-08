@@ -1,6 +1,5 @@
 ﻿using CSX.DotNet.Common.IO.Paths;
 using System.IO;
-using System.Linq;
 
 namespace XenoFx.Environment.Configuration;
 

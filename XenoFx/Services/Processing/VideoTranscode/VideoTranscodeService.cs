@@ -76,21 +76,31 @@ public class VideoTranscodeService : IVideoTranscodeService
         ctoken.ThrowIfCancellationRequested();
 
         // Detection args:
-        string videoArgs = $"-v error -select_streams v:0 -show_entries stream=codec_name -of default=nk=1:nk=1 \"{sourcePath}\"";
-        string audioArgs = $"-v error -select_streams a:0 -show_entries stream=codec_name -of default=nk=1:nk=1 \"{sourcePath}\"";
-        string formatArgs = $"-v error -show_entries format=format_name -of default=nk=1:nk=1 \"{sourcePath}\"";
+        string videoArgs = $"-v error -select_streams v:0 -show_entries stream=codec_name -of default=nk=1:nw=1 \"{sourcePath}\"";
+        string audioArgs = $"-v error -select_streams a:0 -show_entries stream=codec_name -of default=nk=1:nw=1 \"{sourcePath}\"";
+        string formatArgs = $"-v error -show_entries format=format_name -of default=nk=1:nw=1 \"{sourcePath}\"";
 
         // Run FFProbe
         string ffprobePath = await _ffmpegProvider.AcquireFFProbeAsync(ctoken);
 
         string videoCodec = await ProcessExecution.RunAndReadAsync(ffprobePath, videoArgs, ctoken);
         string audioCodec = await ProcessExecution.RunAndReadAsync(ffprobePath, audioArgs, ctoken);
-        string format = await ProcessExecution.RunAndReadAsync(ffprobePath, formatArgs, ctoken);
+        string container = await ProcessExecution.RunAndReadAsync(ffprobePath, formatArgs, ctoken);
+
+        // Fix FFProbe output
+        videoCodec = videoCodec.Trim().ToLowerInvariant();
+        audioCodec = audioCodec.Trim().ToLowerInvariant();
+        container = container.Trim().ToLowerInvariant();
 
         // Verdict : Browser-safe codecs
         bool videoOk = videoCodec is "h264" or "vp8" or "vp9" or "av1";
         bool audioOk = string.IsNullOrWhiteSpace(audioCodec) || audioCodec is "aac" or "mp3" or "opus" or "vorbis";
-        bool containerOk = format.Contains("mp4") || format.Contains("webm");
+        bool containerOk = container.Contains("mp4") || container.Contains("webm");
+
+        _logger.LogInformation("Codec report: {v}:{vr}, {a}:{ar}, {f}:{fr}",
+            videoCodec, videoOk,
+            audioCodec, audioOk,
+            container, containerOk);
 
         return videoOk && audioOk && containerOk;
     }

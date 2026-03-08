@@ -15,6 +15,7 @@ using XenoFx.Services.Background.AssetQueue;
 using XenoFx.Services.Hosted.AssetTracking;
 using XenoFx.Services.Processing.AssetIngestion;
 using XenoFx.Services.Processing.AssetStaticThumbnail;
+using XenoFx.Services.Processing.MediaDetector;
 using XenoFx.Services.Processing.VideoTranscode;
 using XenoFx.Services.Storage.AssetPresence;
 using XenoFx.Services.Utility.Configuration;
@@ -65,6 +66,7 @@ public static partial class FactoryExtensions
         // Storage layer : Scoped
 
         // Data layer (processing)
+        services.AddSingleton<IMediaDetectorService, MediaDetectorService>();
         services.AddSingleton<IAssetIngestionService, AssetIngestionService>();
         services.AddVideoTranscode();
 

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace CSX.DotNet.Modules.FFMpeg.Provisioning.Environment.Configuration;
+﻿namespace CSX.DotNet.Modules.FFMpeg.Provisioning.Environment.Configuration;
 
 public class ModuleConfiguration
 {

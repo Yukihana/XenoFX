@@ -1,6 +1,6 @@
 ﻿using CSX.DotNet.Common.Data.Exceptions;
 using CSX.DotNet.Common.Data.Text.Json;
-using CSX.DotNet.Common.Security.Integrity;
+using CSX.DotNet.Common.IO.Integrity.Strategies.IntegrityV1;
 using CSX.DotNet.Common.Security.Net;
 using HeyRed.Mime;
 using System;
@@ -69,7 +69,7 @@ public partial class AssetIngestionService
                 throw new UnsupportedFileTypeException("Forbidden or unsupported asset file format.");
 
             // Read integrity data
-            var integrityDigest = await FileIntegrity.GetFullInfoV1Async(stream, ctoken);
+            var integrityDigest = await FileIntegrityV1.GetFullInfoV1Async(stream, ctoken);
             index.SHA256 = integrityDigest.SHA256;
             index.Blake3 = integrityDigest.Blake3;
             index.Crumbs = integrityDigest.Crumbs;

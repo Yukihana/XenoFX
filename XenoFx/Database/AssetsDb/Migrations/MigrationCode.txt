@@ -1,14 +1,17 @@
-﻿1. Set main module executable as startup project
-2. Open package manager console.
-3. Set current project OR specify using `-project` (project containing the db context)
-4. Enter:
-Add-Migration InitialCreate -Context AssetsDbContext -OutputDir Database/AssetsDb/Migrations
+﻿Add-Migration InitialCreate -project XenoFx -Context AssetsDbContext -OutputDir Database/AssetsDb/Migrations
 
 Breakdown:
 
 Command
 MigrationName
+-Project Value
 -Context Value
 -OutputDir Value
+
+Note:
+-Set main module executable as startup project
+-Use Package Manager Console
+-Select the project with the DbContext in Package Manager Console
+	Or Specify the project with `-project` parameter
 
 For more Info: Database/Migrations_HowTo.txt

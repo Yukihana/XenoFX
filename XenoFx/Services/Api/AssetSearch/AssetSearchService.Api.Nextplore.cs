@@ -1,4 +1,5 @@
 ﻿using CSX.DotNet.Common.Data.DataGenerators;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +22,22 @@ public partial class AssetSearchService
         if (presences.Count == 0)
             return null;
 
+        _logger.LogDebug("nextplore og id is empty. assigning random.");
+        var origId = query.OriginalId;
+        if (string.IsNullOrWhiteSpace(origId))
+        {
+            // Assign a random original id to ensure the seed is not the same for every empty query
+            int randomIndex = new Random().Next(presences.Count);
+            origId = presences[randomIndex].NormalizedPath;
+        }
+
         // Prepare randomization
         // Daily since original id already narrows it down, if not keywords.
         int seed = Int32Generators.GenerateDailySeed(
             partialSeed,
-            query.CurrentId,
-            query.OriginalId,
+            origId,
             query.Keywords.ToLowerInvariant());
+
         Random rng = new(seed);
 
         // Tokenize keywords and prepare next index
@@ -53,15 +63,45 @@ public partial class AssetSearchService
         // If search is exhausted,
         // generate a deterministic fallback list
         List<AssetPresenceInfo> randomizedResults = [.. NextploreRandomize(presences, rng)];
-        randomizedResults.RemoveAll(x => x.NormalizedPath == query.OriginalId);
 
-        // If no fallback results, terminate early
+        // If no results, terminate early
         if (randomizedResults.Count == 0)
             return null;
 
-        // Normalize fallback index using modulo to ensure positive, in-range looping
-        int safeIndex = (fallbackIndex % randomizedResults.Count) + randomizedResults.Count;
-        return randomizedResults[safeIndex % randomizedResults.Count].CreateAssetSearchCardData();
+        // Remove all search results from the fallback list to avoid duplicates,
+        // using a HashSet for efficiency
+        var searchPaths = searchResults
+            .Select(x => x.NormalizedPath)
+            .ToHashSet();
+        searchPaths.Add(query.OriginalId);
+        var diffedRandoms = randomizedResults
+            .Where(x => !searchPaths.Contains(x.NormalizedPath))
+            .ToList();
+
+        // Serve the diffed randomization first if within range
+        if (fallbackIndex < diffedRandoms.Count)
+            return diffedRandoms[fallbackIndex].CreateAssetSearchCardData();
+
+        // Otherwise continue into infinite randomized looping
+        // using modulo to ensure effective index is positive and in-range
+        int rc = randomizedResults.Count;
+        int loopIndex = fallbackIndex - diffedRandoms.Count;
+        int safeIndex = (loopIndex % rc + rc) % rc;
+
+        return randomizedResults[safeIndex]
+            .CreateAssetSearchCardData();
+
+        // Consider caching based on seed.
+        // On-demand progressive generation:
+        // initial search,
+        // the diff,
+        // infinite randoms.
+
+        // Operations in between would have negligible cost
+        // - since they'll just hit the cache.
+
+        // This also means setting up a cache in-memory.
+        // Preferable within this module as it's only handling IDs, not file indexing.
     }
 
     // ensure diversity without using an algorithm as heavy as 'score by match order'

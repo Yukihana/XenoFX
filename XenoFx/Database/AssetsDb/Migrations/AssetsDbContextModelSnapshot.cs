@@ -7,167 +7,176 @@ using XenoFx.Database.AssetsDb;
 
 #nullable disable
 
-namespace XenoFx.Database.AssetsDb.Migrations
+namespace XenoFx.Database.AssetsDb.Migrations;
+
+[DbContext(typeof(AssetsDbContext))]
+partial class AssetsDbContextModelSnapshot : ModelSnapshot
 {
-    [DbContext(typeof(AssetsDbContext))]
-    partial class AssetsDbContextModelSnapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
+        modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
 
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetDescriptor", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+        modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetDescriptor", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.PrimitiveCollection<string>("DataUrls")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.PrimitiveCollection<string>("DataUrls")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("Note")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("OriginalTitle")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("OriginalTitle")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.PrimitiveCollection<string>("PageUrls")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.PrimitiveCollection<string>("PageUrls")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.PrimitiveCollection<string>("Tags")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.PrimitiveCollection<string>("Tags")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Description");
-                });
+                b.ToTable("Description");
+            });
 
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetIdentity", b =>
-                {
-                    b.Property<byte[]>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("BINARY(16)");
+        modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetIdentity", b =>
+            {
+                b.Property<byte[]>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("BINARY(16)");
 
-                    b.Property<byte[]>("Blake3")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
+                b.Property<byte[]>("Blake3")
+                    .IsRequired()
+                    .HasColumnType("BLOB");
 
-                    b.Property<byte[]>("Crumbs")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
+                b.Property<byte[]>("Crumbs")
+                    .IsRequired()
+                    .HasColumnType("BLOB");
 
-                    b.Property<DateTimeOffset>("FileCreatedAt")
-                        .HasColumnType("TEXT");
+                b.Property<DateTimeOffset>("FileCreatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("FileModifiedAt")
-                        .HasColumnType("TEXT");
+                b.Property<DateTimeOffset>("FileModifiedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<long>("FileSize")
-                        .HasColumnType("INTEGER");
+                b.Property<long>("FileSize")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsRecordDeleted")
-                        .HasColumnType("INTEGER");
+                b.Property<bool>("IsRecordDeleted")
+                    .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("RecordCreatedAt")
-                        .HasColumnType("TEXT");
+                b.Property<DateTimeOffset>("RecordCreatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset?>("RecordDeletedAt")
-                        .HasColumnType("TEXT");
+                b.Property<string>("RecordCreatedBy")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("RecordUpdatedAt")
-                        .HasColumnType("TEXT");
+                b.Property<DateTimeOffset?>("RecordDeletedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<byte[]>("SHA256")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
+                b.Property<string>("RecordDeletedBy")
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                b.Property<DateTimeOffset?>("RecordUpdatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.ToTable("Identities");
-                });
+                b.Property<string>("RecordUpdatedBy")
+                    .HasColumnType("TEXT");
 
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetMediaInfo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                b.Property<byte[]>("SHA256")
+                    .IsRequired()
+                    .HasColumnType("BLOB");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                b.HasKey("Id");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                b.ToTable("Identities");
+            });
 
-                    b.HasKey("Id");
+        modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetMediaInfo", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
 
-                    b.ToTable("Media");
-                });
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("TEXT");
 
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetPresentation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                b.HasKey("Id");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                b.ToTable("Media");
+            });
 
-                    b.HasKey("Id");
+        modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetPresentation", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
 
-                    b.ToTable("Presentation");
-                });
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("TEXT");
 
-            modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetTag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                b.HasKey("Id");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.ToTable("Presentation");
+            });
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+        modelBuilder.Entity("XenoFx.Database.AssetsDb.Models.AssetTag", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("TagId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.HasIndex("TagId")
-                        .IsUnique();
+                b.Property<string>("TagId")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.ToTable("Tags");
-                });
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("TEXT");
+
+                b.HasKey("Id");
+
+                b.HasIndex("TagId")
+                    .IsUnique();
+
+                b.ToTable("Tags");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

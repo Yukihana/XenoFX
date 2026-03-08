@@ -1,4 +1,5 @@
 ﻿using SharpCompress.Archives;
+using System;
 
 namespace CSX.DotNet.Common.FileCompression.Shared;
 

@@ -1,4 +1,7 @@
 ﻿using CSX.DotNet.Common.FileCompression.Shared;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CSX.DotNet.Common.FileCompression.Abstractions;
 

@@ -1,4 +1,6 @@
 ﻿using CSX.DotNet.Common.Data.Guids;
+using System;
+using System.IO;
 
 namespace CSX.DotNet.Common.FileCompression.Shared;
 

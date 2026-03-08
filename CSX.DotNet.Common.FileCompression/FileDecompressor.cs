@@ -1,4 +1,7 @@
-﻿namespace CSX.DotNet.Common.FileCompression;
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace CSX.DotNet.Common.FileCompression;
 
 public static partial class FileDecompressor
 {

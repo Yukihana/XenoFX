@@ -1,4 +1,4 @@
-﻿using CSX.DotNet.Common.Security.Integrity;
+﻿using CSX.DotNet.Common.IO.Integrity.Strategies.IntegrityV1;
 
 namespace XenoFx.Services.Processing.AssetIngestion.DTOs;
 

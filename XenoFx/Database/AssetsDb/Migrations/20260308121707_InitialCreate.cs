@@ -42,9 +42,12 @@ public partial class InitialCreate : Migration
                 Blake3 = table.Column<byte[]>(type: "BLOB", nullable: false),
                 Crumbs = table.Column<byte[]>(type: "BLOB", nullable: false),
                 RecordCreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                RecordUpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                RecordCreatedBy = table.Column<string>(type: "TEXT", nullable: false),
+                RecordUpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                RecordUpdatedBy = table.Column<string>(type: "TEXT", nullable: true),
                 IsRecordDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                RecordDeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
+                RecordDeletedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                RecordDeletedBy = table.Column<string>(type: "TEXT", nullable: true)
             },
             constraints: table =>
             {

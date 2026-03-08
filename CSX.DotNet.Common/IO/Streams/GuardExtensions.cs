@@ -5,9 +5,24 @@ namespace CSX.DotNet.Common.IO.Streams;
 
 public static partial class GuardExtensions
 {
-    /// <summary>
-    /// Validates the stream can be read and seeked.
-    /// </summary>
+    public static void EnsureReadable(
+        this Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        if (!stream.CanRead)
+            throw new ArgumentException("Stream must support reading.", nameof(stream));
+    }
+
+    public static void EnsureSeekable(
+        this Stream stream,
+        string? message = null)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        string guardMessage = message ?? "Stream must support seeking.";
+        if (!stream.CanSeek)
+            throw new ArgumentException(guardMessage, nameof(stream));
+    }
+
     public static void EnsureSeekableReadable(
         this Stream stream)
     {

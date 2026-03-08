@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace XenoFx.Services.Abstraction.AssetMedia.DTOs;
+﻿namespace XenoFx.Services.Abstraction.AssetMedia.DTOs;
 
 public class AssetMediaRequest
 {

@@ -1,15 +1,17 @@
-﻿Add-Migration InitialCreate -Context CacheDbContext -OutputDir Database/CacheDb/Migrations
+﻿Add-Migration InitialCreate -project XenoFx -Context CacheDbContext -OutputDir Database/CacheDb/Migrations
 
 Breakdown:
 
 Command
 MigrationName
+-Project Value
 -Context Value
 -OutputDir Value
 
-Note: Use Package Manager Console
-1. Select the project with the DbContext
-Or
-2. Specify the project with `-project` parameter
+Note:
+-Set main module executable as startup project
+-Use Package Manager Console
+-Select the project with the DbContext in Package Manager Console
+	Or Specify the project with `-project` parameter
 
 For more Info: Database/Migrations_HowTo.txt

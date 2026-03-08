@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System;
+using System.IO.Compression;
 
 namespace CSX.DotNet.Common.FileCompression.Shared;
 

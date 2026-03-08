@@ -3,6 +3,8 @@ using CSX.DotNet.Common.FileCompression.Formats.Rar;
 using CSX.DotNet.Common.FileCompression.Formats.SevenZip;
 using CSX.DotNet.Common.FileCompression.Formats.Tar;
 using CSX.DotNet.Common.FileCompression.Formats.Zip;
+using System;
+using System.IO;
 
 namespace CSX.DotNet.Common.FileCompression;
 

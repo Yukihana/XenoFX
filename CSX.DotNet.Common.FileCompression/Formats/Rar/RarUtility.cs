@@ -2,6 +2,11 @@
 using CSX.DotNet.Common.FileCompression.Shared;
 using SharpCompress.Archives;
 using SharpCompress.Common;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CSX.DotNet.Common.FileCompression.Formats.Rar;
 

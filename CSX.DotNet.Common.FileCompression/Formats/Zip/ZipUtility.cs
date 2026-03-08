@@ -1,7 +1,12 @@
 ﻿using CSX.DotNet.Common.FileCompression.Abstractions;
 using CSX.DotNet.Common.FileCompression.Shared;
 using SharpCompress.Common;
+using System;
+using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CSX.DotNet.Common.FileCompression.Formats.Zip;
 

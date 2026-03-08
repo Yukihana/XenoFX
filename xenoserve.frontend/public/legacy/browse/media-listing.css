@@ -52,23 +52,6 @@ body {
     }
 }
 
-/*Player*/
-.viewer-container {
-    max-height: 70vh;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 16px;
-    --darkreader-inline-boxshadow: var(--darkreader-background-00000040, rgba(24, 26, 27, 0.25)) 0px 4px 16px;
-}
-
-/*Controls*/
-.under-viewer-controls {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 5px;
-    background: #444;
-}
-
 /*Pagination*/
 .right-wrap-list {
     display: flex;
@@ -114,6 +97,13 @@ body {
         border-radius: 6px;
         overflow: hidden;
     }
+
+        .media-card > .media-card-thumb > img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
 
 .media-card-details {
     display: flow-root;

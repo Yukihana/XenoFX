@@ -1,10 +1,6 @@
-﻿using CSX.DotNet.Common.IO.Paths;
-using CSX.DotNet.Common.Platform;
+﻿using CSX.DotNet.Common.Platform;
 using System;
-using System.IO;
 using System.IO.Enumeration;
-using System.Linq;
-using System.Threading;
 
 namespace CSX.DotNet.Common.IO.Paths;
 

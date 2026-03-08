@@ -30,18 +30,19 @@ public partial class AssetSearchService
             : presences.Let(FilterAndOrder, query);
 
         // Apply pagination
-        var selection = sorted
+        var results = sorted
             .Skip(query.Page * query.PageSize)
             .Take(query.PageSize)
-            .ToList();
-
-        // Materialize and Map; Record time elapsed.
-        var results = selection
             .Select(AssetSearchExtensions.CreateAssetSearchCardData)
             .ToList();
+
+        // Record time elapsed
         var elapsed = stopwatch.Elapsed;
 
         // Map results to DTO
+        // TODO: Use hasMore logic if total count is expensive; May require frontend edit
+        // TODO: Consider approximating total count based on traversed count.
+        // TODO: Pagination can reflect approximate count. Or stream FilterAndOrder directly.
         var response = query.ToResult();
         response.Results = results;
         response.Total = sorted.Count();

@@ -10,252 +10,277 @@
 import { updateQueryParam, getQueryParams } from "../shared/js/url-state.js";
 
 export class XenoServeMediaViewer {
-    // elements
-    #viewer = null;
-    #viewerContainer = null;
-    #nextMediaTitle = undefined;
-    #nextPreview = undefined;
-    #nextButton = undefined;
-    #autoPlay = undefined;
-    // parameters
-    #playbackHistory = [];
-    #id = null;
-    #nextId = null;
-    #keywords = '';
+	// elements
+	#viewerContainer = null;
+	#mediaElementContainer = null;
+	#mediaDecorators = null;
+	#mediaTitle = null;
+	#nextMediaTitle = undefined;
+	#nextPreview = undefined;
+	#nextButton = undefined;
+	#autoPlay = undefined;
+	#autoPlayHookAttached = false;
+	// parameters
+	#playbackHistory = [];
+	#id = null;
+	#nextId = null;
+	#keywords = '';
 
-    constructor() {
-    }
+	constructor() {
+	}
 
-    // properties
+	// properties
 
-    get id() {
-        return this.#id;
-    }
-    set id(value) {
-        this.#id = value;
-        updateQueryParam("id", value);
-    }
+	get id() {
+		return this.#id;
+	}
+	set id(value) {
+		this.#id = value;
+		updateQueryParam("id", value);
+	}
 
-    // events
+	// events
 
-    onPlayNextAsync = async (event) => {
-        try {
-            await this.playNextAsync();
-        } catch (error) {
-            console.error(error.message);
-        }
-    };
+	onPlayNextAsync = async (event) => {
+		try {
+			await this.playNextAsync();
+		} catch (error) {
+			console.error(error.message);
+		}
+	};
 
-    onPlaybackEndedAsync = async (event) => {
-        try {
-            await this.playNextAsync();
-        } catch (error) {
-            console.error(error.message);
-        }
-    };
+	onPlaybackEndedAsync = async (event) => {
+		try {
+			await this.playNextAsync();
+		} catch (error) {
+			console.error(error.message);
+		}
+	};
 
-    onMediaLinkClickAsync = async (event) => {
-        try {
-            const target = event.target.closest('.media-card');
-            if (!target)
-                return;
+	onMediaLinkClickAsync = async (event) => {
+		try {
+			const target = event.target.closest('.media-card');
+			if (!target)
+				return;
 
-            const id = target.getAttribute('data-media-id');
-            if (typeof id !== 'string')
-                return;
-            if (id.Trim() === '')
-                return;
+			const id = target.getAttribute('data-media-id');
+			if (typeof id !== 'string')
+				return;
+			if (id.trim() === '')
+				return;
 
-            await this.playMediaAsync(id);
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
+			await this.playMediaAsync(id);
+		} catch (error) {
+			console.error(error.message);
+		}
+	}
 
-    // api
+	// api
 
-    playMediaAsync = async (id, keywords = '') => {
-        if (typeof id !== 'string' || id.trim() === '')
-            throw new error();
+	playMediaAsync = async (id, keywords = '') => {
+		if (typeof id !== 'string' || id.trim() === '')
+			throw new error();
 
-        // Reset history
-        if (typeof this.#playbackHistory !== 'array')
-            this.#playbackHistory = [];
-        this.#playbackHistory.length = 0;
+		// Reset history
+		if (!Array.isArray(this.#playbackHistory))
+			this.#playbackHistory = [];
+		this.#playbackHistory.length = 0;
 
-        // Set state (viewer, next, related, etc)
-        this.#keywords = keywords;
-        await this.setPageState(id);
-    };
+		// Set state (viewer, next, related, etc)
+		this.#keywords = keywords;
+		await this.setPageState(id);
+	};
 
-    playNextAsync = async () => {
-        // If next is missing, acquire it
-        let nextId = this.#nextId;
-        if (typeof nextId !== 'string' || nextId.trim() === '') {
-            const nextItem = await this.fetchNextAsync(0, this.id, '', '');
-            nextId = nextItem.source;
-        }
-        if (typeof nextId !== 'string' || nextId.trim() === '')
-            throw new error();
-        this.#nextId = nextId;
+	playNextAsync = async () => {
+		// If next is missing, acquire it
+		let nextId = this.#nextId;
+		if (typeof nextId !== 'string' || nextId.trim() === '') {
+			const nextItem = await this.fetchNextAsync(0, this.id, '', '');
+			nextId = nextItem.source;
+		}
+		if (typeof nextId !== 'string' || nextId.trim() === '')
+			throw new error();
+		this.#nextId = nextId;
 
-        // Push current id to history
-        if (typeof this.#playbackHistory !== 'array')
-            this.#playbackHistory = [];
-        this.#playbackHistory.push(this.id);
+		// Push current id to history
+		if (!Array.isArray(this.#playbackHistory))
+			this.#playbackHistory = [];
+		this.#playbackHistory.push(this.id);
 
-        // Set next id as the current state
-        await this.setPageState(nextId);
-    };
+		// Set next id as the current state
+		await this.setPageState(nextId);
+	};
 
-    setPageState = async (id) => {
-        this.id = id;
-        const playbackIndex = this.#playbackHistory.length;
-        const keywords = this.#keywords;
-        const originalId = playbackIndex > 0 ? playbackIndex[0] : '';
+	setPageState = async (id) => {
+		this.id = id;
+		const playbackIndex = this.#playbackHistory.length;
+		const keywords = this.#keywords;
+		const originalId = playbackIndex > 0 ? this.#playbackHistory[0] : '';
 
-        // Set next id
+		// Set next id
 
-        /**@type {Promise<AssetSearchCardData>}*/
-        const nextItem = await this.fetchNextAsync(playbackIndex, id, originalId, keywords);
-        this.#nextId = nextItem.source; // set correct parameters here
-        this.#nextMediaTitle.innerHTML = nextItem.title;
-        this.setNextInQueue(nextItem);
+		/**@type {Promise<AssetSearchCardData>}*/
+		const nextItem = await this.fetchNextAsync(playbackIndex, id, originalId, keywords);
+		this.#nextId = nextItem.source; // set correct parameters here
+		this.#nextMediaTitle.innerHTML = nextItem.title;
+		this.setNextInQueue(nextItem);
 
-        // Set viewer
-        await this.setViewerAsync(id);
+		// Set viewer
+		await this.setViewerAsync(id);
 
-        // Set related
-        await this.setRelatedItems(id);
-    }
+		// Set related
+		await this.setRelatedItems(id);
+	}
 
-    // Shared
+	// Shared
 
-    /** @returns {Promise<AssetSearchCardData>} */
-    fetchNextAsync = async (playbackIndex = 0, currentId, originalId, keywords) => {
-        const params = new URLSearchParams();
+	/** @returns {Promise<AssetSearchCardData>} */
+	fetchNextAsync = async (playbackIndex = 0, currentId, originalId, keywords) => {
+		const params = new URLSearchParams();
 
-        params.set('playbackIndex', playbackIndex);
+		params.set('playbackIndex', playbackIndex);
 
-        if (currentId) params.set('currentId', currentId);
-        if (originalId) params.set('originalId', originalId);
-        if (keywords) params.set('keywords', keywords);
+		if (currentId) params.set('currentId', currentId);
+		if (originalId) params.set('originalId', originalId);
+		if (keywords) params.set('keywords', keywords);
 
-        const url = `/api/assets/nextplore?${params.toString()}`;
-        var response = await fetch(url);
+		const url = `/api/assets/nextplore?${params.toString()}`;
+		var response = await fetch(url);
 
-        if (!response.ok) {
-            throw new error(response.message);
-        }
+		if (!response.ok) {
+			throw new error(response.message);
+		}
 
-        return await response.json();
-    }
+		return await response.json();
+	}
 
-    // Set media in page
+	// Set media in page
 
-    setViewerAsync = async (id) => {
-        // Temporary: change source in video player
-        // Future: change viewer based on content type
-        const viewer = this.#viewer;
+	setViewerAsync = async (id) => {
+		// fetch info, get type
+		// set viewer by type
+		// for now:
+		await this.setVideoViewer(id);
+	};
 
-        // fetch info, get type
-        // set viewer by type
-        // for now:
-        await this.setVideoViewer(id);
-    };
+	setNextInQueue = nextItem => {
+	}
 
-    setNextInQueue = nextItem => {
-    }
+	setRelatedItems = async (id) => {
+	}
 
-    setRelatedItems = async (id) => {
-    }
+	// Video
 
-    // Video
+	setVideoViewer = async (id) => {
+		// set the player in position here, when applicable
+		/** @type {HTMLVideoElement} */
+		const viewer = this.ensureVideoElement();
 
-    setVideoViewer = async (id) => {
-        // set the player in position here, when applicable
-        /** @type {HTMLVideoElement} */
-        const viewer = this.ensureVideoElement();
+		// set the video
+		viewer.src = `/api/assets/delivery/file?id=${id}`;
+		this.#mediaTitle.innerHTML = id; // set hover title here
 
-        // set the video
-        viewer.src = `/api/assets/delivery/file?id=${id}`;
-        viewer.load();
-        try {
-            await viewer.play();
-        } catch (error) {
-            if (error.name === 'NotAllowedError')
-                console.log('Autoplay blocked.');
-            else
-                throw error;
-        }
-    };
-    /** @returns {HTMLVideoElement} */
-    ensureVideoElement = () => {
-        const isVideo = this.#viewer instanceof HTMLVideoElement;
-        if (!isVideo) {
-            const newVideoElement = document.createElement('video');
-            if (this.#viewer instanceof HTMLElement) {
-                this.#viewer.replaceWith(newVideoElement);
-            } else if (this.#viewerContainer instanceof HTMLDivElement) {
-                this.#viewerContainer.innerHTML = '';
-                this.#viewerContainer.appendChild(newVideoElement);
-            } else {
-                throw new Error('Cannot find media container.');
-            }
-            this.#viewer = newVideoElement;
-        }
+		viewer.load();
+		try {
+			await viewer.play();
+		} catch (error) {
+			if (error.name === 'NotAllowedError')
+				console.log('Autoplay blocked.');
+			else
+				throw error;
+		}
+	};
 
-        // Apply details
-        this.#viewer.style.display = 'block';
+	/** @returns {HTMLVideoElement} */
+	ensureVideoElement = () => {
+		var viewer = this.#mediaElementContainer.querySelector('#media-viewer');
+		const isVideo = viewer instanceof HTMLVideoElement;
 
-        return this.#viewer;
-    };
+		if (!isVideo) {
+			// Reset autoplay if replacing video viewer
+			this.#autoPlayHookAttached = false;
 
-    // Set media types
+			const newVideoElement = document.createElement('video');
+			if (viewer instanceof HTMLElement) {
+				// If element exists, replace with video.
+				viewer.replaceWith(newVideoElement);
+			} else if (this.#mediaElementContainer instanceof HTMLDivElement) {
+				// If it doesn't exist, check container, clear and add child.
+				this.#mediaElementContainer.innerHTML = '';
+				this.#mediaElementContainer.appendChild(newVideoElement);
+			} else {
+				throw new Error('Cannot find media container.');
+			}
+			viewer = newVideoElement;
+		}
 
-    setImageViewer = () => {
-        // create a control wrapper
-        // event trigger when timer finishes
-        this.setOtherViewer();
-    };
-    setAudioViewer = () => {
-        this.setOtherViewer();
-    };
-    setTextViewer = () => {
-        this.setOtherViewer();
-    };
-    setOtherViewer = () => {
-        console.error('viewer not implemented');
-    };
+		// Attach autoplay hook if not already
+		if (!this.#autoPlayHookAttached) {
+			viewer.addEventListener('ended', event => this.onPlaybackEndedAsync(event), false);
+			this.#autoPlayHookAttached = true;
+		}
 
-    // Startup / Restore
+		// Apply details
+		this.#viewerContainer.style.display = 'flex';
 
-    setElements = () => {
-        this.#viewerContainer = document.querySelector('#viewer-container');
-        /** @type {HTMLVideoElement} */
-        this.#viewer = document.querySelector('#media-viewer');
-        this.#nextMediaTitle = document.querySelector('#next-media-title');
-        this.#viewer.addEventListener('ended', event => this.onPlaybackEndedAsync(event));
-        document.querySelector('#next-media-btn').addEventListener('click', event => this.onPlayNextAsync(event));
-    };
-    restoreState = () => {
-        const restoredState = getQueryParams();
+		return viewer;
+	};
 
-        // id
-        let id = restoredState.get("id");
-        if (typeof id === 'string') {
-            id = id.trim();
-            if (id !== '') {
-                // this.#id = id; // Next line already does that
-                this.setPageState(id);
-            }
-        }
-    };
+	// Set media types
 
-    // Bootstrap
+	setImageViewer = () => {
+		// create a control wrapper
+		// event trigger when timer finishes
+		this.setOtherViewer();
+	};
+	setAudioViewer = () => {
+		this.setOtherViewer();
+	};
+	setTextViewer = () => {
+		this.setOtherViewer();
+	};
+	setOtherViewer = () => {
+		console.error('viewer not implemented');
+	};
 
-    initialize = () => {
-        this.setElements();
-        this.restoreState();
-    };
+	// Startup / Restore
+
+	setElements = () => {
+		// SECTION: VIEWER
+		this.#viewerContainer = document.querySelector('#viewer-container');
+		this.#mediaElementContainer = this.#viewerContainer.querySelector('.media-element-container');
+		this.#mediaDecorators = this.#viewerContainer.querySelector('.media-element-decorators');
+		this.#mediaTitle = this.#mediaDecorators.querySelector('#media-title');
+
+		// SECTION: NEXT IN QUEUE
+		this.#nextMediaTitle = document.querySelector('#next-media-title');
+		// Events
+		document.querySelector('#next-media-btn').addEventListener('click', event => this.onPlayNextAsync(event));
+
+		// PAGE EVENTS
+		// Replace with full page-wide state management
+		window.addEventListener("popstate", (event) => {
+			this.restoreState();
+		});
+	};
+	restoreState = () => {
+		const restoredState = getQueryParams();
+
+		// id
+		let id = restoredState.get("id");
+		if (typeof id === 'string') {
+			id = id.trim();
+			if (id !== '') {
+				// this.#id = id; // Next line already does that
+				this.setPageState(id);
+			}
+		}
+	};
+
+	// Bootstrap
+
+	initialize = () => {
+		this.setElements();
+		this.restoreState();
+	};
 }

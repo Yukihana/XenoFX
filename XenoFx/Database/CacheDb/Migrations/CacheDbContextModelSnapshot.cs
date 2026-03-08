@@ -6,45 +6,44 @@ using XenoFx.Database.CacheDb;
 
 #nullable disable
 
-namespace XenoFx.Database.CacheDb.Migrations
+namespace XenoFx.Database.CacheDb.Migrations;
+
+[DbContext(typeof(CacheDbContext))]
+partial class CacheDbContextModelSnapshot : ModelSnapshot
 {
-    [DbContext(typeof(CacheDbContext))]
-    partial class CacheDbContextModelSnapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+        modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
 
-            modelBuilder.Entity("XenoFx.Database.CacheDb.Models.AssetPresenceInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+        modelBuilder.Entity("XenoFx.Database.CacheDb.Models.AssetPresenceInfo", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("INTEGER");
 
-                    b.Property<byte[]>("AssetId")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
+                b.Property<byte[]>("AssetId")
+                    .IsRequired()
+                    .HasColumnType("BLOB");
 
-                    b.Property<string>("NormalizedPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("NormalizedPath")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<string>("OriginalPath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                b.Property<string>("OriginalPath")
+                    .IsRequired()
+                    .HasColumnType("TEXT");
 
-                    b.Property<ulong>("StateIndex")
-                        .HasColumnType("INTEGER");
+                b.Property<ulong>("StateIndex")
+                    .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("NormalizedPath")
-                        .IsUnique();
+                b.HasIndex("NormalizedPath")
+                    .IsUnique();
 
-                    b.ToTable("AssetPresences");
-                });
+                b.ToTable("AssetPresences");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

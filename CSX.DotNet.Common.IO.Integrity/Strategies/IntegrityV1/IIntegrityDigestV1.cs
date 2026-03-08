@@ -1,4 +1,4 @@
-﻿namespace CSX.DotNet.Common.Security.Integrity;
+﻿namespace CSX.DotNet.Common.IO.Integrity.Strategies.IntegrityV1;
 
 public interface IIntegrityDigestV1
 {
