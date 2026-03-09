@@ -1,0 +1,18 @@
+[*.cs]
+# Remove trailing spaces
+dotnet_style_remove_trailing_whitespace = true:suggestion
+
+# Remove unnecessary blank lines
+dotnet_style_allow_multiple_blank_lines = false:suggestion
+
+# Operators: exactly one space before/after
+csharp_space_around_binary_operators = before_and_after:suggestion
+
+# After comma: exactly one space
+csharp_space_after_comma = true:suggestion
+
+# Before colon in inheritance: no extra space
+csharp_space_before_colon_in_inheritance_clause = false:suggestion
+
+# Inside parentheses: no extra space
+csharp_space_inside_parentheses = false:suggestion

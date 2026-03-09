@@ -1,6 +1,5 @@
 ﻿using CSX.DotNet.Common.FileCompression.Abstractions;
 using CSX.DotNet.Common.FileCompression.Shared;
-using SharpCompress.Common;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -12,68 +11,68 @@ namespace CSX.DotNet.Common.FileCompression.Formats.Zip;
 
 public sealed class ZipUtility : ArchiveUtilityBase
 {
-    protected override async Task ExtractInternalAsync(
-        string archivePath,
-        string decompressionPath,
-        ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort,
-        CancellationToken ctoken = default)
-    {
-        ctoken.ThrowIfCancellationRequested();
+	protected override async Task ExtractInternalAsync(
+		string archivePath,
+		string decompressionPath,
+		ExtractionOverwriteMode overwriteMode = ExtractionOverwriteMode.Abort,
+		CancellationToken ctoken = default)
+	{
+		ctoken.ThrowIfCancellationRequested();
 
-        await Task.Run(() =>
-        {
-            ExtractInternal(
-                archivePath: archivePath,
-                decompressionPath: decompressionPath,
-                overwriteMode: overwriteMode);
-        }, ctoken).ConfigureAwait(false);
-    }
+		await Task.Run(() =>
+		{
+			ExtractInternal(
+				archivePath: archivePath,
+				decompressionPath: decompressionPath,
+				overwriteMode: overwriteMode);
+		}, ctoken).ConfigureAwait(false);
+	}
 
-    private static void ExtractInternal(
-        string archivePath,
-        string decompressionPath,
-        ExtractionOverwriteMode overwriteMode)
-    {
-        using var zip = ZipFile.OpenRead(archivePath);
+	private static void ExtractInternal(
+		string archivePath,
+		string decompressionPath,
+		ExtractionOverwriteMode overwriteMode)
+	{
+		using var zip = ZipFile.OpenRead(archivePath);
 
-        foreach (var entry in zip.Entries.Where(e => !string.IsNullOrEmpty(e.Name)))
-        {
-            string combinedPath = Path.Combine(
-                decompressionPath,
-                entry.FullName);
+		foreach (var entry in zip.Entries.Where(e => !string.IsNullOrEmpty(e.Name)))
+		{
+			string combinedPath = Path.Combine(
+				decompressionPath,
+				entry.FullName);
 
-            // Prevent directory traversal attacks by ensuring the entry is within the target directory
-            if (!combinedPath.StartsWith(Path.GetFullPath(decompressionPath), StringComparison.OrdinalIgnoreCase))
-                throw new IOException($"Entry is outside the target directory: {entry.FullName}");
+			// Prevent directory traversal attacks by ensuring the entry is within the target directory
+			if (!combinedPath.StartsWith(Path.GetFullPath(decompressionPath), StringComparison.OrdinalIgnoreCase))
+				throw new IOException($"Entry is outside the target directory: {entry.FullName}");
 
-            string originalExtractionPath = combinedPath;
+			string originalExtractionPath = combinedPath;
 
-            // Ensure directory exists before extraction
-            Directory.CreateDirectory(Path.GetDirectoryName(originalExtractionPath)!);
+			// Ensure directory exists before extraction
+			Directory.CreateDirectory(Path.GetDirectoryName(originalExtractionPath)!);
 
-            // Get the source file's last modified time if available
-            DateTime? sourceLastWriteTimeUtc = entry.GetLastWriteTimeUtc();
+			// Get the source file's last modified time if available
+			DateTime? sourceLastWriteTimeUtc = entry.GetLastWriteTimeUtc();
 
-            // Decide on final extraction path based on overwrite mode
-            if (!FileSystemUtilities.TryGetExtractionPath(
-                    originalExtractionPath,
-                    overwriteMode,
-                    sourceLastWriteTimeUtc,
-                    out string finalExtractionPath))
-            {
-                // Skip extraction if TryGetExtractionPath says so
-                continue;
-            }
+			// Decide on final extraction path based on overwrite mode
+			if (!FileSystemUtilities.TryGetExtractionPath(
+					originalExtractionPath,
+					overwriteMode,
+					sourceLastWriteTimeUtc,
+					out string finalExtractionPath))
+			{
+				// Skip extraction if TryGetExtractionPath says so
+				continue;
+			}
 
-            // Safety-net in case TryGetExtractionPath fails to respect the overwrite policy
-            bool overwrite =
-                overwriteMode == ExtractionOverwriteMode.Always ||
-                overwriteMode == ExtractionOverwriteMode.IfNewer;
+			// Safety-net in case TryGetExtractionPath fails to respect the overwrite policy
+			bool overwrite =
+				overwriteMode == ExtractionOverwriteMode.Always ||
+				overwriteMode == ExtractionOverwriteMode.IfNewer;
 
-            // Perform the actual extraction
-            entry.ExtractToFile(
-                destinationFileName: finalExtractionPath,
-                overwrite: overwrite);
-        }
-    }
+			// Perform the actual extraction
+			entry.ExtractToFile(
+				destinationFileName: finalExtractionPath,
+				overwrite: overwrite);
+		}
+	}
 }

@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+    <File Path="TODO.txt" />
+  </Folder>
+  <Project Path="CSX.DotNet.Common.EFC/CSX.DotNet.Common.EFC.csproj" />
+  <Project Path="CSX.DotNet.Common.FileCompression/CSX.DotNet.Common.FileCompression.csproj" />
+  <Project Path="CSX.DotNet.Common.IO.Integrity.Tests/CSX.DotNet.Common.IO.Integrity.Tests.csproj" />
+  <Project Path="CSX.DotNet.Common.IO.Integrity/CSX.DotNet.Common.IO.Integrity.csproj" />
+  <Project Path="CSX.DotNet.Common/CSX.DotNet.Common.csproj" />
+  <Project Path="CSX.DotNet.Modules.AuthIpPin/CSX.DotNet.Modules.AuthIpPin.csproj" />
+  <Project Path="CSX.DotNet.Modules.FFMpeg.Provisioning/CSX.DotNet.Modules.FFMpeg.Provisioning.csproj" />
+  <Project Path="CSX.DotNet.Modules.FileIndexing.Tests/CSX.DotNet.Modules.FileIndexing.Tests.csproj" />
+  <Project Path="CSX.DotNet.Modules.FileIndexing/CSX.DotNet.Modules.FileIndexing.csproj" />
+  <Project Path="CSX.DotNet.Modules.FileUploader/CSX.DotNet.Modules.FileUploader.csproj" />
+  <Project Path="CSXTests/CSXTests.csproj" />
+  <Project Path="XenoFx/XenoFx.csproj" />
+  <Project Path="XenoFxTests/XenoFxTests.csproj" />
+  <Project Path="xenoserve.frontend/xenoserve.frontend.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="XenoServe/XenoServe.csproj" />
+</Solution>
