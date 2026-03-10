@@ -3,6 +3,6 @@ using System;
 
 namespace XenoFx.Services.Hosted.AssetTracking;
 
-public interface IAssetTrackingService : IHostedService, IDisposable
+public interface IAssetTrackingService
 {
 }

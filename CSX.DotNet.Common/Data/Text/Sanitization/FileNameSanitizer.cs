@@ -88,4 +88,34 @@ public static partial class FileNameSanitizer
 
         return Sanitize(fileName);
     }
+
+    // Checking
+
+    public static bool IsSaneFileName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return false;
+
+        string sanitized = Sanitize(name);
+
+        return string.Equals(name, sanitized, StringComparison.Ordinal);
+    }
+
+    public static bool PathHasSaneFileName(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            return false;
+
+        string fileName = Path.GetFileNameWithoutExtension(path);
+
+        return IsSaneFileName(fileName);
+    }
+
+    public static bool IsStrictFileName(string name)
+    {
+        if (!IsSaneFileName(name))
+            return false;
+
+        return name == name.Trim('-', '_');
+    }
 }

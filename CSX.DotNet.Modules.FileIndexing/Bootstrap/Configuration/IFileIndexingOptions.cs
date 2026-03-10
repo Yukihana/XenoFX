@@ -1,4 +1,4 @@
-﻿namespace CSX.DotNet.Modules.FileIndexing.Environment.Configuration;
+﻿namespace CSX.DotNet.Modules.FileIndexing.Bootstrap.Configuration;
 
 public interface IFileIndexingOptions
 {

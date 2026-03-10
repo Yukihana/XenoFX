@@ -1,9 +1,9 @@
 using CSX.DotNet.Common.DI.Orchestrators;
 using CSX.DotNet.Modules.AuthIpPin.Environment;
 using CSX.DotNet.Modules.FFMpeg.Provisioning.Environment;
+using CSX.DotNet.Modules.FileIndexing.Abstractions;
+using CSX.DotNet.Modules.FileIndexing.Bootstrap;
 using CSX.DotNet.Modules.FileUploader.Environment;
-
-// using CSX.DotNet.Modules.XenoFx.Environment; // TODO
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +15,7 @@ using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using XenoFx.Bridges.FileIndexing.ControlPanel;
 using XenoFx.Environment;
 using XenoServe.Environment;
 using XenoServe.Environment.Modules;
@@ -38,6 +39,7 @@ public class Program
 
             // Preinitialize
             await PreInitializeAsync(app, CancellationToken.None);
+            await TestEcosystemAsync(app, CancellationToken.None);
 
             // Run
             await app.RunAsync();
@@ -69,6 +71,7 @@ public class Program
             .GetXenoServeConfigAsync(args, ctoken);
 
         // Add services to the container.
+        await builder.Services.AddFileIndexingModuleAsync(xsConfig, cancellationToken: ctoken);
         await builder.Services.AddFFMpegProvisioningAsync(FFMpegProvisioningOptions.CreateFrom(xsConfig), ctoken);
         await builder.Services.AddXenoFxAsync(XenoFxOptions.CreateFrom(xsConfig), ctoken);
         await builder.Services.AddFileUploaderAsync(FileUploaderOptions.CreateFrom(xsConfig), ctoken);
@@ -112,7 +115,9 @@ public class Program
         return builder;
     }
 
-    private async static Task<WebApplication> PreInitializeAsync(WebApplication app, CancellationToken ctoken = default)
+    private async static Task<WebApplication> PreInitializeAsync(
+        WebApplication app,
+        CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 
@@ -136,6 +141,7 @@ public class Program
         });
 
         // Initialize service groups
+        await app.Services.PreInitializeFileIndexingAsync(ctoken);
         await app.Services.PreInitializeFFMpegProvisioningAsync(ctoken);
         await app.Services.PreInitializeXenoFxAsync(ctoken);
         await app.Services.PreInitializeAuthIpPinAsync(ctoken);
@@ -164,7 +170,7 @@ public class Program
         {
             app.UseSpa(spa =>
             {
-                spa.UseProxyToSpaDevelopmentServer("https://localhost:5173"); // Matches Vite dev port
+                    spa.UseProxyToSpaDevelopmentServer("https://localhost:5173"); // Matches Vite dev port
             });
         }*/
 
@@ -172,5 +178,17 @@ public class Program
         app.MapFallbackToFile("/index.html");
 
         return app;
+    }
+
+    /// <summary>
+    /// Runs final checks.
+    /// </summary>
+    private static async Task TestEcosystemAsync(
+        WebApplication app,
+        CancellationToken cancellationToken = default)
+    {
+        // Test; TODO remove
+        var fiCp = app.Services.GetRequiredService<IControlPanelBridge>();
+        await fiCp.VerifyModuleSetupAsync(cancellationToken);
     }
 }

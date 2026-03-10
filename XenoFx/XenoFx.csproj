@@ -32,6 +32,7 @@
     <!--Move reference below to file-indexing and uploads instead-->
     <ProjectReference Include="..\CSX.DotNet.Common.IO.Integrity\CSX.DotNet.Common.IO.Integrity.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Modules.FileIndexing.Abstractions\CSX.DotNet.Modules.FileIndexing.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

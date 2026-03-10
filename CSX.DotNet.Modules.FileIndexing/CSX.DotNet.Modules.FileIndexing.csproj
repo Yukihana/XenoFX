@@ -2,7 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    
+
+    <LangVersion>Latest</LangVersion>
+    <AnalysisLevel>latest</AnalysisLevel>
+
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -20,12 +23,15 @@
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Common.EFC\CSX.DotNet.Common.EFC.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
+    <ProjectReference Include="..\CSX.DotNet.Modules.FileIndexing.Abstractions\CSX.DotNet.Modules.FileIndexing.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Features\Data\Database\" />
     <Folder Include="Features\Data\Abstraction\" />
     <Folder Include="Features\Data\Assimilation\" />
+    <Folder Include="Shared\IndicesStorage\Database\Models\" />
+    <Folder Include="Shared\IndicesStorage\Database\" />
   </ItemGroup>
 
 </Project>

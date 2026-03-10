@@ -14,6 +14,7 @@
   <Project Path="CSX.DotNet.Common/CSX.DotNet.Common.csproj" />
   <Project Path="CSX.DotNet.Modules.AuthIpPin/CSX.DotNet.Modules.AuthIpPin.csproj" />
   <Project Path="CSX.DotNet.Modules.FFMpeg.Provisioning/CSX.DotNet.Modules.FFMpeg.Provisioning.csproj" />
+  <Project Path="CSX.DotNet.Modules.FileIndexing.Abstractions/CSX.DotNet.Modules.FileIndexing.Abstractions.csproj" />
   <Project Path="CSX.DotNet.Modules.FileIndexing.Tests/CSX.DotNet.Modules.FileIndexing.Tests.csproj" />
   <Project Path="CSX.DotNet.Modules.FileIndexing/CSX.DotNet.Modules.FileIndexing.csproj" />
   <Project Path="CSX.DotNet.Modules.FileUploader/CSX.DotNet.Modules.FileUploader.csproj" />

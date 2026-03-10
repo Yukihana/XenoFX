@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
@@ -8,7 +10,10 @@ using XenoFx.Services.Utility.Configuration;
 
 namespace XenoFx.Services.Hosted.AssetTracking;
 
-public sealed partial class AssetTrackingService : IAssetTrackingService
+public sealed partial class AssetTrackingService :
+    IAssetTrackingService,
+    IHostedService,
+    IDisposable
 {
     // Infrastructure
 

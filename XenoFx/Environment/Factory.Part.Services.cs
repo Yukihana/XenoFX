@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using XenoFx.Api.AssetDelivery;
+using XenoFx.Bridges.FileIndexing;
 using XenoFx.Database.AssetsDb;
 using XenoFx.Database.CacheDb;
 using XenoFx.Environment.Configuration;
@@ -58,6 +59,8 @@ public static partial class FactoryExtensions
         // Utility
         services.AddConfigurationService(config);
 
+        // FileIndexing layer
+        services.AddFileCatalogueBridge();
         services.AddSingleton<IPathValidatorService, PathValidatorService>();
 
         // Storage layer : Unscoped
@@ -77,9 +80,7 @@ public static partial class FactoryExtensions
         services.AddSingleton<IAssetQueueService, AssetQueueService>();
 
         // Hosted layer
-        services.AddSingleton<IAssetTrackingService, AssetTrackingService>();
-
-        services.AddHostedService(provider => provider.GetRequiredService<IAssetTrackingService>());
+        services.AddAssetTracking();
 
         // Abstraction layer (reader and queue notifier; no write tasks)
         services.AddSingleton<IAssetAbstractionService, AssetAbstractionService>();
