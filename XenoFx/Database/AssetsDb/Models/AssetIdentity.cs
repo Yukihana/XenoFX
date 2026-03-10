@@ -3,7 +3,7 @@ using System;
 
 namespace XenoFx.Database.AssetsDb.Models;
 
-public class AssetIdentity : Auditable
+public class AssetIdentity : AuditableEntityBase
 {
     public Guid Id { get; set; }
 

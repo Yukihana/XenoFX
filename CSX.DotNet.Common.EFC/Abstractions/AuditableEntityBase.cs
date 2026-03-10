@@ -2,7 +2,7 @@
 
 namespace CSX.DotNet.Common.EFC.Abstractions;
 
-public abstract class Auditable : IAuditable
+public abstract class AuditableEntityBase : IAuditable
 {
     // Creation
 

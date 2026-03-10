@@ -12,6 +12,7 @@ public static class MigrateExtensions
         // Sqlite
         if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
         {
+            // Try to get the storage location from the DbContext
             var connection = dbContext.Database.GetDbConnection();
             var dataSource = connection.DataSource;
 
