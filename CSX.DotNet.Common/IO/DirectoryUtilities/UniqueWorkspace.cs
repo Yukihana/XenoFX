@@ -1,5 +1,6 @@
 ﻿using CSX.DotNet.Common.Data.Guids;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,15 +92,19 @@ public partial class UniqueWorkspace :
         finally { _lockAccess.Release(); }
     }
 
+    [SuppressMessage(
+        "Threading",
+        "VSTHRD002:Avoid problematic synchronous waits",
+        Justification = "Dispose is a sync bridge to DisposeBaseAsync")]
     public virtual void Dispose()
     {
-        DisposeBaseAsync().GetAwaiter().GetResult();
+        DisposeBaseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         GC.SuppressFinalize(this);
     }
 
     public async virtual ValueTask DisposeAsync()
     {
-        await DisposeBaseAsync();
+        await DisposeBaseAsync().ConfigureAwait(false);
         GC.SuppressFinalize(this);
     }
 

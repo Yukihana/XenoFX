@@ -14,12 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Services\Control\**" />
-    <EmbeddedResource Remove="Services\Control\**" />
-    <None Remove="Services\Control\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -35,12 +29,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Common.EFC\CSX.DotNet.Common.EFC.csproj" />
+    <!--Move reference below to file-indexing and uploads instead-->
     <ProjectReference Include="..\CSX.DotNet.Common.IO.Integrity\CSX.DotNet.Common.IO.Integrity.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Processing\AssetMotionThumbnail\" />
   </ItemGroup>
 
 </Project>

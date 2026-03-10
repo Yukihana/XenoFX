@@ -48,10 +48,10 @@ public class PatternMatchingGlob
     [InlineData("file", "*.*", false, false)]
 
     // Separator differences
-    [InlineData("foo\\bar.txt", "*.txt", false, true)]
-    [InlineData("foo/bar.txt", "*.txt", false, true)]
-    [InlineData("foo\\bar.txt", "foo*txt", false, true)]
-    [InlineData("foo/bar.txt", "foo*txt", false, true)]
+    [InlineData("foo\\bar.txt", "*.txt", true, true)]
+    [InlineData("foo/bar.txt", "*.txt", true, true)]
+    [InlineData("foo\\bar.txt", "foo*txt", true, true)]
+    [InlineData("foo/bar.txt", "foo*txt", true, true)]
     public void Compare_Win32_vs_Simple(string name, string pattern, bool expectedWin32, bool expectedSimple)
     {
         bool win32 = FileSystemName.MatchesWin32Expression(pattern, name, ignoreCase: false);

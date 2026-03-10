@@ -40,7 +40,7 @@ public static class AssetsDbExtensions
     {
         ctoken.ThrowIfCancellationRequested();
 
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AssetsDbContext>();
 
         // Ensure pre-migration

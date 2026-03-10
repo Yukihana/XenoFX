@@ -9,7 +9,7 @@ public static partial class Factory
 {
     public static async Task<FileUploaderConfiguration> GetConfigAsync(
         this IFileUploaderOptions options,
-        CancellationToken ctoken)
+        CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
 

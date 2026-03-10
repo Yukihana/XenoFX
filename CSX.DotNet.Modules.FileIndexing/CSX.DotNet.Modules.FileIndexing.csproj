@@ -7,10 +7,25 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CSX.DotNet.Common.EFC\CSX.DotNet.Common.EFC.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Common\CSX.DotNet.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Data\Database\" />
+    <Folder Include="Features\Data\Abstraction\" />
+    <Folder Include="Features\Data\Assimilation\" />
   </ItemGroup>
 
 </Project>

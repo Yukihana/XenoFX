@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace XenoFx.Database.AssetsDb;
 
-// Allows creating migration checkpoints without incident.
+// Allows creating migration checkpoints without incident
 public class AssetsDesignTimeDbContextFactory : IDesignTimeDbContextFactory<AssetsDbContext>
 {
     public AssetsDbContext CreateDbContext(string[] args)

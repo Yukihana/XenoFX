@@ -30,7 +30,7 @@ public static partial class FileIntegrityAnalysis
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
-        signature.Crumbs = await CrumbsSampler.FromFile(filePath, ctoken);
+        signature.Crumbs = await CrumbsSampler.FromFileAsync(filePath, ctoken);
     }
 
     public static async Task GenerateHashesAsync(

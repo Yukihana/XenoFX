@@ -3,7 +3,6 @@ using CSX.DotNet.Modules.AuthIpPin.Environment.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,20 +42,8 @@ public static class AuthDbExtensions
     {
         ctoken.ThrowIfCancellationRequested();
 
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-
-        // Handle db-type specific tasks:
-        if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
-        {
-            var dataSource = dbContext.Database.GetDbConnection().DataSource;
-            if (!Path.IsPathFullyQualified(dataSource))
-                dataSource = Path.Combine(AppContext.BaseDirectory, dataSource);
-
-            var dir = Path.GetDirectoryName(dataSource);
-            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-        }
 
         // Ensure pre-migration
         dbContext.EnsurePreMigration();

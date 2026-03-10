@@ -1,4 +1,8 @@
-﻿namespace CSXTests.TestsDataProvider;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace CSXTests.TestsDataProvider;
 
 public static class FilePathGenerator
 {

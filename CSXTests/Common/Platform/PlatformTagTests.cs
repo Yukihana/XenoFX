@@ -1,4 +1,5 @@
 ﻿using CSX.DotNet.Common.Platform;
+using System;
 
 namespace CSXTests.Common.Platform;
 

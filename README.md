@@ -26,4 +26,4 @@ Current Roadmap:
 - Redesigning the file indexing core to reflect the functionality of TME, and match the scale of use.
 - Standardize supporting services in the backend.
 - Add media ratings and metadata databases.
-- Rework the user experience.
+- Rework the user experience and access management.

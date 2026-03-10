@@ -17,7 +17,7 @@ public sealed class CrumbsSampler : ByteSampler
 
     public const string Name = "CRUMBS";
 
-    public static async Task<int> FromFile(
+    public static async Task<int> FromFileAsync(
         string filePath,
         byte[] outputBuffer,
         CancellationToken ctoken = default)
@@ -48,12 +48,12 @@ public sealed class CrumbsSampler : ByteSampler
             ctoken: ctoken);
     }
 
-    public static async Task<byte[]> FromFile(
+    public static async Task<byte[]> FromFileAsync(
         string filePath,
         CancellationToken ctoken = default)
     {
         byte[] outputBuffer = new byte[CrumbsCartography.OutputSize];
-        await FromFile(filePath, outputBuffer, ctoken);
+        await FromFileAsync(filePath, outputBuffer, ctoken);
         return outputBuffer;
     }
 }

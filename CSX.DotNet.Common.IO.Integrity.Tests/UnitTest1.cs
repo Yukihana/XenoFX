@@ -26,7 +26,7 @@ public class UnitTest1
             .WithBlake3();
 
         // Act
-        var result = await multiHasher.HashStreamAsync(ms);
+        var result = await multiHasher.HashStreamAsync(ms, ctoken: TestContext.Current.CancellationToken);
 
         // Individual hashes
         byte[] shaResult = SHA256.HashData(data);

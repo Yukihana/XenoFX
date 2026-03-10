@@ -86,7 +86,8 @@ public static class ProfileStore
         }
         catch
         {
-            newStream?.Dispose();
+            if (newStream is not null)
+                await newStream.DisposeAsync();
             throw;
         }
     }
