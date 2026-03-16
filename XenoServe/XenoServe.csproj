@@ -13,14 +13,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <!-- SPA Proxy settings ~ Consider removing if it can't be fixed
-  <PropertyGroup>
-    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
-    <SpaProxyDefaultUrl>/</SpaProxyDefaultUrl>
-  </PropertyGroup>
-  -->
-
   <!--References-->
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
@@ -47,18 +39,27 @@
     <ProjectReference Include="..\CSX.DotNet.Modules.FileIndexing\CSX.DotNet.Modules.FileIndexing.csproj" />
     <ProjectReference Include="..\CSX.DotNet.Modules.FileUploader\CSX.DotNet.Modules.FileUploader.csproj" />
     <ProjectReference Include="..\XenoFx\XenoFx.csproj" />
-    <ProjectReference Include="..\xenoserve.frontend\xenoserve.frontend.esproj" Condition="'$(IsPublish)' == 'true'">
+    <ProjectReference Include="..\xenoserve.frontend\xenoserve.frontend.esproj"> <!-- Condition="'$(IsPublish)' == 'true'"-->
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
 
-  <!-- Frontend build pipeline - Start -->
+  <!-- Dev Server setup -->
   <PropertyGroup>
-    <SpaRoot>../xenoserve.frontend</SpaRoot>
-    <WwwRoot>$(PublishDir)/wwwroot</WwwRoot>
-    <SpaDist>$(SpaRoot)/dist/</SpaDist>
+    <SpaRoot>..\xenoserve.frontend</SpaRoot>
+    <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
+    <SpaProxyServerUrl>http://localhost:52661</SpaProxyServerUrl>
+    <!--<SpaProxyDefaultUrl>/</SpaProxyDefaultUrl>-->
   </PropertyGroup>
 
+  <!-- Frontend build pipeline - Start -->
+  <PropertyGroup>
+    <WwwRoot>$(PublishDir)/wwwroot</WwwRoot>
+    <SpaDist>$(SpaRoot)/dist/</SpaDist>
+    <EnableDefaultCompressedItems>false</EnableDefaultCompressedItems>
+    <CompressionExcludePatterns>legacy\*</CompressionExcludePatterns>
+  </PropertyGroup>
+  
   <!-- Clean wwwroot before publish starts -->
   <Target Name="CleanWwwroot" BeforeTargets="PrepareForPublish">
     <Message Text="Cleaning $(WwwRoot) before publish..." Importance="high" />

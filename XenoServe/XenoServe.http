@@ -1,4 +1,4 @@
-@XenoServe_HostAddress = http://localhost:5087
+@XenoServe_HostAddress = http://localhost:9600
 
 GET {{XenoServe_HostAddress}}/weatherforecast/
 Accept: application/json

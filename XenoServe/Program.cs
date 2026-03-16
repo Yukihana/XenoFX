@@ -138,6 +138,7 @@ public class Program
         app.UseDefaultFiles(new DefaultFilesOptions()
         {
             DefaultFileNames = ["default.html", "index.html"], // Default file to serve
+            RequestPath = "/legacy"
         });
 
         // Initialize service groups
@@ -164,15 +165,14 @@ public class Program
         // Map controllers before the SPA
         app.MapControllers();
 
-        // Enable SPA development server proxy (Assumes Vite frontend is running)
-        /*
+        // Enable SPA development server proxy
+        /* NOT NEEDED:
+         * In modern setups, Vite runs point.
+         * In old, aspnetcore used to babysit.
+
         if (app.Environment.IsDevelopment())
-        {
-            app.UseSpa(spa =>
-            {
-                    spa.UseProxyToSpaDevelopmentServer("https://localhost:5173"); // Matches Vite dev port
-            });
-        }*/
+            app.UseSpa(spa => spa.UseProxyToSpaDevelopmentServer("https://localhost:52661");
+        */
 
         // Enable fallback to SPA
         app.MapFallbackToFile("/index.html");

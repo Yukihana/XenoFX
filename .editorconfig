@@ -6,7 +6,7 @@ dotnet_diagnostic.CS4014.severity = warning
 
 [*.{js,jsx,ts,tsx}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [*.json]
 indent_style = space
