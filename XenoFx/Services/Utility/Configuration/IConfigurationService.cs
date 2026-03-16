@@ -1,4 +1,6 @@
 ﻿using CSX.DotNet.Common.IO.Paths;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using XenoFx.Services.Utility.Configuration.Models;
 
@@ -25,6 +27,7 @@ public interface IConfigurationService
 
     // Parameters
 
+    ImmutableArray<string> AllowedAssetExtensions { get; }
     PathFilterConfiguration AssetPathFilterConfiguration { get; }
     ImmutableArray<string> AllowedAssetUploadExtensions { get; }
     ulong AssetEnumerationIntervalSeconds { get; }

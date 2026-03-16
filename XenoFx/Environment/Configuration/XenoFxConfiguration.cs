@@ -62,11 +62,14 @@ public sealed partial class XenoFxConfiguration
 
     // Parameters
 
-    public string[] AllowedAssetUploadExtensions
-        => _profile.AllowedAssetUploadExtensions;
+    public string[] AllowedAssetExtensions
+        => _profile.AllowedAssetExtensions;
 
     public PathFilterConfiguration AssetFilterConfig
         => _profile.AssetFilterConfig;
+
+    public string[] AllowedAssetUploadExtensions
+        => _profile.AllowedAssetUploadExtensions;
 
     public ulong AssetEnumerationIntervalSeconds
         => _profile.AssetEnumerationIntervalSeconds;

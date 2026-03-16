@@ -9,7 +9,8 @@ namespace XenoFx.Services.Utility.Configuration;
 /// <summary>
 /// This class is meant to read the profile and handle providing operational parameters.
 /// </summary>
-public sealed partial class ConfigurationService : IConfigurationService
+public sealed partial class ConfigurationService
+    : IConfigurationService
 {
     // Data
 
@@ -44,8 +45,9 @@ public sealed partial class ConfigurationService : IConfigurationService
         AssetsUploadDirectory = _configuration.AssetsUploadDirectory;
 
         // Parameters
-        AllowedAssetUploadExtensions = ImmutableArray.Create(_configuration.AllowedAssetUploadExtensions);
+        AllowedAssetExtensions = ImmutableArray.Create(_configuration.AllowedAssetExtensions);
         AssetPathFilterConfiguration = _configuration.AssetFilterConfig.Copy(); // Ensure full decoupling
+        AllowedAssetUploadExtensions = ImmutableArray.Create(_configuration.AllowedAssetUploadExtensions);
         AssetEnumerationIntervalSeconds = _configuration.AssetEnumerationIntervalSeconds;
     }
 
@@ -64,8 +66,9 @@ public sealed partial class ConfigurationService : IConfigurationService
 
     // Parameters
 
+    public ImmutableArray<string> AllowedAssetExtensions { get; }
+    public PathFilterConfiguration AssetPathFilterConfiguration { get; }
     public ImmutableArray<string> AllowedAssetUploadExtensions { get; }
-    public PathFilterConfiguration AssetPathFilterConfiguration { get; } // Make this immutable too? (wrap into a new class with immutable members perhaps)
     public ulong AssetEnumerationIntervalSeconds { get; }
 
     // Inter-service mutable (TODO Move these to function directly from configuration; no need for a separate type)
