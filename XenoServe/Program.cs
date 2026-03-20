@@ -1,7 +1,6 @@
 using CSX.DotNet.Common.DI.Orchestrators;
 using CSX.DotNet.Modules.AuthIpPin.Environment;
 using CSX.DotNet.Modules.FFMpeg.Provisioning.Environment;
-using CSX.DotNet.Modules.FileIndexing.Abstractions;
 using CSX.DotNet.Modules.FileIndexing.Bootstrap;
 using CSX.DotNet.Modules.FileUploader.Environment;
 using Microsoft.AspNetCore.Builder;
@@ -37,9 +36,10 @@ public class Program
             var builder = await GetBuilderAsync(args);
             WebApplication app = builder.Build();
 
-            // Preinitialize
-            await PreInitializeAsync(app, CancellationToken.None);
-            await TestEcosystemAsync(app, CancellationToken.None);
+            // Initialize
+            await ConfigureServicesAsync(app, CancellationToken.None);
+            await ConfigurePipelineAsync(app, CancellationToken.None);
+            await ValidatePipelineAsync(app, CancellationToken.None);
 
             // Run
             await app.RunAsync();
@@ -115,14 +115,29 @@ public class Program
         return builder;
     }
 
-    private async static Task<WebApplication> PreInitializeAsync(
+    private async static Task<WebApplication> ConfigureServicesAsync(
+        WebApplication app,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await app.Services.PreInitializeFileIndexingAsync(cancellationToken);
+        await app.Services.PreInitializeFFMpegProvisioningAsync(cancellationToken);
+        await app.Services.PreInitializeXenoFxAsync(cancellationToken);
+        await app.Services.PreInitializeAuthIpPinAsync(cancellationToken);
+
+        // Test; TODO remove
+        var fiCp = app.Services.GetRequiredService<IControlPanelBridge>();
+        await fiCp.VerifyModuleSetupAsync(cancellationToken);
+
+        return app;
+    }
+
+    private async static Task<WebApplication> ConfigurePipelineAsync(
         WebApplication app,
         CancellationToken ctoken = default)
     {
         ctoken.ThrowIfCancellationRequested();
-
-        // Redirect the default path to where it's needed
-        app.MapGet("/", () => Results.Redirect("/legacy/browse"));
 
         // Enable IpPinAuthMiddleware
         app.AddAuthIpPinMiddlewares();
@@ -133,19 +148,12 @@ public class Program
         provider.Mappings[".mjs"] = "application/javascript"; // if needed
         provider.Mappings[".css"] = "text/css";
 
-        app.UseStaticFiles();
-        app.MapStaticAssets();
-        app.UseDefaultFiles(new DefaultFilesOptions()
+        app.UseStaticFiles(new StaticFileOptions()
         {
-            DefaultFileNames = ["default.html", "index.html"], // Default file to serve
-            RequestPath = "/legacy"
+            FileProvider = app.Environment.WebRootFileProvider,
+            ContentTypeProvider = provider,
         });
-
-        // Initialize service groups
-        await app.Services.PreInitializeFileIndexingAsync(ctoken);
-        await app.Services.PreInitializeFFMpegProvisioningAsync(ctoken);
-        await app.Services.PreInitializeXenoFxAsync(ctoken);
-        await app.Services.PreInitializeAuthIpPinAsync(ctoken);
+        app.MapStaticAssets();
 
         // Enable middleware to serve generated Swagger directly by ASP.NET Core as a JSON endpoint
         if (app.Environment.IsDevelopment())
@@ -175,20 +183,22 @@ public class Program
         */
 
         // Enable fallback to SPA
-        app.MapFallbackToFile("/index.html");
+        app.MapFallbackToFile("index.html");
 
         return app;
     }
 
     /// <summary>
-    /// Runs final checks.
+    /// Runs pipeline pre-init checks.
     /// </summary>
-    private static async Task TestEcosystemAsync(
+    private static async Task<WebApplication> ValidatePipelineAsync(
         WebApplication app,
         CancellationToken cancellationToken = default)
     {
-        // Test; TODO remove
-        var fiCp = app.Services.GetRequiredService<IControlPanelBridge>();
-        await fiCp.VerifyModuleSetupAsync(cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Any final checks go here.
+
+        return app;
     }
 }
