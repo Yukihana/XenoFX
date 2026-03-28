@@ -9,16 +9,8 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="src\pages\Home\dtos\**" />
-    <TypeScriptConfiguration Remove="src\pages\Home\dtos\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="dist\" />
     <Folder Include="public\legacy\shared\stylesheets\" />
-    <Folder Include="src\components\VideoViewer\" />
-    <Folder Include="src\components\Viewer\" />
-    <Folder Include="src\components\SearchBox\" />
-    <Folder Include="src\pages\Search\" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".vscode\launch.json.bkp" />

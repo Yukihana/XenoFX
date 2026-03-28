@@ -1,0 +1,13 @@
+.header {
+    display: flex;
+    align-items: center;
+    height: 100%; /* match parent height */
+    width: 100%; /* fill full width */
+    padding: 0 1rem; /* only horizontal padding */
+
+    background: #333;
+}
+
+.spacer {
+    flex: 1;
+}

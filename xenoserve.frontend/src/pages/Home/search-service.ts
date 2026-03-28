@@ -1,7 +1,7 @@
-import { searchAssetsAsync } from "../../services/asset-search/search-api";
-import type { AssetSearchQueryDto, AssetSearchResultDto, AssetSearchCardDataDto } from "../../services/asset-search/search-dtos";
-import type { MediaResults } from "../../types/MediaResults";
-import type { MediaItem } from "../../types/MediaItem";
+import { searchAssetsAsync } from "../../features/asset-search/api";
+import type { AssetSearchQueryDto, AssetSearchResultDto, AssetSearchCardDataDto } from "../../features/asset-search/types";
+import type { MediaResults } from "../../shared/types/MediaResults";
+import type { MediaItem } from "../../shared/types/MediaItem";
 
 // -------------------
 // Mappers

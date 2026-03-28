@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useResponsive } from '../../contexts/ResponsiveContext';
 import PaginationComponent from "../../components/Pagination/PaginationComponent";
 import MediaCardComponent from "../../components/MediaCard/MediaCardComponent";
-import type { MediaItem } from "../../types/MediaItem";
-import type { MediaResults } from "../../types/MediaResults";
+import type { MediaItem } from "../../shared/types/MediaItem";
+import type { MediaResults } from "../../shared/types/MediaResults";
 import { getSuggestionsAsync } from "./search-service";
 import styles from "./HomePage.module.css";
 
@@ -54,7 +54,7 @@ export default function HomePage() {
                 </nav>
 
                 {/*Temporary Legacy Port-In*/}
-                <iframe src="../../legacy/browse/"
+                <iframe src="../../legacy/browse/default.html"
                     className={styles.legacy}
                     title="Legacy Browse Section" />
 

@@ -1,3 +1,8 @@
+frontend api:
+static_thumb: http://127.0.0.1:9600/api/assets/thumbs/static?id=frozen_wildcard
+
+
+
 attempts table, for ip tracking middleware:
 	when an 'Unauthorized' attempt is made to the /auth namespace, add ip to table;
 	after 5 wrong attempts, increment retry bar time by (n-5) * 5 min, where n is number of attempts.

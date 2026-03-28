@@ -42,6 +42,11 @@ const target =
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
+    css: {
+        modules: {
+            localsConvention: "camelCase"
+        }
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))

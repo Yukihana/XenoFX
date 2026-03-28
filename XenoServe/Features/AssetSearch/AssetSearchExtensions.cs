@@ -1,4 +1,4 @@
-﻿using XenoFx.Services.Api.AssetSearch.Contracts;
+﻿using XenoFx.Features.AssetSearch.Contracts;
 using XenoServe.Features.AssetSearch.DTOs;
 
 namespace XenoServe.Features.AssetSearch;
@@ -37,6 +37,23 @@ public static class AssetSearchExtensions
             result.OriginalId = queryParams.OriginalId;
         if (!string.IsNullOrWhiteSpace(queryParams.CurrentId))
             result.CurrentId = queryParams.CurrentId;
+
+        return result;
+    }
+
+    public static AssetRelatedQuery MapToQueryDto(
+        this AssetRelatedQueryParams queryParams)
+    {
+        AssetRelatedQuery result = new();
+
+        if (!string.IsNullOrWhiteSpace(queryParams.Id))
+            result.Id = queryParams.Id;
+        if (!string.IsNullOrWhiteSpace(queryParams.Keywords))
+            result.Keywords = queryParams.Keywords;
+        if (queryParams.Page.HasValue)
+            result.Page = queryParams.Page.Value;
+        if (queryParams.PageSize.HasValue)
+            result.PageSize = queryParams.PageSize.Value;
 
         return result;
     }

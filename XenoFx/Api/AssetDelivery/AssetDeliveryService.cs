@@ -6,6 +6,7 @@ using XenoFx.Services.Abstraction.AssetMedia.DTOs;
 
 namespace XenoFx.Api.AssetDelivery;
 
+// TODO: Upgrade this to HLS
 public class AssetDeliveryService : IAssetDeliveryService
 {
     // Infrastructure

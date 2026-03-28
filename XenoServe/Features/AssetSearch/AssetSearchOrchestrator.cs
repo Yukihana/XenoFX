@@ -4,14 +4,16 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using XenoFx.Services.Api.AssetSearch;
-using XenoFx.Services.Api.AssetSearch.Contracts;
+using XenoFx.Features.AssetSearch;
+using XenoFx.Features.AssetSearch.Contracts;
+using XenoFx.Features.AssetSearch.Models;
 using XenoServe.Features.AssetSearch.DTOs;
 
 namespace XenoServe.Features.AssetSearch;
 
 [DependencyLifetime(ServiceLifetime.Singleton)]
-public class AssetSearchOrchestrator : IAssetSearchOrchestrator
+public class AssetSearchOrchestrator :
+    IAssetSearchOrchestrator
 {
     private readonly IAssetSearchService _assetSearch;
     private readonly ILogger<AssetSearchOrchestrator> _logger;
@@ -57,6 +59,24 @@ public class AssetSearchOrchestrator : IAssetSearchOrchestrator
 
         return response;
     }
+
+    public async Task<AssetRelatedResult> RelatedAsync(
+        AssetRelatedQueryParams queryParams,
+        IPAddress? ipAddress,
+        CancellationToken ctoken = default)
+    {
+        var query = queryParams.MapToQueryDto();
+        var partialSeed = ipAddress?.ToString() ?? "unknown-ip";
+
+        var response = await _assetSearch.RelatedAsync(
+            query: query,
+            partialSeed: partialSeed,
+            ctoken: ctoken);
+
+        return response;
+    }
+
+    // Legacy
 
     public Task<string[]> GetHaveAsync(
         string query,

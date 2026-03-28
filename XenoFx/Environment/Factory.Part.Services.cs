@@ -6,10 +6,10 @@ using XenoFx.Bridges.FileIndexing;
 using XenoFx.Database.AssetsDb;
 using XenoFx.Database.CacheDb;
 using XenoFx.Environment.Configuration;
+using XenoFx.Features.AssetSearch;
 using XenoFx.Services.Abstraction.AssetAbstraction;
 using XenoFx.Services.Abstraction.AssetMedia;
 using XenoFx.Services.Api.AssetIngress;
-using XenoFx.Services.Api.AssetSearch;
 using XenoFx.Services.Api.StateMonitor;
 using XenoFx.Services.Background.AssetIndexing;
 using XenoFx.Services.Background.AssetQueue;
@@ -87,10 +87,8 @@ public static partial class FactoryExtensions
         services.AddSingleton<IAssetStaticThumbnailService, AssetStaticThumbnailService>();
         services.AddSingleton<IAssetMediaService, AssetMediaService>();
 
-        // API layer : Scoped (Avoid unless using a state is fundamental)
-
-        // API layer : Singleton (stateless, thread-safe)
-        services.AddSingleton<IAssetSearchService, AssetSearchService>();
+        // API layer
+        services.AddAssetSearch();
         services.AddSingleton<IAssetIngressService, AssetIngressService>();
         services.AddSingleton<IAssetDeliveryService, AssetDeliveryService>();
         services.AddSingleton<IStateMonitorService, StateMonitorService>();

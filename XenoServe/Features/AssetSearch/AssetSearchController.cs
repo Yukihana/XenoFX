@@ -81,6 +81,30 @@ public sealed partial class AssetSearchController : ControllerBase
         }
     }
 
+    // Related
+    [HttpGet]
+    [Route("related")]
+    public async Task<IActionResult> RelatedAsync(
+        [FromQuery] AssetRelatedQueryParams queryParams,
+        CancellationToken ctoken = default)
+    {
+        try
+        {
+            var response = await _orchestrator.RelatedAsync(
+                queryParams: queryParams,
+                ipAddress: HttpContext.Connection.RemoteIpAddress,
+                ctoken: ctoken);
+
+            // Results
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while fetching related items for: {query}", queryParams);
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
+    }
+
     // Cache (aka Get Have; To be removed when ids are implemented)
 
     [HttpGet]

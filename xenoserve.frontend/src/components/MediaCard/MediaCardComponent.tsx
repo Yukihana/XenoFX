@@ -28,7 +28,7 @@ const getStyle = (
 export default function MediaCardComponent(
     props: MediaCardProps
 ) {
-    const linkTo = `/view?id=${props.source}`; // TODO Build using a centralized api service
+    const linkTo = `/view/${props.source}`; // TODO Build using a centralized api service
     const thumbUrl: string = getThumbUrl(props.source);
 
     const { deviceType, orientation } = useResponsive();
@@ -42,17 +42,17 @@ export default function MediaCardComponent(
     return (
         <Link to={linkTo} className={cardStyle} data-media-type={props.mediaType}>
             {/*square-minimum, expand horizontally to fill container grid*/}
-            <div className="thumbnail-container">{/*Top 70%*/}
-                <img className="thumb-image" src={thumbUrl} />
-                <div className="overlay">
-                    <div className="label"> {/*overlay, bottom right, grey background 50% opacity*/}
-                        <span className="text">{props.thumbText}</span>
+            <div className={styles.thumbnailContainer}>{/*Top 70%*/}
+                <img className={styles.image} src={thumbUrl} />
+                <div className={styles.overlay}>
+                    <div className={styles.label}> {/*overlay, bottom right, grey background 50% opacity*/}
+                        <span className={styles.text}>{props.thumbText}</span>
                     </div>
                 </div>
             </div>
-            <div className="details">{/*Bottom 30%*/}
-                <div className="title">{props.title}</div>
-                <div className="subtext">{props.subtext}</div>
+            <div className={styles.detailContainer}>{/*Bottom 30%*/}
+                <div className={styles.title}>{props.title}</div>
+                <div className={styles.subtext}>{props.subtext}</div>
             </div>
         </Link >
     );
